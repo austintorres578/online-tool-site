@@ -1,0 +1,254 @@
+body{
+    margin: 0px;
+    background-color: #fff6f0;
+
+}
+
+header{
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
+}
+
+header a img{
+    height: 100px;
+    width:auto;
+    object-fit: contain;
+}
+
+.image-compressor-con{
+    text-align: center;
+    padding: 50px 0px;
+}
+
+.image-compressor-con > .ad{
+    border:solid 2px lightgray;
+    height:250px;
+    max-width: 970px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-top:50px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-decoration: none;
+    background-color: white;
+    font-family: sans-serif;
+    color: #473125;
+}
+
+.image-compressor-con > .ad h3{
+    font-size: 35px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.image-compressor{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 675px;
+}
+
+.image-compressor .ad{
+    border: solid 1px lightgray;
+    background-color: white;
+    width: 300px;
+    height: 600px;
+    display: block;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #473125;
+    text-decoration: none;
+}
+
+.image-compressor .ad h3{
+    font-size: 35px;
+    font-family: sans-serif;
+    max-width: 180px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-compressor-con h1{
+    font-family: sans-serif;
+    color: #473125;
+    font-size: 45px;
+    margin-top: 20px;
+    margin-bottom: 0px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-compressor-con p{
+    font-family: sans-serif;
+    color: #5c4033;
+    font-size: 24px;
+    margin-top: 10px;
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.drop-area-con{
+    background-color: white;
+    width: fit-content;
+    padding: 30px;
+    border-radius: 20px;
+    border: solid 1px lightgray;
+    display: flex;
+    width: 50%;
+}
+
+#drop-area {
+  border: 5px dashed lightgray;
+  background-color: white;
+  padding: 40px;
+  text-align: center;
+  color: #5c4033;
+  border-radius: 12px;
+  font-family: sans-serif;
+  transition: background-color 0.3s ease;
+  margin-left: auto;
+  margin-right: auto;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 90%;
+}
+
+#drop-area img{
+    height: 80px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+#drop-area p{
+    pointer-events: none;
+}
+
+#drop-area.dragover {
+  background-color: #ffeadd;
+}
+
+#drop-area input[type="file"] {
+  display: none;
+}
+
+#drop-area label {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 20px 25px;
+  background-color: #755844;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 24px;
+  width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-preview-buttons{
+    display: flex;
+    justify-content: end;
+}
+
+.image-preview-buttons{
+    margin-bottom: 8px;
+}
+
+.image-preview-buttons button{
+    border-radius: 30px;
+    height: 30px;
+    width: 30px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px gray;
+}
+
+.image-preview-con{
+    padding:50px;
+    margin-left: auto;
+    margin-right: auto;
+    border:solid 1px red;
+    max-width: 1200px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.image-preview-con > div{
+    position: relative;
+    height:200px;
+    width: 175px;
+    margin:50px;
+}
+
+.image-preview-con div img{
+    height: 75%;
+    width: 100%;
+    object-fit: cover;
+    box-shadow: 0px 0px 10px gray;
+
+}
+
+.image-preview-con div p{
+    position: absolute;
+    font-size: 12px;
+    text-align: center;
+    top:100%;
+    left:50%;;
+    transform: translate(-50%, -50%);
+    padding:3px;
+    text-align: center;;
+}
+
+footer{
+    background-color: white;
+    text-align: center;
+    padding-top:15px;
+    padding-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
+}
+
+footer p{
+    margin-top:0px;
+    margin-bottom: 0px;
+    font-family: sans-serif;
+}
+
+.thumb-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.thumb-preview .thumb {
+  width: 140px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+.thumb-preview .thumb img {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.thumb-preview .thumb p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #5c4033;
+  word-break: break-all;
+}
