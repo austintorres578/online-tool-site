@@ -1,3 +1,17 @@
+let fileInput = document.getElementById('fileElem');
+
+fileInput.addEventListener('change', () => {
+  handleFiles(fileInput.files);
+});
+
+document.querySelectorAll('.remove-button').forEach(button => {
+  button.addEventListener('click', removeUncompressedImage);
+});
+
+function removeUncompressedImage(event){
+  event.target.parentNode.parentNode.remove();
+}
+
 document.getElementById('year').textContent = new Date().getFullYear();
 
 const dropArea = document.getElementById('drop-area');

@@ -185,12 +185,28 @@ header a img{
     flex-wrap: wrap;
 }
 
-.image-preview-con > div{
+.image-preview-con > div {
     position: relative;
-    height:200px;
+    height: 200px;
     width: 175px;
-    margin:50px;
+    margin: 50px;
+    transition: 0.25s;
 }
+
+.image-preview-con > div:hover {
+    animation: bounce 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-10px);
+    }
+}
+
+
 
 .image-preview-con div img{
     height: 75%;
