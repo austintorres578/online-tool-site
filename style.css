@@ -36,7 +36,9 @@ header a img{
     background-color: white;
     font-family: sans-serif;
     color: #473125;
+     
 }
+
 
 .image-compressor-con > .ad h3{
     font-size: 35px;
@@ -50,6 +52,8 @@ header a img{
     justify-content: space-evenly;
     height: 675px;
 }
+
+
 
 .image-compressor .ad{
     border: solid 1px lightgray;
@@ -158,15 +162,45 @@ header a img{
   width: 200px;
   margin-left: auto;
   margin-right: auto;
+  transition: .25s;
+}
+
+#drop-area label:hover{
+    background-color:#493629;
+}
+
+#other-drop-options button{
+    border:none;
+    cursor: pointer;
+    padding:10px;
+    border-radius: 30px;
+    border: none;
+    background-color:#755844;
+    transition: .25s;
+}
+
+#other-drop-options button:hover{
+    background-color:#493629;
+}
+
+#other-drop-options button img{
+    height: 25px;
+    width: 30px;
+    object-fit: contain;
 }
 
 .image-preview-buttons{
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .image-preview-buttons{
     margin-bottom: 8px;
+}
+
+.image-preview-buttons span{
+    font-family: sans-serif;
 }
 
 .image-preview-buttons button{
@@ -181,22 +215,58 @@ header a img{
 .image-preview-con{
     margin-left: auto;
     margin-right: auto;
-    border: solid 1px red;
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    position: relative;
+    display: none;
+}
+
+.image-preview-con .ad{
+    border:solid 1px lightgray;
+    width: 300px;
+    height: 600px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-decoration: none;
+    background-color: white;
+    font-family: sans-serif;
+    color: #473125;
+    margin: 30px 50px 30px 30px;
 }
 
 .image-options-con{
-    width:30%;
-    min-height:500px;
+    width:500px;
+    height:500px;
     background-color: white;
     box-shadow: -3px -1px 10px gray;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 15px;
 }
+
+.image-options-con button{
+    background-color: #755844;
+    color: white;
+    border:none;
+    border-radius: 5px;
+    transition: .25s;
+    cursor: pointer;
+}
+
+.image-options-con button:hover{
+    background-color:#493629;
+}
+
+
 .image-previews{
     display: flex;
-    width: 70%;
+    width: 100%;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .image-previews > div {
@@ -240,7 +310,8 @@ header a img{
     left:50%;;
     transform: translate(-50%, -50%);
     padding:3px;
-    text-align: center;;
+    text-align: center;
+    width:max-content
 }
 
 footer{

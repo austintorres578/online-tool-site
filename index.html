@@ -1,67 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Compressor</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <div>
-            <a href="#"><img src="images\header\site-logo.png"></a>
+  <header>
+    <div>
+      <a href="#"><img src="images/header/site-logo.png" alt="Site Logo"/></a>
+    </div>
+  </header>
+
+  <section class="image-compressor-con">
+    <h1>Compress and Convert Your Images</h1>
+    <p>Optimize your images online, JPG, PNG, WebP formats supported</p>
+
+    <div class="image-compressor">
+      <a class="ad" href="#"><h3>Your Ad Here</h3></a>
+
+      <div class="drop-area-con">
+        <div id="drop-area">
+          <img src="images/droparea/upload-icon.png" alt="Upload Icon"/>
+          <input type="file" id="fileElem" multiple accept="image/*" style="display: none;">
+          <label for="fileElem">Select images</label>
+          <p>Drag & drop images here</p>
+          <div id="other-drop-options">
+            <button><img src="images/droparea/google-drive-logo.png" alt="Google Drive"/></button>
+            <button><img src="images/droparea/drop-box-logo.png" alt="Dropbox"/></button>
+          </div>
         </div>
-    </header>
+      </div>
 
-    <section class="image-compressor-con">
-        <h1>Compress and Convert Your Images</h1>
-        <p>Optimize your images online, JPG, PNG, WebP formats supported</p>
+      <a class="ad" href="#"><h3>Your Ad Here</h3></a>
+    </div>
 
-        <div class="image-compressor">
-        
-            <a class="ad" href="#">
-                <h3>Your Ad Here</h3>
-            </a>
+    <div class="image-preview-con" style="display: none;">
+      <a href="#" class="ad"><h3>Your Ad Here</h3></a>
 
-            <div class="drop-area-con">
+      <div class="image-previews"></div>
 
-                <div id="drop-area">
-                    <img src="images\droparea\upload-icon.png">
-                    <input type="file" id="fileElem" multiple accept="image/*">
-                    <label for="fileElem">Select images</label>
-                    <p>Drag & drop images here</p>
-                </div>
+        <!-- <div class="image-preview-item" data-filename="1750304266796-0.jpg">
+          <div class="image-preview-buttons">
+            <span>This is the size in kb</span>
+            <button class="remove-button">X</button>
+          </div>
+          <img src="#">
+          <p>1750304266796-0.jpg</p>
+        </div> -->
 
-            </div>
+      <div class="image-options-con">
+        <button id="compress-btn">Compress</button>
+      </div>
+    </div>
 
-            <a class="ad" href="#">
-                <h3>Your Ad Here</h3>
-            </a>
+    <a href="#" class="ad"><h3>Your Ad Here</h3></a>
+  </section>
 
-        </div>
+  <footer>
+    <p>© <span id="year"></span> SpudImg. All rights reserved.</p>
+  </footer>
 
-        <div class="image-preview-con">
-
-            <div class="image-previews">
-
-            </div>
-
-            <div class="image-options-con">
-
-            </div>
-            
-        </div>
-
-        <a href="#" class="ad">
-            <h3>Your Ad Here</h3>
-        </a>
-        
-    </section>
-
-    <footer>
-        <p>© <span id="year"></span>2025 SpudImg. All rights reserved.</p>
-    </footer>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
