@@ -193,6 +193,7 @@ header a img{
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .image-preview-buttons{
@@ -210,6 +211,9 @@ header a img{
     border: none;
     cursor: pointer;
     box-shadow: 0px 0px 10px gray;
+    position: absolute;
+    right: -35px;
+    top: -15px;
 }
 
 .image-preview-con{
@@ -239,13 +243,19 @@ header a img{
 
 .image-options-con{
     width:500px;
-    height:500px;
+    height:600px;
     background-color: white;
     box-shadow: -3px -1px 10px gray;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding: 15px;
+}
+
+.image-options-con label{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .image-options-con button{

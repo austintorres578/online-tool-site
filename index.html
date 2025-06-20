@@ -41,16 +41,16 @@
 
       <div class="image-previews"></div>
 
-        <!-- <div class="image-preview-item" data-filename="1750304266796-0.jpg">
-          <div class="image-preview-buttons">
-            <span>This is the size in kb</span>
-            <button class="remove-button">X</button>
-          </div>
-          <img src="#">
-          <p>1750304266796-0.jpg</p>
-        </div> -->
+    
 
       <div class="image-options-con">
+
+        <label>
+          <p>Image Quality</p>
+          <span id="compression-value">80%</span>
+          <input type="range" name="compression-rate" min="0" max="100" value="80" id="compression-slider" title="Lower means smaller file, lower quality">
+        </label>
+
         <button id="compress-btn">Compress</button>
       </div>
     </div>
