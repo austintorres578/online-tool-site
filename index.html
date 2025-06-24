@@ -24,8 +24,8 @@
         <div id="drop-area">
           <img src="images/droparea/upload-icon.png" alt="Upload Icon"/>
           <input type="file" id="fileElem" multiple accept="image/*" style="display: none;">
-          <label for="fileElem">Select images</label>
-          <p>Drag & drop images here</p>
+          <label for="fileElem">Select Images</label>
+          <p>Or Drag & Drop Images Here</p>
           <div id="other-drop-options">
             <button><img src="images/droparea/google-drive-logo.png" alt="Google Drive"/></button>
             <button><img src="images/droparea/drop-box-logo.png" alt="Dropbox"/></button>
@@ -45,14 +45,35 @@
 
       <div class="image-options-con">
 
+        <div class="more-images-con">
+          <p>Add More Images?</p>
+          <div>
+            <button><img src="images\droparea\drop-box-logo.png"></button>
+            <img id="add-more-icon" src="images\droparea\upload-icon.png">
+            <button><img src="images\droparea\google-drive-logo.png"></button>
+          </div>
+        </div>
+
         <label>
           <p>Image Quality</p>
           <span id="compression-value">80%</span>
           <input type="range" name="compression-rate" min="0" max="100" value="80" id="compression-slider" title="Lower means smaller file, lower quality">
         </label>
 
-        <button id="compress-btn">Compress</button>
+        <div class="compress-button-con">
+          <button id="compress-btn" class="options-compress">Compress</button>
+        </div>
+
       </div>
+    </div>
+
+    <div class="loading-con">
+      <img src="images\loading-wtf.gif">
+      <p>Hang tight, we're getting things ready, This may take up to 5 minutes!</p>
+    </div>
+
+    <div class="compress-completion-con">
+      <h3>Your Images Have Been Mashed!</h3>
     </div>
 
     <a href="#" class="ad"><h3>Your Ad Here</h3></a>

@@ -4,8 +4,15 @@ const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('fileElem');
 const previewContainer = document.querySelector('.image-preview-con .image-previews');
 const compressBtn = document.getElementById('compress-btn');
+
 const compressionSlider = document.getElementById('compression-slider');
 const compressionValue = document.getElementById('compression-value');
+
+const addMoreIcon = document.getElementById('add-more-icon');
+
+addMoreIcon.addEventListener('click', () => {
+  fileInput.click(); // Reuse the same file input element
+});
 
 let uploadedFiles = [];
 
@@ -104,11 +111,17 @@ function removeUncompressedImage(event) {
   }
 }
 
-compressBtn.addEventListener('click', () => {
+compressBtn.addEventListener('click', compressImages);
+
+function compressImages() {
   if (uploadedFiles.length === 0) {
     alert('No images to compress.');
     return;
   }
+
+  document.querySelector('.loading-con').style.display = "block";
+
+  const startTime = performance.now();
 
   const formData = new FormData();
   uploadedFiles.forEach(file => formData.append('images', file));
@@ -128,6 +141,9 @@ compressBtn.addEventListener('click', () => {
       return res.blob().then(blob => ({ blob, filename }));
     })
     .then(({ blob, filename }) => {
+      const endTime = performance.now();
+      console.log(`✅ Compression completed in ${(endTime - startTime).toFixed(2)} ms`);
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -136,9 +152,13 @@ compressBtn.addEventListener('click', () => {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+
+      document.querySelector('.loading-con').style.display = "none";
+      console.log("✅ Compression success");
     })
     .catch(err => {
       console.error('Compression failed:', err);
+      document.querySelector('.loading-con').style.display = "none";
       alert('Something went wrong while compressing the images.');
     });
-});
+}
