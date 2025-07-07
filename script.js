@@ -4,17 +4,29 @@ const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('fileElem');
 const previewContainer = document.querySelector('.image-preview-con .image-previews');
 const compressBtn = document.getElementById('compress-btn');
-
 const compressionSlider = document.getElementById('compression-slider');
 const compressionValue = document.getElementById('compression-value');
-
 const addMoreIcon = document.getElementById('add-more-icon');
-
-addMoreIcon.addEventListener('click', () => {
-  fileInput.click(); // Reuse the same file input element
-});
+const redownloadBtn = document.querySelector('.completion-download-button');
+const backButton = document.querySelector('.back-button');
 
 let uploadedFiles = [];
+let lastCompressedBlob = null;
+let lastCompressedFilename = null;
+
+addMoreIcon.addEventListener('click', () => {
+  fileInput.click();
+});
+
+backButton.addEventListener('click', () => {
+  uploadedFiles = [];
+  previewContainer.innerHTML = '';
+  document.querySelector('.image-compressor').style.display = 'flex';
+  document.querySelector('.image-preview-con').style.display = 'none';
+  document.querySelector('.compress-completion-con').style.display = 'none';
+  document.querySelector('.image-compressor-header').style.display = '';
+  document.querySelector('.image-compressor-copy').style.display = '';
+});
 
 ['dragenter', 'dragover'].forEach(eventName => {
   dropArea.addEventListener(eventName, (e) => {
@@ -119,7 +131,13 @@ function compressImages() {
     return;
   }
 
-  document.querySelector('.loading-con').style.display = "block";
+  document.querySelector('.loading-con').style.display = "flex";
+  document.querySelector('.image-preview-con').style.display = "none";
+  document.querySelector('.image-compressor-header').style.display = "none";
+  document.querySelector('.image-compressor-copy').style.display = "none";
+
+  const totalOriginalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
+  console.log(`📦 Original Total Size: ${(totalOriginalSize / 1024).toFixed(1)} KB`);
 
   const startTime = performance.now();
 
@@ -127,7 +145,7 @@ function compressImages() {
   uploadedFiles.forEach(file => formData.append('images', file));
   formData.append('quality', compressionSlider.value);
 
-  fetch('http://localhost:3000/compress', {
+  fetch('https://online-tool-backend.onrender.com/compress', {
     method: 'POST',
     body: formData
   })
@@ -141,8 +159,12 @@ function compressImages() {
       return res.blob().then(blob => ({ blob, filename }));
     })
     .then(({ blob, filename }) => {
+      lastCompressedBlob = blob;
+      lastCompressedFilename = filename;
+
       const endTime = performance.now();
       console.log(`✅ Compression completed in ${(endTime - startTime).toFixed(2)} ms`);
+      console.log(`📦 Compressed Size: ${(blob.size / 1024).toFixed(1)} KB`);
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -154,6 +176,7 @@ function compressImages() {
       window.URL.revokeObjectURL(url);
 
       document.querySelector('.loading-con').style.display = "none";
+      document.querySelector('.compress-completion-con').style.display = "flex";
       console.log("✅ Compression success");
     })
     .catch(err => {
@@ -162,3 +185,19 @@ function compressImages() {
       alert('Something went wrong while compressing the images.');
     });
 }
+
+redownloadBtn.addEventListener('click', () => {
+  if (!lastCompressedBlob || !lastCompressedFilename) {
+    alert('No compressed images to download. Please compress images first.');
+    return;
+  }
+
+  const url = window.URL.createObjectURL(lastCompressedBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = lastCompressedFilename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+});

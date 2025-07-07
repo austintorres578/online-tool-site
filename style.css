@@ -20,6 +20,20 @@ header a img{
     padding: 50px 0px;
 }
 
+.vertical-ad{
+    border: solid 1px lightgray;
+    background-color: white;
+    width: 300px;
+    height: 600px;
+    display: block;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #473125;
+    text-decoration: none;
+}
+
 .image-compressor-con > .ad{
     border:solid 2px lightgray;
     height:250px;
@@ -170,6 +184,7 @@ header a img{
 }
 
 #other-drop-options button{
+    display: none;
     border:none;
     cursor: pointer;
     padding:10px;
@@ -264,7 +279,8 @@ header a img{
 
 .image-options-con .more-images-con button{
     margin: 10px;
-    display: flex;
+    /* display: flex; */
+    display: none;
     flex-direction: column;
     justify-content: center;
 }
@@ -427,6 +443,9 @@ footer p{
 
 .loading-con{
     display: none;
+    /* display: flex; */
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 .loading-con img{
@@ -436,7 +455,87 @@ footer p{
     margin-bottom: 10px;
 }
 
+.compress-completion-con{
+    display: none;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.completion-download-con div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.completion-download-con div .back-button{
+    position: absolute;
+    left: 0px;
+    border-radius: 30px;
+    height: 38px;
+    width: 38px;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #755844;
+    transition: .25s;
+    cursor: pointer;
+}
+
+.completion-download-con div .back-button:after{
+    position: absolute;
+    content:"Compress More Images";
+    font-size: 10px;
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+    width: 72px;
+    top: 160%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    transition: .25s;
+    opacity: 0;
+    pointer-events: none;
+    font-weight: bold;
+}
+
+.completion-download-con div .back-button:hover{
+     background-color:#493629;
+}
+
+.completion-download-con div .back-button:hover:after{
+    opacity: 1;
+}
+
+.completion-download-con div .back-button img{
+    height: 15px;
+    width: auto;
+    object-fit: contain;
+    transform: rotate(-180deg);
+}
+
+.completion-download-con div button{
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
 .compress-completion-con h3{
     font-family: sans-serif;
     font-size: 36px;
+}
+
+.compress-completion-con .completion-download-button{
+    background-color: #755844;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 24px;
+    padding: 20px 13px;
+    border: none;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.compress-completion-con .completion-download-button:hover{
+    background-color:#493629;
 }
