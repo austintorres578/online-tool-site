@@ -4,6 +4,99 @@ body{
 
 }
 
+@media(max-width:1120px){
+    body .compress-completion-con{
+        flex-direction: column;
+    }
+
+    body .compress-completion-con .vertical-ad{
+        height: 200px;
+        width: 90%;
+    }
+
+    body .completion-download-con{
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+@media(max-width:1000px){
+    body .image-compressor{
+        flex-direction: column;
+        height: auto;
+    }
+
+    body .image-compressor .ad{
+        width: 90%;
+        height: 200px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    body .drop-area-con{
+        width:85%
+    }
+
+    body #drop-area label{
+        width: auto;
+    }
+
+    body .image-preview-con{
+        flex-direction: column;
+    }
+
+    body .image-preview-con .ad{
+        height: 200px;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body .image-options-con{
+        margin-left: auto;
+        margin-right: auto;
+        width: 90%;
+        height: auto;
+    }
+
+    body .image-previews{
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body .images-options{
+        display: flex;
+        align-items: baseline;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+    }
+
+    body .images-options div{
+        height: 125px;
+    }
+}
+
+@media(max-width:600px){
+    body .completion-download-con div .back-button{
+        position: relative;
+        left: auto;
+    }
+
+    body .completion-download-con div{
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: center;
+    }
+
+    body .completion-download-button{
+        margin-bottom: 50px;
+    }
+}
+
+
 header{
     background-color: white;
     box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
@@ -99,6 +192,7 @@ header a img{
     margin-bottom: 0px;
     margin-left: auto;
     margin-right: auto;
+    max-width:610px;
 }
 
 .image-compressor-con p{
@@ -119,6 +213,7 @@ header a img{
     border: solid 1px lightgray;
     display: flex;
     width: 50%;
+    margin: 10px;
 }
 
 #drop-area {
@@ -234,9 +329,9 @@ header a img{
 .image-preview-con{
     margin-left: auto;
     margin-right: auto;
-    width: 100%;
+    padding: 0px 30px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     position: relative;
     display: none;
 }
@@ -253,11 +348,10 @@ header a img{
     background-color: white;
     font-family: sans-serif;
     color: #473125;
-    margin: 30px 50px 30px 30px;
 }
 
 .image-options-con{
-    width:500px;
+    width:300px;
     height:600px;
     background-color: white;
     box-shadow: -3px -1px 10px gray;
@@ -349,7 +443,7 @@ header a img{
 
 .image-previews{
     display: flex;
-    width: 100%;
+    width: 800px;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -457,8 +551,9 @@ footer p{
 
 .compress-completion-con{
     display: none;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
+    padding: 0px 15px;
 }
 
 .completion-download-con div{
@@ -470,7 +565,7 @@ footer p{
 
 .completion-download-con div .back-button{
     position: absolute;
-    left: 0px;
+    left: 10px;
     border-radius: 30px;
     height: 38px;
     width: 38px;
@@ -491,7 +586,7 @@ footer p{
     padding: 5px;
     border-radius: 5px;
     width: 72px;
-    top: 160%;
+    top: -60%;
     left: 50%;
     transform: translate(-50%,-50%);
     transition: .25s;
@@ -529,7 +624,8 @@ footer p{
     background-color: #755844;
     color: #fff;
     border-radius: 6px;
-    font-size: 24px;
+    font-size: 22px;
+    font-weight: bold;
     padding: 20px 13px;
     border: none;
     cursor: pointer;
