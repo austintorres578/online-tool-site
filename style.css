@@ -1,6 +1,7 @@
 body{
     margin: 0px;
     background-color: #fff6f0;
+    font-family: sans-serif;
 
 }
 
@@ -132,7 +133,23 @@ body{
 header{
     background-color: white;
     box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+
+header nav{
+    padding-right: 30px;
+}
+
+header nav a{
+    text-decoration: none;
+    text-transform:uppercase;
+    font-weight: bold;
+    color: #473125;
+    margin-right: 30px;
+}
+
 
 header a img{
     height: 100px;
