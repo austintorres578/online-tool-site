@@ -7,11 +7,17 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header>
-    <div>
-      <a href="#"><img src="images/header/site-logo.png" alt="Site Logo"/></a>
-    </div>
-  </header>
+  <div id="header-placeholder"></div>
+
+  <!-- Put script here -->
+  <script>
+    fetch("partials/header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      })
+      .catch(err => console.error("Header load failed:", err));
+  </script>
 
   <section class="image-compressor-con">
     <h1 class="image-compressor-header">Compress Images For Faster Load Times!</h1>
