@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div id="header-placeholder"></div>
+    <header id="header-placeholder"></header>
 
     <script>
-    fetch("../partials/header.html")
+    fetch("/partials/header.html")
         .then(res => res.text())
         .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
@@ -18,7 +18,114 @@
         .catch(err => console.error("Header failed to load:", err));
     </script>
 
-    <h1>This is the blog archive</h1>
+    <main class="blog-archive-con">
+
+        <div class="blog-archive-header">
+            <h1>Blog Archive</h1>
+            <p>Browse All Our Past Blogs in one place</p>
+        </div>
+        
+        <section class="all-blogs-con">
+            <div class="blog-search-con">
+                <input type="text" placeholder="Search posts...">
+                <label for="sort">Sort by:</label>
+                <select id="sort" name="sort">
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="a-z">Title: A–Z</option>
+                    <option value="z-a">Title: Z–A</option>
+                    <option value="most-popular">Most Popular</option>
+                </select>
+            </div>
+            <div class="all-blogs">
+                <a href="../blog/10-seo-tips-for-image-tools/">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+                <a href="#">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+                <a href="#">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+                <a href="#">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+                <a href="#">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+                <a href="#">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+                <a href="#">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+                <a href="#">
+                    <img src="../images/placeholder-blog-featured-image.jpeg">
+                    <div>
+                        <h2>10 SEO Tips for Image Tools</h2>
+                        <p>June 25, 2025</p>
+                        <p>Learn How to boost your tool site's visibility with these quick SEO strategies.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="blog-pagination">
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+            </div>
+        </section>
+
+        
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+    <script>
+    fetch("/partials/footer.html")
+        .then(res => res.text())
+        .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+        document.getElementById("year").textContent = new Date().getFullYear();
+        })
+        .catch(err => console.error("Footer load failed:", err));
+    </script>
+
     <script src="../js/script.js"></script>
 </body>
 </html>

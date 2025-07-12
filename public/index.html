@@ -7,11 +7,10 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div id="header-placeholder"></div>
+  <header id="header-placeholder"></header>
 
-  <!-- Put script here -->
   <script>
-    fetch("partials/header.html")
+    fetch("/partials/header.html")
       .then(res => res.text())
       .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
@@ -19,11 +18,11 @@
       .catch(err => console.error("Header load failed:", err));
   </script>
 
-  <section class="image-compressor-con">
+  <main class="image-compressor-con">
     <h1 class="image-compressor-header">Compress Images For Faster Load Times!</h1>
     <p class="image-compressor-copy">Optimize your images online, JPEG/JPG, PNG, WebP, TIFF formats supported</p>
 
-    <div class="image-compressor">
+    <section class="image-compressor">
       <a class="ad" href="#"><h3>Your Ad Here</h3></a>
 
       <div class="drop-area-con">
@@ -40,9 +39,9 @@
       </div>
 
       <a class="ad" href="#"><h3>Your Ad Here</h3></a>
-    </div>
+    </section>
 
-    <div class="image-preview-con" style="display: none;">
+    <section class="image-preview-con" style="display: none;">
       <a href="#" class="ad"><h3>Your Ad Here</h3></a>
 
       <div class="image-previews"></div>
@@ -77,9 +76,9 @@
         </div>
 
       </div>
-    </div>
+    </section>
 
-    <div class="loading-con">
+    <section class="loading-con">
 
       <a class="vertical-ad">
         <p>You Ad Here</p>
@@ -94,9 +93,9 @@
         <p>You Ad Here</p>
       </a>
 
-    </div>
+    </section>
 
-    <div class="compress-completion-con">
+    <section class="compress-completion-con">
       <a href="#" class="vertical-ad">
         <p>Your Ad Here</p>
       </a>
@@ -113,14 +112,23 @@
       <a href="#" class="vertical-ad">
         <p>Your Ad Here</p>
       </a>
-    </div>
+    </section>
 
     <!-- <a href="#" class="ad"><h3>Your Ad Here</h3></a> -->
-  </section>
+  </main>
 
-  <footer>
-    <p>© <span id="year"></span> SpudImg. All rights reserved.</p>
-  </footer>
+<footer id="footer-placeholder"></footer>
+
+<script>
+  fetch("/partials/footer.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("footer-placeholder").innerHTML = data;
+      document.getElementById("year").textContent = new Date().getFullYear();
+    })
+    .catch(err => console.error("Footer load failed:", err));
+</script>
+
 
   <script src="js/script.js"></script>
 </body>
