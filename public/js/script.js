@@ -1,4 +1,4 @@
-document.getElementById('year').textContent = new Date().getFullYear();
+// document.getElementById('year').textContent = new Date().getFullYear();
 
 const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('fileElem');
