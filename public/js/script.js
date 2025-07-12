@@ -1,4 +1,3 @@
-// document.getElementById('year').textContent = new Date().getFullYear();
 
 const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('fileElem');
@@ -14,11 +13,14 @@ let uploadedFiles = [];
 let lastCompressedBlob = null;
 let lastCompressedFilename = null;
 
-addMoreIcon.addEventListener('click', () => {
+if(addMoreIcon){
+  addMoreIcon.addEventListener('click', () => {
   fileInput.click();
 });
+}
 
-backButton.addEventListener('click', () => {
+if(backButton){
+  backButton.addEventListener('click', () => {
   uploadedFiles = [];
   previewContainer.innerHTML = '';
   document.querySelector('.image-compressor').style.display = 'flex';
@@ -27,33 +29,45 @@ backButton.addEventListener('click', () => {
   document.querySelector('.image-compressor-header').style.display = '';
   document.querySelector('.image-compressor-copy').style.display = '';
 });
+}
 
 ['dragenter', 'dragover'].forEach(eventName => {
-  dropArea.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    dropArea.classList.add('dragover');
-  });
+  if(dropArea){
+      dropArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      dropArea.classList.add('dragover');
+    });
+  }
 });
 
 ['dragleave', 'drop'].forEach(eventName => {
-  dropArea.addEventListener(eventName, () => {
+  if(dropArea){
+    dropArea.addEventListener(eventName, () => {
     dropArea.classList.remove('dragover');
+    });
+  }
+
+});
+
+if(dropArea){
+    dropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    handleFiles(files);
   });
-});
+}
 
-dropArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  const files = e.dataTransfer.files;
-  handleFiles(files);
-});
+if(fileInput){
+    fileInput.addEventListener('change', () => {
+    handleFiles(fileInput.files);
+  });
+}
 
-fileInput.addEventListener('change', () => {
-  handleFiles(fileInput.files);
-});
-
-compressionSlider.addEventListener('input', () => {
-  compressionValue.textContent = `${compressionSlider.value}%`;
-});
+if(compressionSlider){
+    compressionSlider.addEventListener('input', () => {
+    compressionValue.textContent = `${compressionSlider.value}%`;
+  });
+}
 
 function handleFiles(files) {
   Array.from(files).forEach(file => {
@@ -123,7 +137,9 @@ function removeUncompressedImage(event) {
   }
 }
 
-compressBtn.addEventListener('click', compressImages);
+if(compressBtn){
+  compressBtn.addEventListener('click', compressImages);
+}
 
 function compressImages() {
   if (uploadedFiles.length === 0) {
@@ -186,18 +202,20 @@ function compressImages() {
     });
 }
 
-redownloadBtn.addEventListener('click', () => {
-  if (!lastCompressedBlob || !lastCompressedFilename) {
-    alert('No compressed images to download. Please compress images first.');
-    return;
-  }
+if(redownloadBtn){
+    redownloadBtn.addEventListener('click', () => {
+    if (!lastCompressedBlob || !lastCompressedFilename) {
+      alert('No compressed images to download. Please compress images first.');
+      return;
+    }
 
-  const url = window.URL.createObjectURL(lastCompressedBlob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = lastCompressedFilename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.URL.revokeObjectURL(url);
-});
+    const url = window.URL.createObjectURL(lastCompressedBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = lastCompressedFilename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  });
+}

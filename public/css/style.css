@@ -114,6 +114,23 @@ body{
     body .all-blogs a{
         width: 85%;
     }
+
+    body .blog-search-con{
+        flex-direction: column;
+    }
+
+    body .blog-search-con input{
+        margin-bottom: 10px;
+        width: auto;
+    }
+
+    body .blog-search-con label{
+        margin-bottom: 10px;
+    }
+
+    body .blog-search-con select{
+        width: 100%;
+    }
 }
 
 @media(max-width:600px){
@@ -737,10 +754,12 @@ footer p{
 }
 
 .blog-search-con input{
-    width: 50%;
+    width: 45%;
     border-radius: 10px;
     height: 30px;
     padding: 0px 10px;
+
+    
 }
 
 .blog-search-con select{
