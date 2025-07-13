@@ -1,0 +1,82 @@
+[
+  {
+  "title": "10 SEO Tips for Image Tools",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "Learn how to boost your tool site's visibility with these quick SEO strategies.",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/10-seo-tips-for-image-tools/"
+},
+{
+  "title": "Blog 2",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "this is a blog 2 excerpt",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/blog-2/"
+},
+{
+  "title": "Blog 3",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "This is a Blog 3 excerpt",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/blog-3/"
+},
+{
+  "title": "Blog 4",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "This is a blog 4 excerpt",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/blog-4/"
+}
+,{
+  "title": "Blog 5",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "this is a blog 2 excerpt",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/blog-2/"
+},
+{
+  "title": "Blog 6",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "This is a Blog 3 excerpt",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/blog-3/"
+},
+{
+  "title": "Blog 7",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "This is a blog 4 excerpt",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/blog-4/"
+},
+{
+  "title": "Blog 8",
+  "slug": "seo-tips",
+  "date": "2024-06-25",
+  "excerpt": "this is a blog 2 excerpt",
+  "thumbnail": "../../images/placeholder-blog-featured-image.jpeg",
+  "author": "Online Tool Site",
+  "tags": ["SEO", "Tools", "Optimization"],
+  "url": "/blog/blog-2/"
+}
+]

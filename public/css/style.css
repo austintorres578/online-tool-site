@@ -717,10 +717,12 @@ footer p{
 .blog-archive-header h1{
     font-size: 45px;
     margin-bottom: 0px;
+    color:#473125
 }
 
 .blog-archive-header p{
     font-size:20px;
+    color: #473125;
 }
 
 .all-blogs-con{
