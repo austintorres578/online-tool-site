@@ -3,9 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Document</title>
 </head>
 <body>
-    <h1>Wrong Place Buddy!</h1>
+    <script>
+    fetch("/partials/header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      })
+      .catch(err => console.error("Header load failed:", err));
+    </script>
+
+    <h1>Wrong Place Buddy! Poop</h1>
+
+    <script>
+        fetch("/partials/footer.html")
+            .then(res => res.text())
+            .then(data => {
+            document.getElementById("footer-placeholder").innerHTML = data;
+            document.getElementById("year").textContent = new Date().getFullYear();
+            })
+            .catch(err => console.error("Footer load failed:", err));
+    </script>
+
+    
 </body>
 </html>
