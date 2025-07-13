@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/contact.css">
+</head> 
+<body>
+
+    <header id="header-placeholder"></header>
+
+    <main>
+
+        <section class="contact-us-header">
+            <h1>Contact Us</h1>
+            <p>We’d Love to Hear From You</p>
+        </section>
+
+        <section class="contact-form-con">
+            <form action="https://formsubmit.co/austintorres578@gmail.com" method="POST" class="contact-form">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <textarea name="message" placeholder="Your Message" required></textarea>
+
+                <!-- 👇 Add this 👇 -->
+                <input type="hidden" name="_next" value="https://online-tool-site.vercel.app/blog">
+
+                <button type="submit">Send Message</button>
+            </form>
+
+        </section>
+
+    </main>
+
+    <script>
+      fetch("/partials/header.html")
+        .then(res => res.text())
+        .then(data => {
+            document.getElementById("header-placeholder").innerHTML = data;
+        })
+      .catch(err => console.error("Header load failed:", err));
+    </script>
+    
+
+    <footer id="footer-placeholder"></footer>
+
+    <script>
+    fetch("/partials/footer.html")
+        .then(res => res.text())
+        .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+        document.getElementById("year").textContent = new Date().getFullYear();
+        })
+    .catch(err => console.error("Footer load failed:", err));
+    </script>
+    <script src="../../js/contact.js"></script>
+</body>
+</html>

@@ -151,7 +151,7 @@ function applyFilters() {
 // 🚀 Loads post metadata from a single JSON file
 async function loadPosts() {
   try {
-    const res = await fetch('../blog/posts.json');
+    const res = await fetch('../../blog/posts.json');
     const posts = await res.json();
 
     allPosts = posts;

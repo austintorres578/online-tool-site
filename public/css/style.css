@@ -151,12 +151,16 @@ body{
 }
 
 
+
 header{
     background-color: white;
     box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: fixed;
+    z-index: 10;
+    width: 100%;
 }
 
 header nav{
@@ -165,7 +169,7 @@ header nav{
 
 header nav a{
     text-decoration: none;
-    text-transform:uppercase;
+    /* text-transform:uppercase; */
     font-weight: bold;
     color: #473125;
     margin-right: 30px;
@@ -173,14 +177,18 @@ header nav a{
 
 
 header a img{
-    height: 100px;
+    height: 75px;
     width:auto;
     object-fit: contain;
 }
 
 .image-compressor-con{
     text-align: center;
-    padding: 50px 0px;
+    /* padding: 50px 0px; */
+}
+
+main{
+    padding: 90px 50px 50px 50px;
 }
 
 .vertical-ad{
@@ -707,9 +715,9 @@ footer p{
     background-color:#493629;
 }
 
-.blog-archive-con{
+/* .blog-archive-con{
     padding: 50px;
-}
+} */
 
 .blog-archive-header{
     text-align: center;
@@ -724,6 +732,7 @@ footer p{
 .blog-archive-header p{
     font-size:20px;
     color: #473125;
+    margin-top: 0px;
 }
 
 .all-blogs-con{
@@ -833,7 +842,7 @@ footer p{
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-    padding: 50px;
+    /* padding: 50px; */
 }
 
 .blog-single-con .blog-header{
