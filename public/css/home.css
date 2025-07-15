@@ -2,6 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-right: solid 3px #feac43;
 }
 
 .home-header h1{
@@ -42,10 +43,15 @@
     margin-right: auto;
 }
 
+.popular-tools-con{
+    margin-bottom: 50px;
+    border-left: solid 3px #feac43;
+}
+
 .popular-tools-con a{
     display: flex;
     align-items: center;
-    max-width: 50%;
+    max-width: 100%;
     border: solid 1px lightgray;
     padding: 5px 10px 5px 25px;
     border-radius: 10px;
@@ -94,4 +100,59 @@
 
 .home-con{
     padding-top: 120px;
+}
+
+.popular-tools{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.popular-tools h2{
+    font-size: 40px;
+}
+
+.popular-tools div:first-of-type img{
+    height: 200px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+.popular-tools div{
+    width: 50%;
+}
+
+.faq-con{
+    margin-bottom: 50px;
+}
+
+.faq-con h3{
+    text-align: center;
+    font-size: 40px;
+}
+
+.faq-con .faqs{
+    background-color: white;
+    padding:  15px 30px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 12px rgba(92, 64, 51, 0.2);;
+
+}
+
+.faq-con .faqs div{
+    border-bottom: solid 1px lightgray;
+}
+
+.faq-con .faqs div:last-of-type{
+    border-bottom: none;
+}
+
+.faq-con .faqs p strong{
+    font-size: 24px;
+}
+
+.faq-con .faqs p{
+    font-size: 18px;
 }
