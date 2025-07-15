@@ -18,3 +18,47 @@
 .blog-single-con{
     padding-top: 120px;
 }
+
+.blog-single-con{
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    /* padding: 50px; */
+}
+
+.blog-single-con .blog-header{
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.blog-single-con .blog-header:after{
+    content: '';
+    height: 1px;
+    width: 98%;
+    background-color: lightgray;
+    position: absolute;
+    top: 110%;
+    transform: translate(-50%, -50%);
+    left: 50%;
+}
+
+.blog-single-con .blog-header div{
+    display: flex;
+    align-items: center;
+}
+
+.blog-single-con .blog-header h1{
+    margin-bottom: 10px;
+    font-size: 34px;
+}
+
+.blog-single-con .blog-header div p{
+    margin-right: 5px;
+    font-weight: bold;
+    margin-top: 0px;
+    font-size: 14px;
+}
+
+.blog-single-con .blog-header div p span{
+    font-weight: 400;
+}

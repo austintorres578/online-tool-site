@@ -1,0 +1,141 @@
+@media(max-width:765px){
+    body .blog-search-con{
+        flex-direction: column;
+    }
+
+    body .blog-search-con input{
+        margin-bottom: 10px;
+        width: auto;
+    }
+
+    body .blog-search-con label{
+        margin-bottom: 10px;
+    }
+
+    body .blog-search-con select{
+        width: 100%;
+    }
+
+    body .all-blogs a{
+        width: 85%;
+    }
+}
+
+.blog-archive-header{
+    text-align: center;
+}
+
+.blog-archive-header h1{
+    font-size: 45px;
+    margin-bottom: 0px;
+    color:#473125
+}
+
+.blog-archive-header p{
+    font-size:20px;
+    color: #473125;
+    margin-top: 0px;
+}
+
+.all-blogs-con{
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: rgba(92, 64, 51, 0.2) 0px 4px 12px;
+    border-radius: 20px;
+    background-color: white;
+}
+
+.blog-search-con{
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    position: relative;
+}
+
+.blog-search-con:after{
+    content:"";
+    height: 1px;
+    width: 95%;
+    background-color: lightgray;
+    position: absolute;
+    bottom: 0px;
+}
+
+.blog-search-con label{
+    display: flex;
+    align-items: center;
+}
+
+.blog-search-con input{
+    width: 45%;
+    border-radius: 10px;
+    height: 30px;
+    padding: 0px 10px;
+
+    
+}
+
+.blog-search-con select{
+    width: 40%;
+    border-radius: 10px;
+    height: 35px;
+    padding: 0px 10px;
+}
+
+.all-blogs{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+.all-blogs a{
+    width: 47%;
+    margin: 10px;
+    border-radius: 15px;
+    box-shadow: rgba(92, 64, 51, 0.2) 0px 4px 12px;
+    color:#473125;
+    text-decoration: none;
+}
+
+.all-blogs a h2{
+    margin-top: 0px;
+    margin-bottom: 5px;
+}
+
+.all-blogs a p{
+    margin-top: 0px;
+    margin-bottom: 5px;
+}
+
+.all-blogs a img{
+    width: 100%;
+    height: 175px;
+    border-radius: 15px 15px 0px 0px;
+    object-fit: cover;
+}
+
+.all-blogs a div{
+    padding: 15px;
+}
+
+.blog-pagination{
+    display: flex;
+    justify-content: center;
+    padding-bottom: 10px;
+}
+
+.blog-pagination button{
+    margin: 5px;
+    font-size: 15px;
+    border: none;
+    background-color: white;
+    cursor: pointer;
+}
+
+.blog-pagination .active{
+    text-decoration: underline;
+}

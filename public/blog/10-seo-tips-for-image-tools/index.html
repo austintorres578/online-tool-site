@@ -120,6 +120,32 @@
     </section>
 
     </div>
+
+    <section class="blog-previews-con">
+
+      <h2>Recent Blog Posts</h2>
+
+      <div id="blog-previews-placeholder"></div>
+
+      <script>
+        fetch("/partials/blog-previews.html")
+        .then(res => res.text())
+        .then(data => {
+          const container = document.getElementById("blog-previews-placeholder");
+          container.innerHTML = data;
+
+          // Load blog-previews.js AFTER the HTML is injected
+          const script = document.createElement("script");
+          script.src = "/js/partials/blog-previews.js";
+          document.body.appendChild(script);
+        })
+        .catch(err => console.error("Blog previews load failed:", err));
+
+
+      </script>
+
+    </section>
+
   </main>
 
   <footer id="footer-placeholder"></footer>

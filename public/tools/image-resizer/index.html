@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Image Compressor</title>
-  <link rel="stylesheet" href="/css/tools/image-compressor.css" />
+  <link rel="stylesheet" href="/css/tools/image-resizer.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -19,11 +19,12 @@
       .catch(err => console.error("Header load failed:", err));
   </script>
 
-  <main class="image-compressor-con">
-    <h1 class="image-compressor-header">Compress Images For Faster Load Times!</h1>
-    <p class="image-compressor-copy">Optimize your images online, JPEG/JPG, PNG, WebP, TIFF formats supported</p>
+  <main class="image-resizer-con">
+    <h1 class="image-resizer-header">Resize Images For Perfect Fit!</h1>
+    <p class="image-resizer-copy">Optimize your images for web, social media, or email.
+JPEG/JPG, PNG, WebP, TIFF formats supported</p>
 
-    <section class="image-compressor">
+    <section class="image-resizer">
       <!-- <a class="ad" href="#"><h3>Your Ad Here</h3></a> -->
 
       <div class="drop-area-con">
@@ -40,43 +41,6 @@
       </div>
 
       <!-- <a class="ad" href="#"><h3>Your Ad Here</h3></a> -->
-    </section>
-
-    <section class="image-preview-con" style="display: none;">
-      <!-- <a href="#" class="ad"><h3>Your Ad Here</h3></a> -->
-
-      <div class="image-previews"></div>
-
-    
-
-      <div class="image-options-con">
-
-        <div class="images-options">
-
-          <div class="more-images-con">
-            <p>Add More Images?</p>
-            <div>
-              <button><img src="images/droparea/drop-box-logo.png"></button>
-              <img id="add-more-icon" src="/images/droparea/upload-icon.png">
-              <button><img src="images/droparea/google-drive-logo.png"></button>
-            </div>
-          </div>
-
-          <div>
-            <label>
-              <p>Image Quality</p>
-              <span id="compression-value">80%</span>
-              <input type="range" name="compression-rate" min="0" max="100" value="80" id="compression-slider" title="Lower means smaller file, lower quality">
-            </label>
-          </div>
-
-        </div>
-
-        <div class="compress-button-con">
-          <button id="compress-btn" class="options-compress">Compress</button>
-        </div>
-
-      </div>
     </section>
 
     <section class="loading-con">
@@ -96,15 +60,16 @@
 
     </section>
 
+
     <section class="completion-con">
       <!-- <a href="#" class="vertical-ad">
         <p>Your Ad Here</p>
       </a> -->
 
       <div class="completion-download-con">
-        <h3>Your Images Have Been Mashed!</h3>
+        <h3>Your Images Have Been Resized</h3>
         <div>
-          <button class="back-button"><a href="/tools/image-compressor/"><img src="/images/arrow.png"></a></button>
+          <button class="back-button"><img src="/images/arrow.png"></button>
           <button class="completion-download-button">Download Your Compressed Images</button>
         </div>
 
@@ -131,6 +96,6 @@
 </script>
 
 
-  <script src="/js/image-compressor.js"></script>
+  <script src="/js/image-resizer.js"></script>
 </body>
 </html>

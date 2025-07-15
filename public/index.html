@@ -40,10 +40,10 @@
         </div>
         <div>
             <h2>Our Web Tools</h2>
-            <a href="#">
+            <a href="/tools/image-compressor/">
               <img src="/images/image-compression-icon.png">
               <div>
-                <h3>Image Compressor</h3>
+                <p class="tool-title"><strong>Image Compressor</strong></p>
                 <p>Reduces image file sizes.</p>
               </div>
             </a>
@@ -51,7 +51,7 @@
             <a href="#" class="coming-soon">
               <img src="/images/image-converter-icon.png">
               <div>
-                <h3>Image Converter</h3>
+                <p class="tool-title"><strong>Image Converter</strong></p>
                 <p>Convert Images to other formats</p>
               </div>
             </a>
@@ -59,7 +59,7 @@
             <a href="#" class="coming-soon">
               <img src="/images/image-resizer-icon.png">
               <div>
-                <h3>Image Resizer</h3>
+                <p class="tool-title"><strong>Image Resizer</strong></p>
                 <p>Adjust the dimensions of an Image.</p>
               </div>
             </a>
@@ -67,6 +67,31 @@
 
       </div>
       
+    </section>
+
+    <section class="blog-previews-con">
+
+      <h2>Recent Blog Posts</h2>
+
+      <div id="blog-previews-placeholder"></div>
+
+      <script>
+        fetch("/partials/blog-previews.html")
+        .then(res => res.text())
+        .then(data => {
+          const container = document.getElementById("blog-previews-placeholder");
+          container.innerHTML = data;
+
+          // Load blog-previews.js AFTER the HTML is injected
+          const script = document.createElement("script");
+          script.src = "/js/partials/blog-previews.js";
+          document.body.appendChild(script);
+        })
+        .catch(err => console.error("Blog previews load failed:", err));
+
+
+      </script>
+
     </section>
 
     <section class="faq-con">

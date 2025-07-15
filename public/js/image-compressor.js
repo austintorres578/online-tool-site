@@ -1,4 +1,3 @@
-
 const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('fileElem');
 const previewContainer = document.querySelector('.image-preview-con .image-previews');
@@ -25,7 +24,7 @@ if(backButton){
   previewContainer.innerHTML = '';
   document.querySelector('.image-compressor').style.display = 'flex';
   document.querySelector('.image-preview-con').style.display = 'none';
-  document.querySelector('.compress-completion-con').style.display = 'none';
+  document.querySelector('.completion-con').style.display = 'none';
   document.querySelector('.image-compressor-header').style.display = '';
   document.querySelector('.image-compressor-copy').style.display = '';
 });
@@ -192,7 +191,7 @@ function compressImages() {
       window.URL.revokeObjectURL(url);
 
       document.querySelector('.loading-con').style.display = "none";
-      document.querySelector('.compress-completion-con').style.display = "flex";
+      document.querySelector('.completion-con').style.display = "flex";
       console.log("✅ Compression success");
     })
     .catch(err => {
