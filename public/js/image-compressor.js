@@ -48,13 +48,34 @@ if(backButton){
 
 });
 
-if(dropArea){
-    dropArea.addEventListener('drop', (e) => {
+if (dropArea) {
+  dropArea.addEventListener('drop', (e) => {
     e.preventDefault();
     const files = e.dataTransfer.files;
-    handleFiles(files);
+
+    const acceptRaw = dropArea.querySelector('input').accept.trim();
+    const cleanedAccept = acceptRaw.replace("image/", ""); // e.g. "jpeg" or "*"
+
+    if (cleanedAccept === "*") {
+      handleFiles(files);
+    } else {
+      for (let i = 0; i < files.length; i++) {
+        const fileType = files[i].type.replace("image/", ""); // e.g. "jpeg"
+        console.log(`File type: ${fileType}, Accepted type: ${cleanedAccept}`);
+
+        if(fileType!==cleanedAccept){
+          alert(`One of the images provided is not ${cleanedAccept}, please retry without that image.`);
+          return;
+        }
+        else if(i===files.length-1){
+          handleFiles(files);
+        }
+      }
+    }
   });
 }
+
+
 
 if(fileInput){
     fileInput.addEventListener('change', () => {
