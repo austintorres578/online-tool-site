@@ -57,6 +57,10 @@
     body .popular-tools div:first-of-type img{
         margin-top: 30px;
     }
+
+    body .home-header img{
+        height: 145px;
+    }
 }
 
 @media(max-width:550px){
@@ -70,9 +74,17 @@
         width: 90% !important;
     }
 
+    body .home-con{
+       padding: 90px 20px 50px 20px;
+    }
+
     body .popular-tools-con .tool-title {
         font-size: 16px;
         margin-bottom: 5px;
+    }
+
+    body .popular-tools div:first-of-type img{
+        height: 125px;
     }
 
     body .popular-tools-con a p{
