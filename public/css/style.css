@@ -51,6 +51,30 @@
     }
 }
 
+@media(max-width:550px){
+    body .drop-area-con{
+        padding: 15px;
+        width: 100%;
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+
+    body #drop-area {
+        height: 175px;
+    }
+
+    body #drop-area label{
+        font-size: 18px;
+        padding: 15px;
+    }
+
+    body #drop-area p{
+        font-size: 16px;
+    }
+
+    
+}
+
 body{
     margin: 0px;
     background-color: #fff6f0;
