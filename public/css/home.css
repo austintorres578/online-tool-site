@@ -285,11 +285,13 @@
 }
 
 .faq-con .faqs p strong{
-    font-size: 24px;
+    font-size: 20px;
     color: #473125;
 }
 
 .faq-con .faqs p{
     font-size: 18px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
