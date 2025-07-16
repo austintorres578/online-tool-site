@@ -1,3 +1,85 @@
+@media(max-width:765px){
+    body .home-header h1{
+        font-size: 30px;
+    }
+
+    body .popular-tools h2{
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .popular-tools-con h2:after{
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body .blog-previews-con h2{
+        font-size: 30px;
+    }
+
+    body .faq-con h3{
+        font-size:30px;
+    }
+
+    body .faq-con .faqs p strong{
+        font-size: 20px;
+    }
+
+    body .faq-con .faqs p{
+        font-size: 16px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    body .home-header{
+        flex-direction: column;
+    }
+
+    body .home-header-content{
+        width: 75% !important;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    body .home-header h1:after{
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body .popular-tools{
+        flex-direction: column-reverse;
+    }
+
+    body .popular-tools div{
+        width: 75% !important;
+    }
+
+    body .popular-tools div:first-of-type img{
+        margin-top: 30px;
+    }
+}
+
+@media(max-width:550px){
+    body .home-header-content{
+        width: 90% !important;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    body .popular-tools div{
+        width: 90% !important;
+    }
+
+    body .popular-tools-con .tool-title {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    body .popular-tools-con a p{
+        font-size: 14px;
+    }
+}
+
 .home-header{
     display: flex;
     align-items: center;

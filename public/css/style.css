@@ -45,6 +45,10 @@
     body #drop-area{
         height:300px
     }
+
+    body main{
+            padding: 90px 20px 50px 20px;
+    }
 }
 
 body{
