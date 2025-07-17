@@ -132,7 +132,7 @@ body{
 }
 
 header{
-    background-color: #ffcb2f;
+    background-color: #feac43;
     box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
     display: flex;
     justify-content: space-between;
@@ -143,7 +143,7 @@ header{
     height: 80px;
 }
 
-header #compressor-dropdown{
+header .dropdown-con{
     list-style: none;
     position: relative;
     margin-top: 0px;
@@ -152,7 +152,7 @@ header #compressor-dropdown{
     padding-left: 0px;
 }
 
-header #compressor-dropdown ul{
+header .dropdown-con ul{
     position: absolute;
     top: 80px;
     left: -10%;
@@ -175,36 +175,36 @@ header .dropdown:after{
     background-position: center;
 }
 
-header .header-nav #compressor-dropdown:hover .dropdown:after{
+header .header-nav .dropdown-con:hover .dropdown:after{
     transform: rotate(180deg);
 }
 
-header #compressor-dropdown >li{
+header .dropdown-con >li{
     height: 100%;
 }
 
-header #compressor-dropdown:hover ul{
+header .dropdown-con:hover ul{
     opacity: 1;
     pointer-events: all;
 }
 
-header #compressor-dropdown ul{
+header .dropdown-con ul{
     opacity: 0;
     pointer-events: none;
     transition: .1s;
 }
 
-header #compressor-dropdown ul li a{
+header .dropdown-con ul li a{
     text-align: center;
     margin-right: 0px;
 }
 
-header #compressor-dropdown li ul li{
+header .dropdown-con li ul li{
     margin-bottom: 15px;
     position: relative;
 }
 
-header #compressor-dropdown li ul li:after{
+header .dropdown-con li ul li:after{
     content: "";
     width: 90%;
     height: 1px;
@@ -259,7 +259,7 @@ header .header-nav a{
     text-decoration: none;
     /* text-transform:uppercase; */
     font-weight: bold;
-    color: black;
+    color: white;
     margin-right: 35px;
     height: 100%;
     display: flex;
@@ -269,12 +269,16 @@ header .header-nav a{
 
 }
 
+header .header-nav .dropdown-con ul a{
+    color: black;
+}
+
 
 header .header-nav > a:before{
     content:'';
     height: 2px;
     width: 0%;
-    background-color: black;
+    background-color: white;
     position: absolute;
     bottom: 25px;
     transition: .25s;
@@ -347,6 +351,7 @@ main{
     color: #473125;
     text-decoration: none;
     margin: 15px;
+    border-bottom: solid 5px #feac43;
 }
 
 .blog-previews a div{
@@ -429,7 +434,7 @@ main{
     display: none;
  }
 
-.mobile-nav-con #compressor-dropdown >li{
+.mobile-nav-con .dropdown-con >li{
     font-size: 20px;
     overflow-y: hidden;
 }
@@ -833,7 +838,7 @@ footer p{
     padding-top: 30px;
     padding-bottom: 30px;
     flex-wrap: wrap;
-    background-color: #708238;
+    background-color: #feac43;
 }
 
 .top-footer img{

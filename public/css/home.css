@@ -164,7 +164,18 @@
     text-decoration: none;
     color:#473125;
     position: relative;
-    min-height: 77px;
+    height: 77px;
+    overflow: hidden;
+}
+
+.popular-tools-con a:before{
+    content: "";
+    height: 100%;
+    width: 5px;
+    display: block;
+    background-color: #feac43;
+    position: absolute;
+    left: 0px;
 }
 
 .popular-tools-con h2{
@@ -272,8 +283,8 @@
     background-color: white;
     padding:  15px 30px;
     border-radius: 15px;
-    box-shadow: 0px 0px 12px rgba(92, 64, 51, 0.2);;
-
+    box-shadow: 0px 0px 12px rgba(92, 64, 51, 0.2);
+    border-left: solid 5px #feac43;
 }
 
 .faq-con .faqs div{
