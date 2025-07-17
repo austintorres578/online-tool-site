@@ -12,12 +12,15 @@
 
     <script>
     fetch("/partials/header.html")
-        .then(res => res.text())
-        .then(data => {
+      .then(res => res.text())
+      .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
-        })
-        .catch(err => console.error("Header failed to load:", err));
-    </script>
+        const script = document.createElement("script");
+        script.src = "/js/partials/header.js";
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Header load failed:", err));
+  </script>
 
     <main class="blog-archive-con">
 

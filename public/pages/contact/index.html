@@ -11,6 +11,18 @@
 
     <header id="header-placeholder"></header>
 
+    <script>
+    fetch("/partials/header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+        const script = document.createElement("script");
+        script.src = "/js/partials/header.js";
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Header load failed:", err));
+  </script>
+
     <main>
 
         <section class="contact-us-header">
@@ -33,15 +45,6 @@
         </section>
 
     </main>
-
-    <script>
-      fetch("/partials/header.html")
-        .then(res => res.text())
-        .then(data => {
-            document.getElementById("header-placeholder").innerHTML = data;
-        })
-      .catch(err => console.error("Header load failed:", err));
-    </script>
     
 
     <footer id="footer-placeholder"></footer>

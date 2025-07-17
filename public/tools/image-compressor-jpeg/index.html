@@ -15,6 +15,9 @@
       .then(res => res.text())
       .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
+        const script = document.createElement("script");
+        script.src = "/js/partials/header.js";
+        document.body.appendChild(script);
       })
       .catch(err => console.error("Header load failed:", err));
   </script>
