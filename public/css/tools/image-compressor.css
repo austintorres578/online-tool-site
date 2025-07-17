@@ -401,7 +401,7 @@
     background-color:#493629;
 } */
 
-.completion-download-con div{
+/* .completion-download-con div{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -421,7 +421,7 @@
     background-color: #755844;
     transition: .25s;
     cursor: pointer;
-}
+} */
 
 /* .completion-download-con div .back-button:after{
     position: absolute;
@@ -440,7 +440,7 @@
     font-weight: bold;
 } */
 
-.completion-download-con div .back-button:hover{
+/* .completion-download-con div .back-button:hover{
      background-color:#493629;
 }
 
@@ -458,7 +458,7 @@
 .completion-download-con div button{
     margin-left: 3px;
     margin-right: 3px;
-}
+} */
 
 /* #drop-area {
   border: 5px dashed lightgray;

@@ -60,8 +60,8 @@
         padding-right: 20px;
     }
 
-    body footer nav div a{
-        padding-left: 10px;
+    body footer nav div{
+        border-bottom: solid 1px #ffcb2f;
     }
 
     body .mobile-nav-ham-con{
@@ -70,6 +70,14 @@
 
     body header .header-nav{
         display: none;
+    }
+
+    body header a img{
+        height: 50px;
+    }
+    
+    body .top-footer img{
+        height: 50px;
     }
 }
 
@@ -101,7 +109,14 @@ body{
     margin: 0px;
     background-color: #fff6f0;
     font-family: sans-serif;
+    background: url(/images/gradient-background.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
 
+#header-placeholder{
+    padding-left:10px;
+    padding-right: 10px;
 }
 
 header{
@@ -277,9 +292,6 @@ main{
     max-width: 1100px;
     margin-left: auto;
     margin-right: auto;
-    background:url('/images/gradient-background.png');
-    background-size: cover;
-    background-repeat: no-repeat;
 }
 
 .mobile-nav-ham{
@@ -422,6 +434,26 @@ main{
     width: fit-content;
 }
 
+.completion-download-con div .back-button:hover{
+     background-color:#493629;
+}
+
+.completion-download-con div .back-button:hover:after{
+    opacity: 1;
+}
+
+.completion-download-con div .back-button img{
+    height: 15px;
+    width: auto;
+    object-fit: contain;
+    transform: rotate(-180deg);
+}
+
+.completion-download-con div button{
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
  .mobile-nav-con .dropdown:after{
     width: 15px;
     height: 15px;
@@ -441,6 +473,28 @@ main{
 
 .mobile-nav-con > a{
     margin-bottom: 15px;
+}
+
+.completion-download-con div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.completion-download-con div .back-button{
+    position: absolute;
+    left: 10px;
+    border-radius: 30px;
+    height: 38px;
+    width: 38px;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #755844;
+    transition: .25s;
+    cursor: pointer;
 }
 
 /* .vertical-ad{
@@ -505,9 +559,6 @@ footer{
     box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
 }
 
-.top-footer{
-    background-color: #708238;
-}
 
 /* footer div{
     padding-top: 20px;
@@ -763,15 +814,15 @@ footer p{
     margin-right: auto;
     display: flex;
     justify-content: center;
-    max-width: 1100px;
     align-items: flex-start;
     padding-top: 30px;
     padding-bottom: 30px;
     flex-wrap: wrap;
+    background-color: #708238;
 }
 
 .top-footer img{
-    height: 100px;
+    height: 75px;
     width: auto;
     object-fit: contain;
 }
