@@ -494,6 +494,7 @@ main{
     cursor: pointer;
     position: relative;
     width: fit-content;
+    font-size: 24px;
 }
 
 .completion-download-con div .back-button:hover{
@@ -531,10 +532,30 @@ main{
     text-decoration: none;
     color: #473125;
     display: block;
+    font-size: 24px;
 }
 
 .mobile-nav-con > a{
     margin-bottom: 15px;
+}
+
+.orange-button{
+    padding: 10px 22px;
+    background-color: #feac43;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    cursor: pointer;
+    transition: .25s;
+    border: solid 3px #feac43;
+    font-family: "Outfit";
+}
+
+.orange-button:hover{
+    background-color: white;
+    color: #feac43;
 }
 
 .completion-download-con div{
