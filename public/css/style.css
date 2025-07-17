@@ -192,9 +192,22 @@ header #compressor-dropdown li ul li:after{
 
 header .mobile-nav-con .dropdown-con li{
     position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    margin-left: 13px;
 }
 
-header .mobile-nav-con .dropdown-con li:after{
+header .mobile-nav-con .dropdown-con li:before{
+    content:"";
+    width:10px;
+    height: 2px;
+    background-color: #d57119;
+    display: block;
+    margin-right: 5px;
+}
+
+/* header .mobile-nav-con .dropdown-con li:after{
     content: "";
     width: 90%;
     height: 1px;
@@ -205,7 +218,7 @@ header .mobile-nav-con .dropdown-con li:after{
     left: 10px;
     margin-left: auto;
     margin-right: auto;
-}
+} */
 
 
 header .header-nav{
@@ -230,7 +243,7 @@ header .header-nav a{
 }
 
 
-header .header-nav a:before{
+header .header-nav > a:before{
     content:'';
     height: 2px;
     width: 0%;
@@ -244,8 +257,8 @@ header .header-nav a:hover:before{
     width: 100%;
 }
 
-header .header-nav a:hover{
-    color:#d57119;
+header .header-nav ul a:hover{
+    color:black;
 }
 
 header a img{
@@ -383,7 +396,6 @@ main{
     box-shadow: none;
     padding-left: 0px;
     width: fit-content;
-    margin-left: auto;
     height: fit-content;
     margin-bottom: 0px;
     list-style: none;
@@ -399,13 +411,15 @@ main{
 }
 
 .mobile-nav-con ul p{
-    text-align: right;
+    text-align: left;
     margin-bottom: 15px;
     margin-top: 0px;
     font-size: 18px;
     color: #473125; 
     font-weight: bold;
     cursor: pointer;
+    position: relative;
+    width: fit-content;
 }
 
  .mobile-nav-con .dropdown:after{
@@ -419,12 +433,14 @@ main{
 .mobile-nav-con a{
     font-weight: bold;
     width: fit-content;
-    margin-left: auto;
-    margin-bottom: 15px;
     font-size: 18px;
     text-decoration: none;
     color: #473125;
     display: block;
+}
+
+.mobile-nav-con > a{
+    margin-bottom: 15px;
 }
 
 /* .vertical-ad{

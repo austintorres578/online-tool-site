@@ -19,15 +19,16 @@ function revealMobileNav(event){
 }
 
 function revealMobileDropdown(event) {
-    
-    if(event.target.nextElementSibling.style.display==="none"){
-        event.target.nextElementSibling.style.display="block"
-    }
-    else{
-        event.target.nextElementSibling.style.display="none"
-    }
+    const dropdown = event.currentTarget;
+    const sibling = dropdown.nextElementSibling;
 
+    if (sibling.style.display === "none" || sibling.style.display === "") {
+        sibling.style.display = "block";
+    } else {
+        sibling.style.display = "none";
+    }
 }
+
 
 
 mobileNav.querySelectorAll(".dropdown").forEach((dropdown) => {
