@@ -60,6 +60,18 @@
         padding-right: 20px;
     }
 
+    body .completion-download-con div{
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: center
+    }
+
+    body .completion-download-con div .back-button{
+        position: relative;
+        left: auto;
+        margin-top:30px
+    }
+
     body footer nav div{
         border-bottom: solid 1px #ffcb2f;
     }
@@ -480,11 +492,14 @@ main{
     justify-content: center;
     align-items: center;
     position: relative;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .completion-download-con div .back-button{
     position: absolute;
-    left: 10px;
+    left: -15%;
     border-radius: 30px;
     height: 38px;
     width: 38px;
@@ -828,6 +843,6 @@ footer p{
 }
 
 .bottom-footer{
-    background-color: #551515;
+    background-color: #755844;
     color: white;
 }
