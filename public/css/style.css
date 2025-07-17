@@ -121,7 +121,7 @@ body{
     margin: 0px;
     background-color: #fff6f0;
     font-family: sans-serif;
-    background: url(/images/gradient-background.png);
+    background: url('/images/gradient-background.png');
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -286,6 +286,10 @@ header .header-nav > a:before{
 
 header .header-nav a:hover:before{
     width: 100%;
+}
+
+header .header-nav .dropdown-con > li:hover > a{
+    color: white;
 }
 
 header .header-nav ul a:hover{
