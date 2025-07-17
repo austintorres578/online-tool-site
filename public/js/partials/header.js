@@ -5,6 +5,8 @@ let body = document.querySelector('body');
 let isNavRevealed = false;
 
 function revealMobileNav(event){
+
+    console.log(mobileNav.querySelectorAll(".dropdown"));
     
     if(isNavRevealed===false){
          mobileNav.style.right="0%";
@@ -15,5 +17,21 @@ function revealMobileNav(event){
     }
 
 }
+
+function revealMobileDropdown(event) {
+    
+    if(event.target.nextElementSibling.style.display==="none"){
+        event.target.nextElementSibling.style.display="block"
+    }
+    else{
+        event.target.nextElementSibling.style.display="none"
+    }
+
+}
+
+
+mobileNav.querySelectorAll(".dropdown").forEach((dropdown) => {
+        dropdown.addEventListener('click',revealMobileDropdown);
+});
 
 hamButton.addEventListener('click',revealMobileNav)
