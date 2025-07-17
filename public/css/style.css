@@ -76,7 +76,7 @@
 @media(max-width:550px){
     body .drop-area-con{
         padding: 15px;
-        width: 100%;
+        width: auto;
         margin-left: 0px;
         margin-right: 0px;
     }
@@ -375,7 +375,7 @@ main{
 .mobile-nav-con{
     position: absolute;
     background-color: white;
-    width: 300px;
+    width: 275px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
