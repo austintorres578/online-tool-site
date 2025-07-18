@@ -74,10 +74,23 @@
         height: auto;
     }
 
-    body .image-previews{
+     body .image-previews{
         width: 90%;
         margin-left: auto;
         margin-right: auto;
+        overflow-y: scroll;
+        flex-wrap: nowrap;
+        justify-content: space-evenly;
+        padding-left: 10px;
+    }
+
+    body .image-previews > div{
+        margin: 50px 50px 50px 0px;
+    }
+
+    body .image-previews div img{
+        width: 200px;
+        object-fit: cover;
     }
 
     body .image-preview-con{
@@ -156,6 +169,25 @@
     margin-left: auto;
     margin-right: auto;
     max-width:610px;
+}
+
+.image-compressor-con h1:after{
+        content: "";
+    height: 3px;
+    width: 0px;
+    margin-top: 5px;
+    display: block;
+    background-color: #feac43;
+    animation: grow-line 0.6s ease-out forwards;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+}
+
+@keyframes grow-line {
+  to {
+    width: 200px;
+  }
 }
 
 #drop-area p{
@@ -337,18 +369,21 @@
 }
 
 .image-options-con button{
-    background-color: #755844;
+    background-color: #feac43;
+    border: solid 3px #feac43;
     color: white;
-    border:none;
     border-radius: 5px;
     transition: .25s;
     cursor: pointer;
     font-size:18px;
     padding: 15px;
+    font-weight: 500;
+    font-family: "Outfit";
 }
 
 .image-options-con button:hover{
-    background-color:#493629;
+    background-color:white;
+    color: #feac43;
 }
 
 /* .loading-con{
@@ -558,6 +593,8 @@
     position: absolute;
     right: -35px;
     top: -15px;
+    background-color: red;
+    color: white;
 }
 
 

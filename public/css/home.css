@@ -111,6 +111,7 @@
     font-size: 45px;
     margin-bottom: 0px;
     color: #473125;
+    max-width: 430px;
 }
 
 .home-header h1:after {
@@ -276,6 +277,8 @@
 
 .popular-tools h2{
     font-size: 40px;
+    margin-bottom: 10px;
+    max-width: 365px;
 }
 
 .popular-tools div:first-of-type img {

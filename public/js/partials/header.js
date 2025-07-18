@@ -24,8 +24,10 @@ function revealMobileDropdown(event) {
 
     if (sibling.style.display === "none" || sibling.style.display === "") {
         sibling.style.display = "block";
+        dropdown.classList.add('active');
     } else {
         sibling.style.display = "none";
+        dropdown.classList.remove('active');
     }
 }
 

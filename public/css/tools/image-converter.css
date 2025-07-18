@@ -1,7 +1,119 @@
-@media(max-width:765px){
-    body .image-preview-con{
+@media(max-width:1120px){
+    /* body .loading-con{
+        flex-direction: column;
+    }
+
+    body .loading-con .vertical-ad{
+        height:125px;
+        width: 90%;
+    }
+
+    body .loading-con div{
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    } */
+
+    /* body .completion-con{
+        flex-direction: column;
+    }
+
+    body .completion-con .vertical-ad{
+        height: 200px;
+        width: 90%;
+    } */
+
+    body .completion-download-con{
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+@media(max-width:1000px){
+    body .image-compressor{
+        flex-direction: column;
+        height: auto;
+    }
+
+    body #drop-area label{
+        width: auto;
+    }
+
+    body .image-compressor .ad{
+        width: 90%;
+        height: 125px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    body .image-preview-con .ad{
+        height: 125px;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body .images-options{
+        display: flex;
+        align-items: baseline;
+        justify-content: space-evenly;
         flex-wrap: wrap;
     }
+
+    body .images-options div{
+        height: 125px;
+    }
+
+    body .image-options-con{
+        margin-left: auto;
+        margin-right: auto;
+        width: 90%;
+        height: auto;
+    }
+
+    body .image-previews{
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+        overflow-y: scroll;
+        flex-wrap: nowrap;
+        justify-content: space-evenly;
+        padding-left: 10px;
+    }
+
+    body .image-previews > div{
+        margin: 50px 50px 50px 0px;
+    }
+
+    body .image-previews div img{
+        width: 200px;
+        object-fit: cover;
+    }
+
+    body .image-preview-con{
+        flex-direction: column;
+    }
+
+     /* body .drop-area-con{
+        width:85%
+    } */
+
+    body .image-compressor .ad h3{
+        max-width: 100%;
+    }
+}
+
+@media(max-width:765px){
+    body .image-compressor-con h1{
+        font-size:30px
+    }
+
+    /* body #drop-area{
+        height:300px
+    } */
 }
 
 .image-preview-con{
@@ -134,18 +246,21 @@
 }
 
 .image-options-con button{
-    background-color: #755844;
+    background-color: #feac43;
+    border: solid 3px #feac43;
     color: white;
-    border:none;
     border-radius: 5px;
     transition: .25s;
     cursor: pointer;
-    font-size:18px;
+    font-size: 18px;
     padding: 15px;
+    font-weight: 500;
+    font-family: "Outfit";
 }
 
 .image-options-con button:hover{
-    background-color:#493629;
+    background-color:white;
+    color: #feac43;
 }
 
 .image-converter-con{
@@ -163,7 +278,7 @@
     text-align: center;
 }
 
-.conversion-options{
+.conversion-options div{
     display: grid;
     grid-template-columns: 33.3% 33.3% 33.3%;
     
@@ -175,19 +290,20 @@
     margin-bottom: 2.5px;
     margin-left: auto;
     margin-right: auto;
-    border: solid 2px #755844;
-    color:#755844;
-    background-color: transparent;
+    background-color: #feac43;
+    border: solid 3px #feac43;
+    color: white;
     cursor: pointer;
 }
 
 .conversion-options button:hover{
-    color: white;
+    color: #feac43;
+    background-color: white;
 }
 
 .conversion-options .active{
-    background-color: #755844;
-    color: white;
+    background-color: white;
+    color: #feac43;
 }
 
 .image-preview-buttons button{
@@ -200,4 +316,11 @@
     position: absolute;
     right: -35px;
     top: -15px;
+    background-color: red;
+    color: white;
+}
+
+.image-preview-buttons span{
+    margin-bottom: 5px;
+    display: block;
 }
