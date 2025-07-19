@@ -6,53 +6,44 @@ const compressionSlider = document.getElementById('compression-slider');
 const compressionValue = document.getElementById('compression-value');
 const addMoreIcon = document.getElementById('add-more-icon');
 const redownloadBtn = document.querySelector('.completion-download-button');
-const backButton = document.querySelector('.back-button');
+// const backButton = document.querySelector('.back-button');
 
 let imageTypeButtonCon = document.querySelector('.conversion-options');
 let allTypeButtons = imageTypeButtonCon.querySelectorAll('button');
 
-function selectImageType(event){
-    console.log(event.target)
-    
-    for(let i = 0; i<allTypeButtons.length;i++){
-        if(allTypeButtons[i]===event.target){
-            allTypeButtons[i].classList.add('active')
-        }else{
-            allTypeButtons[i].classList.remove('active')
-        }
-    }
+function selectImageType(event) {
+  for (let i = 0; i < allTypeButtons.length; i++) {
+    allTypeButtons[i].classList.toggle('active', allTypeButtons[i] === event.target);
+  }
 }
 
-allTypeButtons.forEach(button =>{
-    button.addEventListener('click',selectImageType)
-})
-
+allTypeButtons.forEach(button => {
+  button.addEventListener('click', selectImageType);
+});
 
 let uploadedFiles = [];
 let lastCompressedBlob = null;
 let lastCompressedFilename = null;
 
-if(addMoreIcon){
-  addMoreIcon.addEventListener('click', () => {
-  fileInput.click();
-});
+if (addMoreIcon) {
+  addMoreIcon.addEventListener('click', () => fileInput.click());
 }
 
-if(backButton){
-  backButton.addEventListener('click', () => {
-  uploadedFiles = [];
-  previewContainer.innerHTML = '';
-  document.querySelector('.image-converter').style.display = 'flex';
-  document.querySelector('.image-preview-con').style.display = 'none';
-  document.querySelector('.completion-con').style.display = 'none';
-  document.querySelector('.image-converter-header').style.display = '';
-  document.querySelector('.image-converter-copy').style.display = '';
-});
-}
+// if (backButton) {
+//   backButton.addEventListener('click', () => {
+//     uploadedFiles = [];
+//     previewContainer.innerHTML = '';
+//     document.querySelector('.image-converter').style.display = 'flex';
+//     document.querySelector('.image-preview-con').style.display = 'none';
+//     document.querySelector('.completion-con').style.display = 'none';
+//     document.querySelector('.image-converter-header').style.display = '';
+//     document.querySelector('.image-converter-copy').style.display = '';
+//   });
+// }
 
 ['dragenter', 'dragover'].forEach(eventName => {
-  if(dropArea){
-      dropArea.addEventListener(eventName, (e) => {
+  if (dropArea) {
+    dropArea.addEventListener(eventName, (e) => {
       e.preventDefault();
       dropArea.classList.add('dragover');
     });
@@ -60,12 +51,11 @@ if(backButton){
 });
 
 ['dragleave', 'drop'].forEach(eventName => {
-  if(dropArea){
+  if (dropArea) {
     dropArea.addEventListener(eventName, () => {
-    dropArea.classList.remove('dragover');
+      dropArea.classList.remove('dragover');
     });
   }
-
 });
 
 if (dropArea) {
@@ -73,21 +63,24 @@ if (dropArea) {
     e.preventDefault();
     const files = e.dataTransfer.files;
 
+    const totalImages = uploadedFiles.length + files.length;
+    if (totalImages > 10) {
+      alert('You can only upload up to 10 images.');
+      return;
+    }
+
     const acceptRaw = dropArea.querySelector('input').accept.trim();
-    const cleanedAccept = acceptRaw.replace("image/", ""); // e.g. "jpeg" or "*"
+    const cleanedAccept = acceptRaw.replace("image/", "");
 
     if (cleanedAccept === "*") {
       handleFiles(files);
     } else {
       for (let i = 0; i < files.length; i++) {
-        const fileType = files[i].type.replace("image/", ""); // e.g. "jpeg"
-        console.log(`File type: ${fileType}, Accepted type: ${cleanedAccept}`);
-
-        if(fileType!==cleanedAccept){
+        const fileType = files[i].type.replace("image/", "");
+        if (fileType !== cleanedAccept) {
           alert(`One of the images provided is not ${cleanedAccept}, please retry without that image.`);
           return;
-        }
-        else if(i===files.length-1){
+        } else if (i === files.length - 1) {
           handleFiles(files);
         }
       }
@@ -95,22 +88,37 @@ if (dropArea) {
   });
 }
 
+if (fileInput) {
+  fileInput.addEventListener('change', () => {
+    const files = fileInput.files;
+    const totalImages = uploadedFiles.length + files.length;
 
+    if (totalImages > 10) {
+      alert('You can only upload up to 10 images.');
+      fileInput.value = '';
+      return;
+    }
 
-if(fileInput){
-    fileInput.addEventListener('change', () => {
-    handleFiles(fileInput.files);
+    handleFiles(files);
   });
 }
 
-if(compressionSlider){
-    compressionSlider.addEventListener('input', () => {
+if (compressionSlider) {
+  compressionSlider.addEventListener('input', () => {
     compressionValue.textContent = `${compressionSlider.value}%`;
   });
 }
 
 function handleFiles(files) {
-  Array.from(files).forEach(file => {
+  const remainingSlots = 10 - uploadedFiles.length;
+  const filesArray = Array.from(files);
+
+  if (filesArray.length > remainingSlots) {
+    alert(`You can only upload ${remainingSlots} more image${remainingSlots === 1 ? '' : 's'}.`);
+    return;
+  }
+
+  filesArray.forEach(file => {
     if (file.type.startsWith('image/')) {
       uploadedFiles.push(file);
 
@@ -177,7 +185,7 @@ function removeUncompressedImage(event) {
   }
 }
 
-if(compressBtn){
+if (compressBtn) {
   compressBtn.addEventListener('click', convertImages);
 }
 
@@ -248,9 +256,8 @@ function convertImages() {
     });
 }
 
-
-if(redownloadBtn){
-    redownloadBtn.addEventListener('click', () => {
+if (redownloadBtn) {
+  redownloadBtn.addEventListener('click', () => {
     if (!lastCompressedBlob || !lastCompressedFilename) {
       alert('No compressed images to download. Please compress images first.');
       return;

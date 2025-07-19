@@ -23,11 +23,14 @@
   </script>
 
   <main class="image-compressor-con">
-    <h1 class="image-compressor-header">Compress Images For Faster Load Times!</h1>
-    <p class="image-compressor-copy">Optimize your images online, JPEG/JPG, PNG, WebP, TIFF formats supported</p>
+
+
 
     <section class="image-compressor">
       <!-- <a class="ad" href="#"><h3>Your Ad Here</h3></a> -->
+
+      <h1 class="image-compressor-header">Compress Images For Faster Load Times!</h1>
+      <p class="image-compressor-copy">Optimize your images online, JPEG/JPG, PNG, WebP, TIFF formats supported</p>
 
       <div class="drop-area-con">
         <div id="drop-area">
@@ -57,6 +60,7 @@
         <div class="images-options">
 
           <div class="more-images-con">
+            <h2>Image Compression</h2>
             <p>Add More Images?</p>
             <div>
               <button><img src="images/droparea/drop-box-logo.png"></button>
@@ -65,13 +69,12 @@
             </div>
           </div>
 
-          <div>
-            <label>
-              <p>Image Quality</p>
-              <span id="compression-value">80%</span>
-              <input type="range" name="compression-rate" min="0" max="100" value="80" id="compression-slider" title="Lower means smaller file, lower quality">
-            </label>
-          </div>
+          <label>
+            <p><strong>Compression Level</strong></p>
+            <small>0% (Max Compression) ←→ 100% (High Quality)</small>
+            <span id="compression-value">80%</span>
+            <input type="range" name="compression-rate" min="0" max="100" value="80" id="compression-slider" title="Slide right for higher image quality, larger file size">
+          </label>
 
         </div>
 
@@ -108,7 +111,7 @@
       <div class="completion-download-con">
         <h3>Your Images Have Been Mashed!</h3>
         <div>
-          <button class="back-button"><a href="/tools/compressors/image-compressor/"><img src="/images/arrow.png"></a></button>
+          <a href="/tools/compressors/image-compressor/"><button class="back-button"><img src="/images/arrow.png"></button></a>
           <button class="completion-download-button">Download Your Compressed Images</button>
         </div>
 

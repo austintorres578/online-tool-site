@@ -73,7 +73,7 @@
         justify-content: center
     }
 
-    body .completion-download-con div .back-button{
+    body .completion-download-con div a{
         position: relative;
         left: auto;
         margin-top:30px
@@ -539,15 +539,15 @@ main{
     font-size: 24px;
 }
 
-.completion-download-con div .back-button:hover{
+.completion-download-con div a:hover{
      background-color:#b27a30;
 }
 
-.completion-download-con div .back-button:hover:after{
+.completion-download-con div a:hover:after{
     opacity: 1;
 }
 
-.completion-download-con div .back-button img{
+.completion-download-con div a img{
     height: 15px;
     width: auto;
     object-fit: contain;
@@ -557,6 +557,8 @@ main{
 .completion-download-con div button{
     margin-left: 3px;
     margin-right: 3px;
+    border: none;
+    background-color: transparent;
 }
 
  /* .mobile-nav-con .dropdown:after{
@@ -612,7 +614,7 @@ main{
 
 
 
-.completion-download-con div .back-button{
+.completion-download-con div a{
     position: absolute;
     left: -15%;
     border-radius: 30px;
@@ -861,7 +863,7 @@ footer p{
     border-radius: 20px;
     border: solid 1px lightgray;
     display: flex;
-    width: 85%;
+    width: 55%;
     margin: 10px;
     margin-left: auto;
     margin-right: auto;
@@ -926,7 +928,7 @@ footer p{
     margin-bottom: 10px;
 }
 
-.completion-download-con div .back-button:after{
+.completion-download-con div a:after{
     position: absolute;
     content:"Make More Images";
     font-size: 10px;
