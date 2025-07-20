@@ -9,6 +9,11 @@
     text-align: center;
 }
 
+.image-resizer-con{
+    padding: 90px 0px 0px 0px;
+    max-width: 100%;
+}
+
 .image-resizer-con p{
     max-width:550px;
     text-align: center;

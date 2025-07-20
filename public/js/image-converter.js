@@ -6,7 +6,6 @@ const compressionSlider = document.getElementById('compression-slider');
 const compressionValue = document.getElementById('compression-value');
 const addMoreIcon = document.getElementById('add-more-icon');
 const redownloadBtn = document.querySelector('.completion-download-button');
-// const backButton = document.querySelector('.back-button');
 
 let imageTypeButtonCon = document.querySelector('.conversion-options');
 let allTypeButtons = imageTypeButtonCon.querySelectorAll('button');
@@ -16,10 +15,7 @@ function selectImageType(event) {
     allTypeButtons[i].classList.toggle('active', allTypeButtons[i] === event.target);
   }
 }
-
-allTypeButtons.forEach(button => {
-  button.addEventListener('click', selectImageType);
-});
+allTypeButtons.forEach(button => button.addEventListener('click', selectImageType));
 
 let uploadedFiles = [];
 let lastCompressedBlob = null;
@@ -29,18 +25,6 @@ if (addMoreIcon) {
   addMoreIcon.addEventListener('click', () => fileInput.click());
 }
 
-// if (backButton) {
-//   backButton.addEventListener('click', () => {
-//     uploadedFiles = [];
-//     previewContainer.innerHTML = '';
-//     document.querySelector('.image-converter').style.display = 'flex';
-//     document.querySelector('.image-preview-con').style.display = 'none';
-//     document.querySelector('.completion-con').style.display = 'none';
-//     document.querySelector('.image-converter-header').style.display = '';
-//     document.querySelector('.image-converter-copy').style.display = '';
-//   });
-// }
-
 ['dragenter', 'dragover'].forEach(eventName => {
   if (dropArea) {
     dropArea.addEventListener(eventName, (e) => {
@@ -49,7 +33,6 @@ if (addMoreIcon) {
     });
   }
 });
-
 ['dragleave', 'drop'].forEach(eventName => {
   if (dropArea) {
     dropArea.addEventListener(eventName, () => {
@@ -69,22 +52,7 @@ if (dropArea) {
       return;
     }
 
-    const acceptRaw = dropArea.querySelector('input').accept.trim();
-    const cleanedAccept = acceptRaw.replace("image/", "");
-
-    if (cleanedAccept === "*") {
-      handleFiles(files);
-    } else {
-      for (let i = 0; i < files.length; i++) {
-        const fileType = files[i].type.replace("image/", "");
-        if (fileType !== cleanedAccept) {
-          alert(`One of the images provided is not ${cleanedAccept}, please retry without that image.`);
-          return;
-        } else if (i === files.length - 1) {
-          handleFiles(files);
-        }
-      }
-    }
+    handleFiles(files);
   });
 }
 
@@ -209,8 +177,6 @@ function convertImages() {
   document.querySelector('.image-converter-header').style.display = "none";
   document.querySelector('.image-converter-copy').style.display = "none";
 
-  const startTime = performance.now();
-
   const formData = new FormData();
   uploadedFiles.forEach(file => formData.append('images', file));
   formData.append('format', format);
@@ -225,17 +191,17 @@ function convertImages() {
 
       const contentDisposition = res.headers.get('Content-Disposition') || '';
       const match = contentDisposition.match(/filename="?(.+?)"?$/);
-      const filename = match ? match[1] : `converted.${format}`;
+      const filename = match
+        ? match[1]
+        : (res.headers.get('Content-Type') === 'application/zip'
+            ? 'converted-images.zip'
+            : `converted.${format}`);
 
       return res.blob().then(blob => ({ blob, filename }));
     })
     .then(({ blob, filename }) => {
       lastCompressedBlob = blob;
       lastCompressedFilename = filename;
-
-      const endTime = performance.now();
-      console.log(`✅ Conversion completed in ${(endTime - startTime).toFixed(2)} ms`);
-      console.log(`📦 Converted Size: ${(blob.size / 1024).toFixed(1)} KB`);
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
