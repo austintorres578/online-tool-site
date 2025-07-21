@@ -23,7 +23,12 @@
   </script>
 
   <main class="image-converter-con">
+    <!-- <h1 class="image-converter-header">Convert Images To Any Type You Like!</h1>
+    <p class="image-converter-copy">Optimize your images online, JPEG/JPG, PNG, WebP, TIFF formats supported</p> -->
+
     <section class="image-converter">
+      <!-- <a class="ad" href="#"><h3>Your Ad Here</h3></a> -->
+
       <h1 class="image-converter-header">Convert Images To Any Type You Like!</h1>
       <p class="image-converter-copy">Optimize your images online, JPEG/JPG, PNG, WebP, TIFF formats supported</p>
 
@@ -34,25 +39,33 @@
           <label for="fileElem">Select Images</label>
           <p>Or Drag & Drop Images Here</p>
           <div id="other-drop-options">
-            <button><img src="/images/droparea/google-drive-logo.png" alt="Google Drive"/></button>
-            <button><img src="/images/droparea/drop-box-logo.png" alt="Dropbox"/></button>
+            <button><img src="images/droparea/google-drive-logo.png" alt="Google Drive"/></button>
+            <button><img src="images/droparea/drop-box-logo.png" alt="Dropbox"/></button>
           </div>
         </div>
       </div>
+
+      <!-- <a class="ad" href="#"><h3>Your Ad Here</h3></a> -->
     </section>
 
     <section class="image-preview-con" style="display: none;">
+      <!-- <a href="#" class="ad"><h3>Your Ad Here</h3></a> -->
+
       <div class="image-previews"></div>
 
+    
+
       <div class="image-options-con">
+
         <div class="images-options">
+
           <div class="more-images-con">
             <h2>Image Convert</h2>
             <p>Add More Images?</p>
             <div>
-              <button><img src="/images/droparea/drop-box-logo.png"></button>
+              <button><img src="images/droparea/drop-box-logo.png"></button>
               <img id="add-more-icon" src="/images/droparea/upload-icon.png">
-              <button><img src="/images/droparea/google-drive-logo.png"></button>
+              <button><img src="images/droparea/google-drive-logo.png"></button>
             </div>
           </div>
 
@@ -86,35 +99,57 @@
     </section>
 
     <section class="loading-con">
+
+      <!-- <a class="vertical-ad">
+        <p>You Ad Here</p>
+      </a> -->
+
       <div>
         <h2>Images Changes Are Happening Now.</h2>
         <img src="/images/loading-wtf.gif">
-        <p>Hang tight, we're getting things ready. This may take up to 5 minutes!</p>
+        <p>Hang tight, we're getting things ready, This may take up to 5 minutes!</p>
       </div>
+
+      <!-- <a class="vertical-ad">
+        <p>You Ad Here</p>
+      </a> -->
+
     </section>
 
     <section class="completion-con">
+      <!-- <a href="#" class="vertical-ad">
+        <p>Your Ad Here</p>
+      </a> -->
+
       <div class="completion-download-con">
         <h3>Your Images Have Been Converted</h3>
         <div>
           <a href="/tools/converters/image-converter/"><button class="back-button"><img src="/images/arrow.png"></button></a>
           <button class="completion-download-button">Download Your Converted Images</button>
         </div>
+
       </div>
+
+      <!-- <a href="#" class="vertical-ad">
+        <p>Your Ad Here</p>
+      </a> -->
     </section>
+
+    <!-- <a href="#" class="ad"><h3>Your Ad Here</h3></a> -->
   </main>
 
-  <footer id="footer-placeholder"></footer>
+<footer id="footer-placeholder"></footer>
 
-  <script>
-    fetch("/partials/footer.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("footer-placeholder").innerHTML = data;
-        document.getElementById("year").textContent = new Date().getFullYear();
-      })
-      .catch(err => console.error("Footer load failed:", err));
-  </script>
+<script>
+  fetch("/partials/footer.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("footer-placeholder").innerHTML = data;
+      document.getElementById("year").textContent = new Date().getFullYear();
+    })
+    .catch(err => console.error("Footer load failed:", err));
+</script>
+
 
   <script src="/js/image-converter.js"></script>
 </body>

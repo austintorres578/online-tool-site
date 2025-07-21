@@ -26,25 +26,49 @@ if (addMoreIcon) {
 }
 
 ['dragenter', 'dragover'].forEach(eventName => {
-  if (dropArea) {
-    dropArea.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      dropArea.classList.add('dragover');
-    });
-  }
+  dropArea?.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    dropArea.classList.add('dragover');
+  });
 });
+
 ['dragleave', 'drop'].forEach(eventName => {
-  if (dropArea) {
-    dropArea.addEventListener(eventName, () => {
-      dropArea.classList.remove('dragover');
-    });
-  }
+  dropArea?.addEventListener(eventName, () => {
+    dropArea.classList.remove('dragover');
+  });
 });
+
+function isValidFile(file, acceptTypes) {
+  const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+  const mimeType = file.type.toLowerCase();
+  return (
+    (acceptTypes.includes('image/*') && file.type.startsWith('image/')) ||
+    acceptTypes.includes(fileExt) ||
+    acceptTypes.includes(mimeType)
+  );
+}
+
+function validateFiles(files, acceptTypes) {
+  return files.filter(file =>
+    !isValidFile(file, acceptTypes) || file.size > 10 * 1024 * 1024
+  );
+}
 
 if (dropArea) {
   dropArea.addEventListener('drop', (e) => {
     e.preventDefault();
-    const files = e.dataTransfer.files;
+    const files = Array.from(e.dataTransfer.files);
+    const acceptTypes = fileInput.accept.trim().split(',').map(type => type.trim().toLowerCase());
+
+    const invalidFiles = validateFiles(files, acceptTypes);
+    if (invalidFiles.length > 0) {
+      const reasons = invalidFiles.map(file => {
+        if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
+        if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
+      }).join('\n');
+      alert(`Some files were rejected:\n${reasons}`);
+      return;
+    }
 
     const totalImages = uploadedFiles.length + files.length;
     if (totalImages > 10) {
@@ -58,9 +82,21 @@ if (dropArea) {
 
 if (fileInput) {
   fileInput.addEventListener('change', () => {
-    const files = fileInput.files;
-    const totalImages = uploadedFiles.length + files.length;
+    const files = Array.from(fileInput.files);
+    const acceptTypes = fileInput.accept.trim().split(',').map(type => type.trim().toLowerCase());
 
+    const invalidFiles = validateFiles(files, acceptTypes);
+    if (invalidFiles.length > 0) {
+      const reasons = invalidFiles.map(file => {
+        if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
+        if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
+      }).join('\n');
+      alert(`Some files were rejected:\n${reasons}`);
+      fileInput.value = '';
+      return;
+    }
+
+    const totalImages = uploadedFiles.length + files.length;
     if (totalImages > 10) {
       alert('You can only upload up to 10 images.');
       fileInput.value = '';
@@ -190,12 +226,23 @@ function convertImages() {
       if (!res.ok) throw new Error('Conversion failed');
 
       const contentDisposition = res.headers.get('Content-Disposition') || '';
-      const match = contentDisposition.match(/filename="?(.+?)"?$/);
-      const filename = match
-        ? match[1]
-        : (res.headers.get('Content-Type') === 'application/zip'
-            ? 'converted-images.zip'
-            : `converted.${format}`);
+      let filename = 'converted';
+      const match = contentDisposition.match(/filename="?([^\"]+)"?/);
+      if (match && match[1]) {
+        filename = match[1].trim();
+      } else {
+        const contentType = res.headers.get('Content-Type');
+        const extMap = {
+          'image/jpeg': '.jpg',
+          'image/png': '.png',
+          'image/webp': '.webp',
+          'image/avif': '.avif',
+          'image/bmp': '.bmp',
+          'image/tiff': '.tiff',
+          'application/zip': '.zip'
+        };
+        filename += extMap[contentType] || '';
+      }
 
       return res.blob().then(blob => ({ blob, filename }));
     })

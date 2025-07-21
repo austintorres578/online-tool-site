@@ -6,98 +6,84 @@ const compressionSlider = document.getElementById('compression-slider');
 const compressionValue = document.getElementById('compression-value');
 const addMoreIcon = document.getElementById('add-more-icon');
 const redownloadBtn = document.querySelector('.completion-download-button');
-// const backButton = document.querySelector('.back-button');
 
 let uploadedFiles = [];
 let lastCompressedBlob = null;
 let lastCompressedFilename = null;
 
 if (addMoreIcon) {
-  addMoreIcon.addEventListener('click', () => {
-    fileInput.click();
-  });
+  addMoreIcon.addEventListener('click', () => fileInput.click());
 }
 
-// if (backButton) {
-//   backButton.addEventListener('click', () => {
-//     uploadedFiles = [];
-//     previewContainer.innerHTML = '';
-//     document.querySelector('.image-compressor').style.display = 'flex';
-//     document.querySelector('.image-preview-con').style.display = 'none';
-//     document.querySelector('.completion-con').style.display = 'none';
-//     document.querySelector('.image-compressor-header').style.display = '';
-//     document.querySelector('.image-compressor-copy').style.display = '';
-//   });
-// }
-
 ['dragenter', 'dragover'].forEach(eventName => {
-  if (dropArea) {
-    dropArea.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      dropArea.classList.add('dragover');
-    });
-  }
+  dropArea?.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    dropArea.classList.add('dragover');
+  });
 });
 
 ['dragleave', 'drop'].forEach(eventName => {
-  if (dropArea) {
-    dropArea.addEventListener(eventName, () => {
-      dropArea.classList.remove('dragover');
-    });
-  }
+  dropArea?.addEventListener(eventName, () => {
+    dropArea.classList.remove('dragover');
+  });
 });
 
-if (dropArea) {
-  dropArea.addEventListener('drop', (e) => {
-    e.preventDefault();
+dropArea?.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const files = Array.from(e.dataTransfer.files);
+  const totalImages = uploadedFiles.length + files.length;
 
-    const files = e.dataTransfer.files;
-    const totalImages = uploadedFiles.length + files.length;
+  if (totalImages > 10) {
+    alert('You can only upload up to 10 images.');
+    return;
+  }
 
-    if (totalImages > 10) {
-      alert('You can only upload up to 10 images.');
-      return;
-    }
-
-    const acceptRaw = dropArea.querySelector('input').accept.trim();
-    const cleanedAccept = acceptRaw.replace("image/", "");
-
-    if (cleanedAccept === "*") {
-      handleFiles(files);
-    } else {
-      for (let i = 0; i < files.length; i++) {
-        const fileType = files[i].type.replace("image/", "");
-        if (fileType !== cleanedAccept) {
-          alert(`One of the images provided is not ${cleanedAccept}, please retry without that image.`);
-          return;
-        } else if (i === files.length - 1) {
-          handleFiles(files);
-        }
-      }
-    }
+  const invalidFiles = files.filter(file => {
+    return !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024;
   });
-}
 
-if (fileInput) {
-  fileInput.addEventListener('change', () => {
-    const files = fileInput.files;
-    const totalImages = uploadedFiles.length + files.length;
+  if (invalidFiles.length > 0) {
+    const reasons = invalidFiles.map(file => {
+      if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
+      if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
+    }).join('\n');
+    alert(`Some files were rejected:\n${reasons}`);
+    return;
+  }
 
-    if (totalImages > 10) {
-      alert('You can only upload up to 10 images.');
-      fileInput.value = '';
-      return;
-    }
+  handleFiles(files);
+});
 
-    handleFiles(files);
+fileInput?.addEventListener('change', () => {
+  const files = Array.from(fileInput.files);
+  const totalImages = uploadedFiles.length + files.length;
+
+  if (totalImages > 10) {
+    alert('You can only upload up to 10 images.');
+    fileInput.value = '';
+    return;
+  }
+
+  const invalidFiles = files.filter(file => {
+    return !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024;
   });
-}
 
-if (compressionSlider) {
-  compressionSlider.addEventListener('input', () => {
-    compressionValue.textContent = `${compressionSlider.value}%`;
-  });
-}
+  if (invalidFiles.length > 0) {
+    const reasons = invalidFiles.map(file => {
+      if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
+      if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
+    }).join('\n');
+    alert(`Some files were rejected:\n${reasons}`);
+    fileInput.value = '';
+    return;
+  }
+
+  handleFiles(files);
+});
+
+compressionSlider?.addEventListener('input', () => {
+  compressionValue.textContent = `${compressionSlider.value}%`;
+});
 
 function handleFiles(files) {
   const remainingSlots = 10 - uploadedFiles.length;
@@ -175,9 +161,7 @@ function removeUncompressedImage(event) {
   }
 }
 
-if (compressBtn) {
-  compressBtn.addEventListener('click', compressImages);
-}
+compressBtn?.addEventListener('click', compressImages);
 
 function compressImages() {
   if (uploadedFiles.length === 0) {
@@ -207,8 +191,23 @@ function compressImages() {
       if (!res.ok) throw new Error('Compression failed');
 
       const contentDisposition = res.headers.get('Content-Disposition') || '';
-      const match = contentDisposition.match(/filename="?(.+?)"?$/);
-      const filename = match ? match[1] : 'compressed';
+      let filename = 'compressed';
+      const match = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (match && match[1]) {
+        filename = match[1].trim();
+      } else {
+        const contentType = res.headers.get('Content-Type');
+        const extMap = {
+          'image/jpeg': '.jpg',
+          'image/png': '.png',
+          'image/webp': '.webp',
+          'image/avif': '.avif',
+          'image/bmp': '.bmp',
+          'image/tiff': '.tiff',
+          'application/zip': '.zip'
+        };
+        filename += extMap[contentType] || '';
+      }
 
       return res.blob().then(blob => ({ blob, filename }));
     })
@@ -240,20 +239,18 @@ function compressImages() {
     });
 }
 
-if (redownloadBtn) {
-  redownloadBtn.addEventListener('click', () => {
-    if (!lastCompressedBlob || !lastCompressedFilename) {
-      alert('No compressed images to download. Please compress images first.');
-      return;
-    }
+redownloadBtn?.addEventListener('click', () => {
+  if (!lastCompressedBlob || !lastCompressedFilename) {
+    alert('No compressed images to download. Please compress images first.');
+    return;
+  }
 
-    const url = window.URL.createObjectURL(lastCompressedBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = lastCompressedFilename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  });
-}
+  const url = window.URL.createObjectURL(lastCompressedBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = lastCompressedFilename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+});

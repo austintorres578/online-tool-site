@@ -583,6 +583,14 @@ main{
     margin-bottom: 15px;
 }
 
+.x{
+    display: none;
+}
+
+.ham{
+    display: block;
+}
+
 .orange-button{
     padding: 10px 22px;
     background-color: #feac43;
