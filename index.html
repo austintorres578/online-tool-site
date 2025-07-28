@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Compressor</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css">
+</head>
+<body>
+  <header id="header-placeholder"></header>
+
+  <script>
+    fetch("/partials/header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+        const script = document.createElement("script");
+        script.src = "/js/partials/header.js";
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Header load failed:", err));
+  </script>
+
+  <main class="home-con">
+
+    <section class="home-header">
+      <div class="home-header-content">
+        <h1>Useful Web Tools, Practical Tech Advice</h1>
+        <p>An all-in-one platform for compressing files, solving problems, and learning smarter web habits.</p>
+        <a href="/tools/image-compressor/"><button class="orange-button">Start Optimizing</button></a>
+      </div>
+      <div class="home-header-image">
+        <img src="/images/home/home-orange-image.png">
+      </div>
+    </section>
+
+    <section class="popular-tools-con">
+
+      <div class="popular-tools">
+        <div>
+            <img src="/images/tools-icon.png">
+        </div>
+        <div>
+            <h2>Our Web Tools - Fast, Free, & Private</h2>
+            <p class="header-sub">Use powerful online tools without signups, ads, or tracking. Built for speed, designed for privacy.</p>
+            <a href="/tools/compressors/image-compressor/">
+              <img src="/images/image-compression-icon.png">
+              <div>
+                <p class="tool-title"><strong>Image Compressor</strong></p>
+                <p>Reduces image file sizes.</p>
+              </div>
+            </a>
+
+            <a href="/tools/converters/image-converter/">
+              <img src="/images/image-converter-icon.png">
+              <div>
+                <p class="tool-title"><strong>Image Converter</strong></p>
+                <p>Convert Images to other formats</p>
+              </div>
+            </a>
+
+            <a href="#" class="coming-soon">
+              <img src="/images/image-resizer-icon.png">
+              <div>
+                <p class="tool-title"><strong>Image Resizer</strong></p>
+                <p>Adjust the dimensions of an Image.</p>
+              </div>
+            </a>
+        </div>
+
+      </div>
+      
+    </section>
+
+    <section class="blog-previews-con">
+
+      <h2>Recent Blog Posts</h2>
+      <p>Stay up to date with our latest articles on web tools, tech tips, and digital workflows. Fresh posts weekly.</p>
+      <div id="blog-previews-placeholder"></div>
+
+      <script>
+        fetch("/partials/blog-previews.html")
+        .then(res => res.text())
+        .then(data => {
+          const container = document.getElementById("blog-previews-placeholder");
+          container.innerHTML = data;
+
+          // Load blog-previews.js AFTER the HTML is injected
+          const script = document.createElement("script");
+          script.src = "/js/partials/blog-previews.js";
+          document.body.appendChild(script);
+        })
+        .catch(err => console.error("Blog previews load failed:", err));
+
+
+      </script>
+
+    </section>
+
+    <section class="faq-con">
+      <h3>Frequently Asked Questions</h3>
+      <div class="faqs">
+        <div>
+          <p><strong>Are my Images Stored when uploaded?</strong></p>
+          <p>Images are compressed securely on our server and immediately deleted after processing. We do not store or log any of your files.</p>
+        </div>
+        <div>
+          <p><strong>Are your tools free to use?</strong></p>
+          <p>Yes tools are 100% free with no sign-up, no watermarks, no limits!</p>
+        </div>
+        <div>
+          <p><strong>Which file Formats are Supported</strong></p>
+          <p>We currently support .jpg, .jpeg, .png, .webp, .tiff, and .avif formats.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+<footer id="footer-placeholder"></footer>
+
+<script>
+  fetch("/partials/footer.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("footer-placeholder").innerHTML = data;
+      document.getElementById("year").textContent = new Date().getFullYear();
+    })
+    .catch(err => console.error("Footer load failed:", err));
+</script>
+
+
+  <script src="js/image-compressor.js"></script>
+</body>
+</html>

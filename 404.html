@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/not-found.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <header id="header-placeholder"></header>
+
+    <script>
+    fetch("/partials/header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+        const script = document.createElement("script");
+        script.src = "/js/partials/header.js";
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Header load failed:", err));
+  </script>
+
+    <main class="not-found-content-con">
+        <section class="not-found-header">
+            <img src="./images/404-image.png">
+            <h1>404!</h1>
+            <h2>Your At The Wrong Place Buddy!</h2>
+            <a href="/">Back To Home</a>
+        </section>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+    <script>
+        fetch("/partials/footer.html")
+            .then(res => res.text())
+            .then(data => {
+            document.getElementById("footer-placeholder").innerHTML = data;
+            document.getElementById("year").textContent = new Date().getFullYear();
+            })
+            .catch(err => console.error("Footer load failed:", err));
+    </script>
+
+    
+</body>
+</html>
