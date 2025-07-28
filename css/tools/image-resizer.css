@@ -1,0 +1,771 @@
+@media(max-width:1120px){
+
+    body .completion-download-con{
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+@media(max-width:1000px){
+    body .image-resizer{
+        flex-direction: column;
+        height: auto;
+    }
+
+    body #drop-area label{
+        width: auto;
+    }
+
+    body .image-options-con .more-images-con h2{
+        display: none;
+    }
+
+    body .add-more-button{
+        position: relative;
+        left: auto;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 75px;
+    }
+
+    body .image-resizer .ad{
+        width: 90%;
+        height: 125px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    body .image-preview-con .ad{
+        height: 125px;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body .images-options{
+        display: flex;
+        align-items: baseline;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+    }
+
+    /* body .images-options div{
+        height: 125px;
+    } */
+
+    body .image-options-con{
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        height: auto;
+    }
+
+     body .image-previews{
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+        overflow-y: scroll;
+        flex-wrap: nowrap;
+        justify-content: space-evenly;
+        padding-left: 10px;
+    }
+
+    body .image-previews > div{
+        margin: 50px 50px 50px 0px;
+    }
+
+    body .image-previews div img{
+        width: 200px;
+        object-fit: cover;
+    }
+
+    body .image-preview-con{
+        flex-direction: column;
+    }
+
+    body .image-resizer .ad h3{
+        max-width: 100%;
+    }
+}
+
+@media(max-width:765px){
+    body .image-resizer-con h1{
+        font-size:30px;
+        max-width:330px;
+    }
+
+}
+
+@media(max-width:600px){
+    body .completion-download-con div .back-button{
+        position: relative;
+        left: auto;
+    }
+
+    body .image-option-tabs{
+        flex-wrap: wrap;
+    }
+
+    body .number-inputs{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    body .exact-dim-con div input{
+        margin-top: 3px;
+        margin-bottom: 3px;
+    }
+    
+     body .exact-dim-con div p{
+        margin-top: 5px;
+        margin-bottom: 5px;
+     }
+
+    body .completion-download-con div{
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: center;
+    }
+
+    body .completion-download-button{
+        margin-bottom: 50px;
+    }
+}
+
+.image-resizer-con{
+    text-align: center;
+    max-width: 100%;
+    padding: 90px 0px 0px 0px;
+}
+
+.image-resizer-con > .ad{
+    border:solid 2px lightgray;
+    height:250px;
+    max-width: 970px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-top:50px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-decoration: none;
+    background-color: white;
+    color: #473125;
+     
+}
+
+.image-resizer-con > .ad h3{
+    font-size: 35px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.image-resizer-con h1{
+    color: #473125;
+    font-size: 45px;
+    margin-top: 20px;
+    margin-bottom: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width:610px;
+}
+
+.image-resizer-con h1:after{
+        content: "";
+    height: 3px;
+    width: 0px;
+    margin-top: 5px;
+    display: block;
+    background-color: #feac43;
+    animation: grow-line 0.6s ease-out forwards;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+}
+
+.image-resizer-copy{
+    max-width: 500px;
+}
+
+@keyframes grow-line {
+  to {
+    width: 200px;
+  }
+}
+
+#drop-area p{
+    color: #5c4033;
+    font-size: 24px;
+    margin-top: 10px;
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-resizer{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    /* height: 675px; */
+    flex-direction: column;
+    padding-bottom: 90px;
+}
+
+.image-resizer .ad{
+    border: solid 1px lightgray;
+    background-color: white;
+    width: 300px;
+    height: 600px;
+    display: block;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #473125;
+    text-decoration: none;
+}
+
+.image-resizer .ad h3{
+    font-size: 35px;
+    max-width: 180px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-preview-con{
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    display: none;
+}
+
+.image-preview-con .ad{
+    border:solid 1px lightgray;
+    width: 300px;
+    height: 600px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-decoration: none;
+    background-color: white;
+    color: #473125;
+}
+
+.image-previews{
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.image-previews > div {
+    position: relative;
+    height: 200px;
+    width: 175px;
+    margin: 50px;
+    transition: 0.25s;
+}
+
+.image-previews > div:hover {
+    animation: bounce 0.6s ease-in-out infinite alternate;
+}
+
+.image-previews div img{
+    height: 75%;
+    width: 100%;
+    object-fit: cover;
+    box-shadow: 0px 0px 10px gray;
+
+}
+
+.image-previews div p{
+    /* position: absolute; */
+    font-size: 12px;
+    text-align: center;
+    /* top:100%;
+    left:50%;;
+    transform: translate(-50%, -50%); */
+    padding:3px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    text-align: center;
+}
+
+.image-dimensions{
+    display: flex;
+    justify-content: center;
+}
+
+.image-preview-item .image-dimensions p{
+    font-weight: bold;
+    margin-left: 3px;
+    margin-right: 3px;
+    font-size: 18px;
+}
+
+.image-options-con{
+    position: relative;
+    width:600px;
+    /* height:600px; */
+    background-color: white;
+    box-shadow: 0px 0px 10px gray;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px 0px 15px 0px;
+    margin-left: 130px;
+}
+
+.image-options-con h3{
+    text-decoration: underline;
+    color: #473125;
+}
+
+.image-options-con .more-images-con div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-options-con .more-images-con p{
+    margin-top: 0px;
+}
+
+.image-options-con .more-images-con button{
+    margin: 10px;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.image-options-con .more-images-con button img{
+    height: 30px;
+    width: 30px;
+    object-fit: contain;
+    object-position: center;
+}
+
+.image-options-con .more-images-con img{
+    height: 78px;
+    width: 70px;
+    object-fit: cover;
+    object-position: center;
+    cursor: pointer;
+}
+
+.image-options-con .more-images-con h2{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    border-bottom: solid 3px #feac43;
+}
+
+.image-options-con label{
+    /* min-height: 132px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.image-options-con .compress-button-con{
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+    height: 132px;
+}
+
+
+.image-options-con label input{
+    margin-left: 25px;
+    margin-right:25px;
+}
+
+.image-options-con p{
+    margin-bottom: 10px;
+    margin-left: 5px;
+}
+
+.image-options-con button{
+    background-color: #feac43;
+    border: solid 3px #feac43;
+    color: white;
+    border-radius: 5px;
+    transition: .25s;
+    cursor: pointer;
+    font-size:20px;
+    padding: 15px;
+    font-weight: 500;
+    font-family: "Outfit";
+}
+
+.image-options-con button:hover{
+    background-color:white;
+    color: #feac43;
+}
+
+ .image-preview-item {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+
+
+.image-preview-buttons{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.image-preview-buttons{
+    margin-bottom: 8px;
+}
+
+.image-preview-buttons button{
+    border-radius: 30px;
+    height: 30px;
+    width: 30px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px gray;
+    position: absolute;
+    right: -35px;
+    top: -15px;
+    background-color: red;
+    color: white;
+}
+
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-10px);
+    }
+}
+
+.thumb-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.thumb-preview .thumb {
+  width: 140px;
+  text-align: center;
+}
+
+.thumb-preview .thumb img {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.thumb-preview .thumb p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #5c4033;
+  word-break: break-all;
+}
+
+
+.compress-button-con #compress-btn{
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-option-tabs{
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.image-option-tabs button{
+    width: 133px;
+    border: transparent;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #473125;
+    margin:3px;
+    /* box-shadow: 0px 0px 6px rgba(0, 0, 0, .25); */
+    border: solid 3px #473125;
+    padding: 10px;
+    font-size: 18px;
+}
+
+.image-option-tabs button:hover{
+    border: solid 3px #feac43;
+}
+
+.image-option-tabs .active{
+    position: relative;
+    background-color: #feac43 !important;
+    border: solid 3px #feac43;
+    color: white;
+    font-weight: bold;
+}
+
+.image-option-tabs .active:hover{
+    color: white !important;
+}
+
+#add-more-icon{
+    padding: 5px;
+    border-radius: 30px;
+}
+
+.add-more-button{
+    position: absolute;
+    height: 60px;
+    width: 60px;
+    background-color: #feac43;
+    left:-100px;
+    box-shadow: 0px 0px 5px gray;
+}
+
+.add-more-button:after{
+    content: "Add More Images";
+    font-size: 14px;
+    line-height: 12px;
+    position: absolute;
+    top: 160%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    width: 100px;
+    background-color: white;
+    box-shadow: 0px 0px 5px gray;
+    border-radius: 3px;
+    padding: 10px 5px;
+}
+
+.add-more-button img{
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+}
+
+
+.options-con{
+    display: none;
+}
+
+.images-options{
+    height: 100%;
+}
+
+.exact-dim-con .number-inputs{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.aspect-fill-con label{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* .aspect-ratio-options .background-fill{
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+} */
+
+.exact-dim-con div input{
+    padding: 5px;
+    border: solid 1px black;
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-right: 3px;
+    font-size: 14px;
+}
+
+.fit-types-con{
+    display: flex;
+    flex-direction: column;
+}
+
+.fit-types-con h3{
+    text-decoration: none;
+}
+
+.fit-types-con div{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.aspect-ratio-options label input{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.aspect-ratio-options{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    max-width: 250px;
+    margin-left: auto;
+    margin-right: auto;
+    border: solid 3px #473125;
+    color: #473125;
+    border-radius: 5px;
+    padding:10px;
+}
+
+.aspect-ratio-options label{
+    display:flex;
+    flex-direction: row;
+}
+
+.fit-types-con button{
+    margin: 3px;
+    font-size: 14px;
+    padding:10px;
+    width:72px;
+    color: #473125;
+    border: solid 3px #473125;
+    background-color: white;
+}
+
+.fit-types-con .active{
+    background-color: #feac43;
+    color: white;
+    font-weight: bold;
+    border: solid 3px #feac43;
+}
+
+.fit-types-con button:hover{
+    background-color: #feac43;
+    color: white;
+    border: solid 3px #feac43;
+}
+
+.fit-type-desc-con{
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.fit-type-desc-con p{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.aspect-checkbox input{
+    margin-top: 10px;
+}
+
+.socials-list-con select{
+    width: 75%;
+    padding: 10px;
+    border: solid 3px #feac43;
+    border-radius: 5px;
+}
+
+.socials-list-con select option{
+    width: 100%;
+}
+
+.social-options-con{
+    overflow-y: scroll;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.social-option{
+    position: relative;
+    border: solid 3px #473125;
+    color: #473125;
+    font-weight: bold;
+    border-radius: 10px;
+    height: 90px;
+    width: 90px;
+    margin: 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 5px;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.social-option:hover{
+    color: white;
+    background-color: #feac43;
+    border: solid 3px #feac43;
+}
+
+.social-option:hover div{
+    background-color: white;
+    border: solid 3px #feac43;
+    border-radius: 3px;
+}
+
+.social-option:hover p{
+    color: white;
+}
+
+.social-option div{
+    position: absolute;
+    top: 40%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    border: solid 3px #473125;
+    border-radius: 3px;
+    margin-left: auto;
+    margin-right: auto;
+    pointer-events: none;
+}
+
+.social-options-con .active{
+    color: white;
+    background-color: #feac43;
+    border: solid 3px #feac43;
+}
+
+.social-options-con .active div{
+    background-color: white;
+    border: solid 3px #feac43;
+    border-radius: 3px;
+}
+
+.social-options-con .active p{
+    color: white;
+}
+
+.social-option p{
+    color: #473125;;
+    margin-left: 0px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    line-height: 15px;
+    pointer-events: none;
+}
