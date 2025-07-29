@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Image Compressor</title>
+  <title>Image Resizer</title>
   <link rel="stylesheet" href="/css/tools/image-resizer.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -46,7 +46,7 @@ JPEG/JPG, PNG, WebP, TIFF formats supported</p>
       <!-- <a class="ad" href="#"><h3>Your Ad Here</h3></a> -->
     </section>
 
-    <section class="image-preview-con" style="display: none;">
+    <section class="image-preview-con">
       <!-- <a href="#" class="ad"><h3>Your Ad Here</h3></a> -->
 
       <div class="image-previews"></div>
@@ -55,29 +55,204 @@ JPEG/JPG, PNG, WebP, TIFF formats supported</p>
 
       <div class="image-options-con">
 
+        <button id="add-more-icon" class="add-more-button"><img src="/images/plus-icon.png"></button>
+
+        <div class="image-option-tabs">
+          <button class="active">By Size</button>
+          <button>By Percent</button>
+          <button>By Socials</button>
+        </div>
+
         <div class="images-options">
 
-          <div class="more-images-con">
-            <p>Add More Images?</p>
-            <div>
-              <button><img src="images/droparea/drop-box-logo.png"></button>
-              <img id="add-more-icon" src="/images/droparea/upload-icon.png">
-              <button><img src="images/droparea/google-drive-logo.png"></button>
-            </div>
+          <div class="by-size-options options-con" style="display: block;">
+              <h3>By Size Options</h3>
+
+              <div class="exact-dim-con">
+                <div class="number-inputs">
+                  <input type="number" placeholder="Height">
+                  <input type="number" placeholder="Width">
+                  <p>PX</p>
+                </div>
+                <div class="aspect-fill-con">
+                  <label class="aspect-checkbox">Lock By Aspect Ratio?
+                    <input type="checkbox">
+                  </label>
+
+                  <div class="aspect-ratio-options" style="display: none;">
+                    <label class="background-fill">
+                      Background Fill
+                      <input type="checkbox">
+                    </label>
+                    <label class="background-color">
+                      Background Color
+                      <input type="color">
+                    </label>
+                  </div>
+
+                </div>
+                <div class="fit-types-con">
+                  <h3>Fit Modes</h3>
+                  <div class="fit-type-buttons-con">
+                      <button class="active" data-name="Cover" data-desc="Cover: Fills box, crops edges to maintain aspect ratio">Cover</button>
+                      <button data-name="Contain" data-desc="Contain: Fits inside box, keeps aspect ratio, may leave space">Contain</button>
+                      <button data-name="Inside" data-desc="Inside: Shrinks image to fit, never enlarges">Inside</button>
+                      <button data-name="Outside" data-desc="Outside: Expands to fully cover, may crop and upscale">Outside</button>
+                      <button data-name="Fill" data-desc="Fill: Stretches image to fill box, may distort">Fill</button>
+                  </div>
+                  <div class="fit-type-desc-con">
+                    <p>Cover: Fills box, crops edges to maintain aspect ratio</p>
+                  </div>
+                </div>
+              </div>
+
           </div>
 
-          <div>
-            <label>
-              <p>Image Quality</p>
-              <span id="compression-value">80%</span>
-              <input type="range" name="compression-rate" min="0" max="100" value="80" id="compression-slider" title="Lower means smaller file, lower quality">
-            </label>
+          <div class="by-percent-options options-con">
+              <h3>By Percent Options</h3>
+
+              <div>
+                <span class="resize-percent">100%</span>
+                <label>
+                   <input type="range" name="resize-percent" min="0" max="200" value="100">
+                </label>    
+              </div>
+          </div>
+
+          <div class="by-socials-options options-con">
+              <h3>By Social Options</h3>
+              <div class="socials-list-con">
+                <select>
+                  <option>Instagram</option>
+                  <option>Facebook</option>
+                  <option>X</option>
+                  <option>YouTube</option>
+                  <option>LinkedIn</option>
+                </select>
+              </div>
+
+              <div class="instagram-list social-options-con" style="display: flex;">
+                <div class="social-option">
+                  <div style="height: 45px;width: 45px;">
+
+                  </div>
+                  <p>Profile Pic</p>
+                </div>
+                <div class="social-option">
+                  <div style="height: 45px;width: 45px;">
+
+                  </div>
+                  <p>Post</p>
+                </div>
+                <div class="social-option">
+                  <div style="height: 48px;width: 27px;">
+
+                  </div>
+                  <p>Story Reel</p>
+                </div>
+                <div class="social-option">
+                  <div style="width: 70px;height: 37px;">
+
+                  </div>
+                  <p>Landscape</p>
+                </div>
+                <div class="social-option">
+                  <div style="height: 60px;width: 48px;">
+
+                  </div>
+                  <p>Portrait</p>
+                </div>
+              </div>
+
+              <div class="facebook-list social-options-con" style="display: none;">
+                <div class="social-option">
+                  <div style="width: 60px;height: 23px;">
+
+                  </div>
+                  <p>Cover Photo</p>
+                </div>
+                <div class="social-option">
+                  <div style="height: 45px;width: 45px;">
+
+                  </div>
+                  <p>Profile Pic</p>
+                </div>
+              </div>
+
+              <div class="x-list social-options-con" style="display: none;">
+                <div class="social-option active">
+                  <div style="width: 45px;height: 45px;">
+
+                  </div>
+                  <p>Profile Pic</p>
+                </div>
+                <div class="social-option">
+                  <div style="height: 20px;width: 60px;">
+
+                  </div>
+                  <p>Cover Image</p>
+                </div>
+
+                <div class="social-option">
+                  <div style="height: 39px;width: 70px;">
+
+                  </div>
+                  <p>Post Image</p>
+                </div>
+              </div>
+
+              <div class="youtube-list social-options-con" style="display: none;">
+                <div class="social-option">
+                  <div style="width: 45px;height: 45px;">
+
+                  </div>
+                  <p>Profile Pic</p>
+                </div>
+                <div class="social-option">
+                  <div style="height: 27px;width: 48px;">
+
+                  </div>
+                  <p>Banner Image</p>
+                </div>
+
+                <div class="social-option">
+                  <div style="height: 27px;width: 48px;">
+
+                  </div>
+                  <p>Thumbnail</p>
+                </div>
+              </div>
+
+              <div class="linkedin-list social-options-con" style="display: none;">
+                <div class="social-option">
+                  <div style="width: 45px;height: 45px;">
+
+                  </div>
+                  <p>Profile Pic</p>
+                </div>
+
+                <div class="social-option">
+                  <div style="width: 48px;height: 12px;">
+
+                  </div>
+                  <p>Profile Banner</p>
+                </div>
+
+                <div class="social-option">
+                  <div style="width: 48px;height: 25px;">
+
+                  </div>
+                  <p>Post Image</p>
+                </div>
+                
+              </div>
+
           </div>
 
         </div>
 
         <div class="compress-button-con">
-          <button id="compress-btn" class="options-compress">Compress</button>
+          <button id="compress-btn" class="options-compress">Resize</button>
         </div>
 
       </div>

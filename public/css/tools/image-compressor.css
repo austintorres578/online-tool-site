@@ -1,28 +1,4 @@
 @media(max-width:1120px){
-    /* body .loading-con{
-        flex-direction: column;
-    }
-
-    body .loading-con .vertical-ad{
-        height:125px;
-        width: 90%;
-    }
-
-    body .loading-con div{
-        height: 300px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    } */
-
-    /* body .completion-con{
-        flex-direction: column;
-    }
-
-    body .completion-con .vertical-ad{
-        height: 200px;
-        width: 90%;
-    } */
 
     body .completion-download-con{
         height: 500px;
@@ -101,10 +77,6 @@
         flex-direction: column;
     }
 
-     /* body .drop-area-con{
-        width:85%
-    } */
-
     body .image-compressor .ad h3{
         max-width: 100%;
     }
@@ -115,10 +87,6 @@
         font-size:30px;
         max-width:370px;
     }
-
-    /* body #drop-area{
-        height:300px
-    } */
 
 }
 
@@ -237,17 +205,6 @@
     margin-right: auto;
 }
 
-/* .drop-area-con{
-    background-color: white;
-    width: fit-content;
-    padding: 30px;
-    border-radius: 20px;
-    border: solid 1px lightgray;
-    display: flex;
-    width: 100%;
-    margin: 10px;
-} */
-
 .image-preview-con{
     margin-left: auto;
     margin-right: auto;
@@ -333,7 +290,6 @@
 
 .image-options-con .more-images-con button{
     margin: 10px;
-    /* display: flex; */
     display: none;
     flex-direction: column;
     justify-content: center;
@@ -403,186 +359,6 @@
     background-color:white;
     color: #feac43;
 }
-
-/* .loading-con{
-    display: none;
-    justify-content: space-evenly;
-    align-items: center;
-}
-
-.loading-con img{
-    height:100px;
-    width:auto;
-    object-fit: contain;
-    margin-bottom: 10px;
-} */
-
-/* .completion-con{
-    display: none;
-    justify-content: center;
-    align-items: center;
-    padding: 0px 15px;
-    min-height: 500px;
-}
-
-.completion-con h3{
-    font-family: sans-serif;
-    font-size: 36px;
-}
-
-.completion-con .completion-download-button{
-    background-color: #755844;
-    color: #fff;
-    border-radius: 6px;
-    font-size: 22px;
-    font-weight: bold;
-    padding: 20px 13px;
-    border: none;
-    cursor: pointer;
-    transition: .25s;
-}
-
-.completion-con .completion-download-button:hover{
-    background-color:#493629;
-} */
-
-/* .completion-download-con div{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.completion-download-con div .back-button{
-    position: absolute;
-    left: 10px;
-    border-radius: 30px;
-    height: 38px;
-    width: 38px;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background-color: #755844;
-    transition: .25s;
-    cursor: pointer;
-} */
-
-/* .completion-download-con div .back-button:after{
-    position: absolute;
-    content:"Compress More Images";
-    font-size: 10px;
-    background-color: white;
-    padding: 5px;
-    border-radius: 5px;
-    width: 72px;
-    top: -60%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    transition: .25s;
-    opacity: 0;
-    pointer-events: none;
-    font-weight: bold;
-} */
-
-/* .completion-download-con div .back-button:hover{
-     background-color:#493629;
-}
-
-.completion-download-con div .back-button:hover:after{
-    opacity: 1;
-}
-
-.completion-download-con div .back-button img{
-    height: 15px;
-    width: auto;
-    object-fit: contain;
-    transform: rotate(-180deg);
-}
-
-.completion-download-con div button{
-    margin-left: 3px;
-    margin-right: 3px;
-} */
-
-/* #drop-area {
-  border: 5px dashed lightgray;
-  background-color: white;
-  padding: 40px;
-  text-align: center;
-  color: #5c4033;
-  border-radius: 12px;
-  font-family: sans-serif;
-  transition: background-color 0.3s ease;
-  margin-left: auto;
-  margin-right: auto;
-  height: 500px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 90%;
-}
-
-#drop-area img{
-    height: 80px;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    object-fit: contain;
-    pointer-events: none;
-}
-
-#drop-area p{
-    pointer-events: none;
-}
-
-#drop-area.dragover {
-  background-color: #ffeadd;
-}
-
-#drop-area input[type="file"] {
-  display: none;
-}
-
-#drop-area label {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 20px 25px;
-  background-color: #755844;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 24px;
-  width: 200px;
-  margin-left: auto;
-  margin-right: auto;
-  transition: .25s;
-}
-
-#drop-area label:hover{
-    background-color:#493629;
-}
-
-#other-drop-options button{
-    display: none;
-    border:none;
-    cursor: pointer;
-    padding:10px;
-    border-radius: 30px;
-    border: none;
-    background-color:#755844;
-    transition: .25s;
-}
-
-#other-drop-options button:hover{
-    background-color:#493629;
-}
-
-#other-drop-options button img{
-    height: 25px;
-    width: 30px;
-    object-fit: contain;
-} */
 
  .image-preview-item {
     transition: transform 0.3s ease, opacity 0.3s ease;

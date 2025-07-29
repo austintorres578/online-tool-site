@@ -111,9 +111,12 @@
 }
 
 @media(max-width:765px){
-    body .image-compressor-con h1{
-        font-size:30px
+    body .image-converter-con h1{
+        font-size:30px;
+        max-width:360px;
     }
+
+    
 
     /* body #drop-area{
         height:300px
