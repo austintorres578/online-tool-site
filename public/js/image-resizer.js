@@ -19,11 +19,16 @@ let resizeFitDesc = document.querySelector('.fit-type-desc-con').children[0];
 
 let lockAspectCheck = document.querySelector('.aspect-checkbox input');
 
+let backgroundFillCheck = document.querySelector('.background-fill input');
+
+let backgroundColorInput = document.querySelector('.background-color input');
+
 let socialSelect = document.querySelector('.socials-list-con').children[0];
 
 let sizeHeightInput = document.querySelector('.by-size-height');
 let sizeWidthInput = document.querySelector('.by-size-width');
 let allNewDimensionsCon;
+
 
 let currentSocial;
 
@@ -33,15 +38,35 @@ let resizeMode = "By Size";
 
 let bySizeFit = "Cover";
 
+
 function bySizeDimChange(event) {
-  for (let index = 0; index < allNewDimensionsCon.length; index++) {
-    const height = sizeHeightInput.value.trim() === '' ? '0' : sizeHeightInput.value;
-    const width = sizeWidthInput.value.trim() === '' ? '0' : sizeWidthInput.value;
+  let height = sizeHeightInput.value.trim();
+  let width = sizeWidthInput.value.trim();
+
+  const allNewSizeEls = document.querySelectorAll('.new-size');
+
+  // Set default '0' values in the input fields if empty
+  if (height === '') {
+    height = '0';
+    sizeHeightInput.value = '0';
+  }
+
+  if (width === '') {
+    width = '0';
+    sizeWidthInput.value = '0';
+  }
+
+  allNewSizeEls.forEach((el, index) => {
+    const isZero = height === '0' && width === '0';
+    el.style.opacity = isZero ? '0' : '1';
 
     allNewDimensionsCon[index].children[0].innerText = height;
     allNewDimensionsCon[index].children[2].innerText = width;
-  }
+  });
 }
+
+
+
 
 
 sizeHeightInput.addEventListener('input', bySizeDimChange);
@@ -97,6 +122,9 @@ function changeSocialsTab(event){
 socialSelect.addEventListener('change',changeSocialsTab);
 
 function revealAspectLockOptions(event) {
+
+  console.log(lockAspectCheck.checked);
+
   const isChecked = event.target.checked;
   console.log('Checkbox is checked:', isChecked);
 
@@ -110,6 +138,18 @@ function revealAspectLockOptions(event) {
 }
 
 lockAspectCheck.addEventListener('change', revealAspectLockOptions);
+
+function backgroundFillCheckToggle(event){
+  console.log(backgroundFillCheck.checked)
+}
+
+backgroundFillCheck.addEventListener('change',backgroundFillCheckToggle)
+
+function backgroundColorInputGrabber(){
+  console.log(backgroundColorInput.value)
+}
+
+backgroundColorInput.addEventListener('change',backgroundColorInputGrabber);
 
 
 function selectFitType(event){
@@ -178,8 +218,6 @@ function changeResizeTab(event) {
         percentOptions.style.display="none";
         socialsOptions.style.display="block";
     }
-
-    console.log(resizeMode)
   
 }
 
@@ -407,12 +445,20 @@ compressBtn?.addEventListener('click', compressImages);
 
 function compressImages() {
 
-  console.log("hello");
+  if(resizeMode==="By Size"){
+    console.log("By Size Mode")
+  }else if(resizeMode==="By Percent"){
+    console.log("By Percent")
+  }else if(resizeMode==="By Socials"){
+    console.log("By Socials")
+  }
 
-  document.querySelector('.loading-con').style.display = "flex";
-  document.querySelector('.image-preview-con').style.display = "none";
-  document.querySelector('.image-resizer-header').style.display = "none";
-  document.querySelector('.image-resizer-copy').style.display = "none";
+  
+
+  // document.querySelector('.loading-con').style.display = "flex";
+  // document.querySelector('.image-preview-con').style.display = "none";
+  // document.querySelector('.image-resizer-header').style.display = "none";
+  // document.querySelector('.image-resizer-copy').style.display = "none";
 
   // if (uploadedFiles.length === 0) {
   //   alert('No images to compress.');
