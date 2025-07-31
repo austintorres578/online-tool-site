@@ -265,6 +265,8 @@
     width: 100%;
     flex-wrap: wrap;
     justify-content: center;
+    padding-top: 20px;
+    padding-bottom: 45px;
 }
 
 .image-previews > div {
@@ -301,6 +303,12 @@
 }
 
 .image-dimensions{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.image-dimensions div{
     display: flex;
     justify-content: center;
 }
