@@ -49,9 +49,7 @@ function isValidFile(file, acceptTypes) {
 }
 
 function validateFiles(files, acceptTypes) {
-  return files.filter(file =>
-    !isValidFile(file, acceptTypes) || file.size > 10 * 1024 * 1024
-  );
+  return files.filter(file => !isValidFile(file, acceptTypes));
 }
 
 if (dropArea) {
@@ -64,7 +62,6 @@ if (dropArea) {
     if (invalidFiles.length > 0) {
       const reasons = invalidFiles.map(file => {
         if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
-        if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
       }).join('\n');
       alert(`Some files were rejected:\n${reasons}`);
       return;
@@ -89,7 +86,6 @@ if (fileInput) {
     if (invalidFiles.length > 0) {
       const reasons = invalidFiles.map(file => {
         if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
-        if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
       }).join('\n');
       alert(`Some files were rejected:\n${reasons}`);
       fileInput.value = '';

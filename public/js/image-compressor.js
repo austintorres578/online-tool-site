@@ -38,15 +38,10 @@ dropArea?.addEventListener('drop', (e) => {
     return;
   }
 
-  const invalidFiles = files.filter(file => {
-    return !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024;
-  });
+  const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
 
   if (invalidFiles.length > 0) {
-    const reasons = invalidFiles.map(file => {
-      if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
-      if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
-    }).join('\n');
+    const reasons = invalidFiles.map(file => `❌ ${file.name}: Not an image`).join('\n');
     alert(`Some files were rejected:\n${reasons}`);
     return;
   }
@@ -64,15 +59,10 @@ fileInput?.addEventListener('change', () => {
     return;
   }
 
-  const invalidFiles = files.filter(file => {
-    return !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024;
-  });
+  const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
 
   if (invalidFiles.length > 0) {
-    const reasons = invalidFiles.map(file => {
-      if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
-      if (file.size > 10 * 1024 * 1024) return `❌ ${file.name}: Larger than 10MB`;
-    }).join('\n');
+    const reasons = invalidFiles.map(file => `❌ ${file.name}: Not an image`).join('\n');
     alert(`Some files were rejected:\n${reasons}`);
     fileInput.value = '';
     return;
