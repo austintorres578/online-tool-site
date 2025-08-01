@@ -38,6 +38,36 @@ let resizeMode = "By Size";
 
 let bySizeFit = "Cover";
 
+const percentSlider = document.querySelector('.resize-percent-input');
+const percentDisplay = document.querySelector('.resize-percent');
+
+function updateResizePercentDisplay(event) {
+  const percent = parseInt(event.target.value);
+  percentDisplay.textContent = `${percent}%`;
+
+  const allNewSizeEls = document.querySelectorAll('.new-size');
+  const allOriginalSizeEls = document.querySelectorAll('.original-size');
+
+  allNewSizeEls.forEach((newSizeEl, index) => {
+    const originalSizeEl = allOriginalSizeEls[index];
+
+    const originalWidth = parseInt(originalSizeEl.children[0].textContent.trim());
+    const originalHeight = parseInt(originalSizeEl.children[2].textContent.trim());
+
+    const newWidth = Math.round(originalWidth * (percent / 100));
+    const newHeight = Math.round(originalHeight * (percent / 100));
+
+    newSizeEl.children[0].textContent = isNaN(newWidth) ? '0' : newWidth;
+    newSizeEl.children[2].textContent = isNaN(newHeight) ? '0' : newHeight;
+
+    newSizeEl.style.opacity = '1';
+  });
+}
+
+
+percentSlider.addEventListener('input', updateResizePercentDisplay);
+
+
 
 function bySizeDimChange(event) {
   let height = sizeHeightInput.value.trim();
@@ -45,7 +75,6 @@ function bySizeDimChange(event) {
 
   const allNewSizeEls = document.querySelectorAll('.new-size');
 
-  // Set default '0' values in the input fields if empty
   if (height === '') {
     height = '0';
     sizeHeightInput.value = '0';
@@ -60,20 +89,14 @@ function bySizeDimChange(event) {
     const isZero = height === '0' && width === '0';
     el.style.opacity = isZero ? '0' : '1';
 
-    allNewDimensionsCon[index].children[0].innerText = height;
-    allNewDimensionsCon[index].children[2].innerText = width;
+    allNewDimensionsCon[index].children[0].innerText = width;  // ✅
+    allNewDimensionsCon[index].children[2].innerText = height; // ✅
   });
 }
 
 
-
-
-
 sizeHeightInput.addEventListener('input', bySizeDimChange);
 sizeWidthInput.addEventListener('input', bySizeDimChange);
-
-
-
 
 function selectSocialSize(event){
   console.log(event.target);
@@ -93,6 +116,7 @@ allSocialSizeButtons.forEach(button => {
 
 
 function changeSocialsTab(event){
+
 
   if(event.target.value==="Instagram"){
     currentSocial="instagram-list";
@@ -114,6 +138,9 @@ function changeSocialsTab(event){
     }
     
   }
+
+  
+
 
   selectSocialSize('reset')
 
@@ -218,6 +245,15 @@ function changeResizeTab(event) {
         percentOptions.style.display="none";
         socialsOptions.style.display="block";
     }
+
+    const allNewSizeEls = document.querySelectorAll('.new-size');
+
+    allNewSizeEls.forEach(el => {
+      el.style.opacity = '0';
+
+      el.children[0].innerText="0";
+      el.children[2].innerText="0";
+    });
   
 }
 
