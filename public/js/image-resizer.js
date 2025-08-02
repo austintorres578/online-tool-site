@@ -17,7 +17,7 @@ let allResizeFitButtons = document.querySelector('.fit-type-buttons-con').childr
 
 let resizeFitDesc = document.querySelector('.fit-type-desc-con').children[0];
 
-let lockAspectCheck = document.querySelector('.aspect-checkbox input');
+let lockAspectCheck = document.querySelectorAll('.aspect-checkbox input');
 
 let backgroundFillCheck = document.querySelector('.background-fill input');
 
@@ -40,6 +40,45 @@ let bySizeFit = "Cover";
 
 const percentSlider = document.querySelector('.resize-percent-input');
 const percentDisplay = document.querySelector('.resize-percent');
+
+function applyAspectRatioToPreviews(ratioElement) {
+  const allNewSizeEls = document.querySelectorAll('.new-size');
+  const allOriginalSize = document.querySelectorAll('.original-size');
+  const aspectRatioStr = ratioElement.children[0].dataset.aspect; // e.g. "4:5", "1.91:1"
+  const [aspectW, aspectH] = aspectRatioStr.split(':').map(Number);
+  const targetRatio = aspectW / aspectH;
+
+  for (let i = 0; i < allNewSizeEls.length; i++) {
+    const preview = allOriginalSize[i];
+    const widthEl = preview.children[0];
+    const heightEl = preview.children[2];
+
+    let newWidth = allNewSizeEls[i].children[0];
+    let newHeight = allNewSizeEls[i].children[2];
+
+    let width = parseInt(widthEl.innerText);
+    let height = parseInt(heightEl.innerText);
+
+    if (!isNaN(width) && !isNaN(height)) {
+      const currentRatio = width / height;
+
+      if (currentRatio > targetRatio) {
+        // too wide → shrink width to match height
+        width = Math.round(height * targetRatio);
+      } else {
+        // too tall → shrink height to match width
+        height = Math.round(width / targetRatio);
+      }
+
+      newWidth.innerText = width;
+      newHeight.innerText = height;
+
+      allNewSizeEls[i].style.opacity="1";
+    }
+  }
+}
+
+
 
 function updateResizePercentDisplay(event) {
   const percent = parseInt(event.target.value);
@@ -75,44 +114,59 @@ function bySizeDimChange(event) {
 
   const allNewSizeEls = document.querySelectorAll('.new-size');
 
-  if (height === '') {
-    height = '0';
-    sizeHeightInput.value = '0';
-  }
+  // if (height === '') {
+  //   height = '0';
+  //   sizeHeightInput.value = '0';
+  // }
 
-  if (width === '') {
-    width = '0';
-    sizeWidthInput.value = '0';
-  }
+  // if (width === '') {
+  //   width = '0';
+  //   sizeWidthInput.value = '0';
+  // }
 
   allNewSizeEls.forEach((el, index) => {
-    const isZero = height === '0' && width === '0';
-    el.style.opacity = isZero ? '0' : '1';
+  const firstWidthText = allNewDimensionsCon[0].children[0].innerText;
+  const firstHeightText = allNewDimensionsCon[0].children[2].innerText;
 
-    allNewDimensionsCon[index].children[0].innerText = width;  // ✅
-    allNewDimensionsCon[index].children[2].innerText = height; // ✅
-  });
+  const isWidthBlankOrZero = firstWidthText === '0' || firstWidthText === '';
+  const isHeightBlankOrZero = firstHeightText === '0' || firstHeightText === '';
+
+  if (isWidthBlankOrZero && isHeightBlankOrZero) {
+    el.style.opacity = '0';
+  } else {
+    el.style.opacity = '1';
+  }
+
+  allNewDimensionsCon[index].children[0].innerText = width;
+  allNewDimensionsCon[index].children[2].innerText = height;
+});
+
+
+
 }
 
 
 sizeHeightInput.addEventListener('input', bySizeDimChange);
 sizeWidthInput.addEventListener('input', bySizeDimChange);
 
-function selectSocialSize(event){
-  console.log(event.target);
+function selectSocialSize(event) {
+  
+
   for (let index = 0; index < allSocialSizeButtons.length; index++) {
-    if(event.target===allSocialSizeButtons[index]){
-      allSocialSizeButtons[index].classList.add('active')
-    }else{
-      allSocialSizeButtons[index].classList.remove('active')
+    if (event.target === allSocialSizeButtons[index]) {
+      allSocialSizeButtons[index].classList.add('active');
+    } else {
+      allSocialSizeButtons[index].classList.remove('active');
     }
-    
   }
+
+  applyAspectRatioToPreviews(event.target); // 🔁 Run aspect resizing for all previews
 }
 
 allSocialSizeButtons.forEach(button => {
   button.addEventListener('click', selectSocialSize);
 });
+
 
 
 function changeSocialsTab(event){
@@ -150,21 +204,22 @@ socialSelect.addEventListener('change',changeSocialsTab);
 
 function revealAspectLockOptions(event) {
 
-  console.log(lockAspectCheck.checked);
-
+  let parent = event.target.parentNode;
   const isChecked = event.target.checked;
   console.log('Checkbox is checked:', isChecked);
 
   if (isChecked) {
     // Example: Show aspect lock options
-    document.querySelector('.aspect-ratio-options').style.display = 'block';
+    parent.parentNode.querySelector('.aspect-ratio-options').style.display = 'block';
   } else {
     // Example: Hide aspect lock options
-    document.querySelector('.aspect-ratio-options').style.display = 'none';
+    parent.parentNode.querySelector('.aspect-ratio-options').style.display = 'none';
   }
 }
 
-lockAspectCheck.addEventListener('change', revealAspectLockOptions);
+lockAspectCheck.forEach(checkbox => {
+  checkbox.addEventListener('change', revealAspectLockOptions);
+});
 
 function backgroundFillCheckToggle(event){
   console.log(backgroundFillCheck.checked)
@@ -480,91 +535,136 @@ function removeUncompressedImage(event) {
 compressBtn?.addEventListener('click', compressImages);
 
 function compressImages() {
+  let formData = new FormData();
 
-  if(resizeMode==="By Size"){
-    console.log("By Size Mode")
-  }else if(resizeMode==="By Percent"){
-    console.log("By Percent")
-  }else if(resizeMode==="By Socials"){
-    console.log("By Socials")
+  if (uploadedFiles.length === 0) {
+    alert('No images to compress.');
+    return;
   }
 
-  
+  if (resizeMode === "By Size") {
 
-  // document.querySelector('.loading-con').style.display = "flex";
-  // document.querySelector('.image-preview-con').style.display = "none";
-  // document.querySelector('.image-resizer-header').style.display = "none";
-  // document.querySelector('.image-resizer-copy').style.display = "none";
+    // Get size inputs
+    const width = parseInt(document.querySelector('.by-size-width').value);
+    const height = parseInt(document.querySelector('.by-size-height').value);
+    const lockAspect = document.querySelector('.aspect-checkbox input').checked;
 
-  // if (uploadedFiles.length === 0) {
-  //   alert('No images to compress.');
-  //   return;
-  // }
+    // Get fit mode
+    const activeFit = document.querySelector('.fit-type-buttons-con button.active');
+    const fit = activeFit ? activeFit.dataset.name.toLowerCase() : 'cover';
 
-  // const totalOriginalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
-  // console.log(`📦 Original Total Size: ${(totalOriginalSize / 1024).toFixed(1)} KB`);
+    // Background fill
+    const backgroundFill = document.querySelector('#background-fill-toggle')?.checked || false;
+    const backgroundColor = document.querySelector('#background-color')?.value || '#000000';
 
-  // const startTime = performance.now();
+    // Build options object
+    const resizeOptions = {
+      mode: "size",
+      width: parseInt(document.querySelector(".by-size-width").value),
+      height: parseInt(document.querySelector(".by-size-height").value),
+      fit: document.querySelector('.fit-type-buttons-con .active').dataset.name.toLowerCase(),
+      lockAspect: document.querySelector('.aspect-checkbox input').checked,
+      backgroundFill: document.querySelector('.background-fill input').checked,
+      backgroundColor: document.querySelector('.background-color input').value
+    };
 
-  // const formData = new FormData();
-  // uploadedFiles.forEach(file => formData.append('images', file));
-  // formData.append('quality', compressionSlider.value);
+    formData.append("options[]", JSON.stringify(resizeOptions));
 
-  // fetch('https://online-tool-backend.onrender.com/compress', {
-  //   method: 'POST',
-  //   body: formData
-  // })
-  //   .then(res => {
-  //     if (!res.ok) throw new Error('Compression failed');
 
-  //     const contentDisposition = res.headers.get('Content-Disposition') || '';
-  //     let filename = 'compressed';
-  //     const match = contentDisposition.match(/filename="?([^"]+)"?/);
-  //     if (match && match[1]) {
-  //       filename = match[1].trim();
-  //     } else {
-  //       const contentType = res.headers.get('Content-Type');
-  //       const extMap = {
-  //         'image/jpeg': '.jpg',
-  //         'image/png': '.png',
-  //         'image/webp': '.webp',
-  //         'image/avif': '.avif',
-  //         'image/bmp': '.bmp',
-  //         'image/tiff': '.tiff',
-  //         'application/zip': '.zip'
-  //       };
-  //       filename += extMap[contentType] || '';
-  //     }
+    // Append images and log names
+    uploadedFiles.forEach((file, index) => {
+      formData.append("images", file);
+      console.log(`📷 Image ${index + 1}:`, file.name);
+    });
 
-  //     return res.blob().then(blob => ({ blob, filename }));
-  //   })
-  //   .then(({ blob, filename }) => {
-  //     lastCompressedBlob = blob;
-  //     lastCompressedFilename = filename;
+    // TODO: Make the fetch POST request here
+    // fetch('https://your-backend-url/resize', {
+    //   method: 'POST',
+    //   body: formData
+    // })
+    // .then(...)
+  } else if (resizeMode === "By Percent") {
 
-  //     const endTime = performance.now();
-  //     console.log(`✅ Compression completed in ${(endTime - startTime).toFixed(2)} ms`);
-  //     console.log(`📦 Compressed Size: ${(blob.size / 1024).toFixed(1)} KB`);
 
-  //     const url = window.URL.createObjectURL(blob);
-  //     const a = document.createElement('a');
-  //     a.href = url;
-  //     a.download = filename;
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     a.remove();
-  //     window.URL.revokeObjectURL(url);
+    const allNewSizeEls = document.querySelectorAll('.new-size');
 
-  //     document.querySelector('.loading-con').style.display = "none";
-  //     document.querySelector('.completion-con').style.display = "flex";
-  //     console.log("✅ Compression success");
-  //   })
-  //   .catch(err => {
-  //     console.error('Compression failed:', err);
-  //     document.querySelector('.loading-con').style.display = "none";
-  //     alert('Something went wrong while compressing the images.');
-  //   });
+    if(allNewSizeEls[0].children[0].innerText==="0"){
+      alert("Please change pertentage");
+      return
+    }
+
+    allNewSizeEls.forEach((el, index) => {
+      const newWidth = parseInt(el.children[0].textContent.trim());
+      const newHeight = parseInt(el.children[2].textContent.trim());
+
+      const resizeOptions = {
+        mode: "percent",
+        width: newWidth,
+        height: newHeight
+      };
+
+      formData.append("options[]", JSON.stringify(resizeOptions));
+      formData.append("images", uploadedFiles[index]);
+
+      console.log(`📷 Image ${index + 1}:`, uploadedFiles[index].name);
+      console.log("📏 Resize Options:", resizeOptions);
+    });
+
+  // 🔍 Log all FormData entries
+    for (let pair of formData.entries()) {
+      if (pair[0] === "images") {
+        console.log(`📦 FormData -> ${pair[0]}: ${pair[1].name}`);
+      } else {
+        console.log(`📝 FormData -> ${pair[0]}: ${pair[1]}`);
+      }
+    }
+  } else if (resizeMode === "By Socials") {
+    const allNewSizeEls = document.querySelectorAll('.new-size');
+
+    if (allNewSizeEls.length === 0 || allNewSizeEls[0].children[0].innerText === "0") {
+      alert("Please select an aspect ratio to resize.");
+      return;
+    }
+
+    allNewSizeEls.forEach((el, index) => {
+      const newWidth = parseInt(el.children[0].textContent.trim());
+      const newHeight = parseInt(el.children[2].textContent.trim());
+
+      if (!newWidth || !newHeight) {
+        console.warn(`Skipping image ${index + 1}: invalid resized dimensions.`);
+        return;
+      }
+
+      const resizeOptions = {
+        mode: "social",
+        width: newWidth,
+        height: newHeight,
+        lockAspect: document.querySelector('.by-socials-options .aspect-checkbox input').checked,
+        backgroundFill:document.querySelector('.by-socials-options .background-fill input').checked,
+        backgroundColor:document.querySelector('.by-socials-options .background-color input').value
+      };
+
+      formData.append("options[]", JSON.stringify(resizeOptions));
+      formData.append("images", uploadedFiles[index]);
+
+      console.log(`📷 Image ${index + 1}:`, uploadedFiles[index].name);
+      console.log("📏 Social Resize Options:", resizeOptions);
+    });
+
+    // 🔍 Log all FormData entries
+    for (let pair of formData.entries()) {
+      if (pair[0] === "images") {
+        console.log(`📦 FormData -> ${pair[0]}: ${pair[1].name}`);
+      } else {
+        console.log(`📝 FormData -> ${pair[0]}: ${pair[1]}`);
+      }
+    }
+  }
+
+
+  // Rest of logic can go here if you want to share post-request handling.
 }
+
 
 redownloadBtn?.addEventListener('click', () => {
   if (!lastCompressedBlob || !lastCompressedFilename) {

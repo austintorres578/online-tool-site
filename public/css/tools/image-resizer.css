@@ -702,6 +702,7 @@
     padding: 10px;
     border: solid 3px #feac43;
     border-radius: 5px;
+    font-size: 16px;
 }
 
 .socials-list-con select option{
@@ -709,7 +710,6 @@
 }
 
 .social-options-con{
-    overflow-y: scroll;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
