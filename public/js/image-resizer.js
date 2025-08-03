@@ -544,8 +544,8 @@ function compressImages() {
 
   document.querySelector('.loading-con').style.display = "flex";
   document.querySelector('.image-preview-con').style.display = "none";
-  document.querySelector('.image-compressor-header').style.display = "none";
-  document.querySelector('.image-compressor-copy').style.display = "none";
+  document.querySelector('.image-resizer-header').style.display = "none";
+  document.querySelector('.image-resizer-copy').style.display = "none";
 
   if (resizeMode === "By Size") {
 
