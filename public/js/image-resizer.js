@@ -542,6 +542,11 @@ function compressImages() {
     return;
   }
 
+  document.querySelector('.loading-con').style.display = "flex";
+  document.querySelector('.image-preview-con').style.display = "none";
+  document.querySelector('.image-compressor-header').style.display = "none";
+  document.querySelector('.image-compressor-copy').style.display = "none";
+
   if (resizeMode === "By Size") {
 
     // Get size inputs
@@ -568,7 +573,7 @@ function compressImages() {
       backgroundColor: document.querySelector('.background-color input').value
     };
 
-    formData.append("options[]", JSON.stringify(resizeOptions));
+    formData.append("options", JSON.stringify(resizeOptions));
 
 
     // Append images and log names
@@ -577,12 +582,6 @@ function compressImages() {
       console.log(`📷 Image ${index + 1}:`, file.name);
     });
 
-    // TODO: Make the fetch POST request here
-    // fetch('https://your-backend-url/resize', {
-    //   method: 'POST',
-    //   body: formData
-    // })
-    // .then(...)
   } else if (resizeMode === "By Percent") {
 
 
@@ -603,7 +602,7 @@ function compressImages() {
         height: newHeight
       };
 
-      formData.append("options[]", JSON.stringify(resizeOptions));
+      formData.append("options", JSON.stringify(resizeOptions));
       formData.append("images", uploadedFiles[index]);
 
       console.log(`📷 Image ${index + 1}:`, uploadedFiles[index].name);
@@ -644,7 +643,7 @@ function compressImages() {
         backgroundColor:document.querySelector('.by-socials-options .background-color input').value
       };
 
-      formData.append("options[]", JSON.stringify(resizeOptions));
+      formData.append("options", JSON.stringify(resizeOptions));
       formData.append("images", uploadedFiles[index]);
 
       console.log(`📷 Image ${index + 1}:`, uploadedFiles[index].name);
@@ -660,6 +659,50 @@ function compressImages() {
       }
     }
   }
+
+  fetch('https://online-tool-backend.onrender.com/resize', {
+  method: 'POST',
+  body: formData
+})
+.then(res => {
+  if (!res.ok) throw new Error('Resize failed');
+
+  const contentDisposition = res.headers.get('Content-Disposition') || '';
+  let filename = 'resized';
+  const match = contentDisposition.match(/filename="?([^"]+)"?/);
+  if (match && match[1]) {
+    filename = match[1].trim();
+  } else {
+    const contentType = res.headers.get('Content-Type');
+    const extMap = {
+      'image/jpeg': '.jpg',
+      'image/png': '.png',
+      'image/webp': '.webp',
+      'image/avif': '.avif',
+      'image/bmp': '.bmp',
+      'image/tiff': '.tiff',
+      'application/zip': '.zip'
+    };
+    filename += extMap[contentType] || '';
+  }
+
+  return res.blob().then(blob => ({ blob, filename }));
+})
+.then(({ blob, filename }) => {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+})
+.catch(err => {
+  console.error('Resize failed:', err);
+  alert('Something went wrong while resizing the images.');
+});
+
 
 
   // Rest of logic can go here if you want to share post-request handling.
