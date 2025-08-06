@@ -349,8 +349,9 @@ dropArea?.addEventListener('drop', (e) => {
   }
 
   const invalidFiles = files.filter(file => {
-    return !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024;
+    return !file.type.startsWith('image/') || file.size > 200 * 1024 * 1024;
   });
+
 
   if (invalidFiles.length > 0) {
     const reasons = invalidFiles.map(file => {
@@ -375,7 +376,7 @@ fileInput?.addEventListener('change', () => {
   }
 
   const invalidFiles = files.filter(file => {
-    return !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024;
+    return !file.type.startsWith('image/') || file.size > 200 * 1024 * 1024;
   });
 
   if (invalidFiles.length > 0) {
