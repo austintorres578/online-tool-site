@@ -181,6 +181,7 @@ function removeUncompressedImage(event) {
   const remaining = document.querySelectorAll('.image-preview-item').length - 1;
   if (remaining <= 0) {
     document.querySelector('.image-converter').style.display = 'flex';
+    document.querySelector('.image-converter').style.flexDirection = 'column';
     document.querySelector('.image-preview-con').style.display = 'none';
   }
 }
