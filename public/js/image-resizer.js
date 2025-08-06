@@ -439,7 +439,13 @@ function handleFiles(files) {
       buttonWrapper.appendChild(removeBtn);
 
       const img = document.createElement('img');
-      img.src = e.target.result;
+        const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
+
+        // Set placeholder if TIFF
+        img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
+        if (isTiff) {
+          img.style.boxShadow = 'none';
+        }
 
       img.onload = () => {
         const caption = document.createElement('p');
