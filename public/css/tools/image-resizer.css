@@ -233,6 +233,24 @@
 .new-size{
     opacity: 0;
     pointer-events: none;
+    background-color: #feac43;
+    border-radius: 3px;
+    min-width: 145px;
+    display: flex;
+    justify-content: center;
+
+}
+
+.new-size p{
+    color: white;
+}
+
+.new-size p:first-of-type{
+    min-width: 53px;
+}
+
+.new-size p:last-of-type{
+    min-width: 53px;
 }
 
 .image-resizer .ad h3{
@@ -285,6 +303,12 @@
 .image-previews > div:hover {
     animation: bounce 0.6s ease-in-out infinite alternate;
 }
+
+.original-size{
+    position:relative
+}
+
+
 
 .image-previews div img{
     height: 75%;
