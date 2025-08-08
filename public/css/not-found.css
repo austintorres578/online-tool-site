@@ -30,3 +30,12 @@
     margin-top: 0px;
     color: #473125;
 }
+
+.not-found-header a{
+    background-color: #feac43;
+    color: white;
+    border-radius: 3px;
+    padding: 5px;
+    font-weight: bold;
+    text-decoration: none;
+}
