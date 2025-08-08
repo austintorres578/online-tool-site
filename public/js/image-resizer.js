@@ -109,6 +109,11 @@ percentSlider.addEventListener('input', updateResizePercentDisplay);
 
 
 function bySizeDimChange(event) {
+
+  if (sizeWidthInput.value.length > 4) sizeWidthInput.value = sizeWidthInput.value.slice(0, 4);
+  if (sizeHeightInput.value.length > 4) sizeHeightInput.value = sizeHeightInput.value.slice(0, 4);
+
+
   let height = sizeHeightInput.value.trim();
   let width = sizeWidthInput.value.trim();
 
@@ -294,6 +299,8 @@ function changeResizeTab(event) {
         sizeOptions.style.display="none";
         percentOptions.style.display="block";
         socialsOptions.style.display="none";
+        sizeHeightInput.value = "";
+        sizeWidthInput.value = "";
 
     }else if(event.target.innerText==="By Socials"){
         sizeOptions.style.display="none";

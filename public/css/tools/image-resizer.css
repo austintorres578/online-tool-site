@@ -577,6 +577,10 @@
     box-shadow: 0px 0px 5px gray;
 }
 
+.add-more-button:hover{
+    background-color: #feac43 !important;
+}
+
 .add-more-button:after{
     content: "Add More Images";
     font-size: 14px;
