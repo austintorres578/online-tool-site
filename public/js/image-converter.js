@@ -6,20 +6,30 @@ const compressionSlider = document.getElementById('compression-slider');
 const compressionValue = document.getElementById('compression-value');
 const addMoreIcon = document.getElementById('add-more-icon');
 const redownloadBtn = document.querySelector('.completion-download-button');
+const percentEl = document.querySelector('.loading-percentage');
+const progressEl = document.querySelector('.loading-progress');
+const progressStateEl = document.querySelector('.progress-state');
 
 let imageTypeButtonCon = document.querySelector('.conversion-options');
 let allTypeButtons = imageTypeButtonCon.querySelectorAll('button');
+let uploadedFiles = [];
+let lastCompressedBlob = null;
+let lastCompressedFilename = null;
+let progressSource = null;
 
 function selectImageType(event) {
   for (let i = 0; i < allTypeButtons.length; i++) {
     allTypeButtons[i].classList.toggle('active', allTypeButtons[i] === event.target);
   }
 }
-allTypeButtons.forEach(button => button.addEventListener('click', selectImageType));
 
-let uploadedFiles = [];
-let lastCompressedBlob = null;
-let lastCompressedFilename = null;
+function renderPct(pct) {
+  const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+  if (percentEl) percentEl.textContent = `${clamped}%`;
+  if (progressEl) progressEl.style.width = `${clamped}%`;
+}
+
+allTypeButtons.forEach(button => button.addEventListener('click', selectImageType));
 
 if (addMoreIcon) {
   addMoreIcon.addEventListener('click', () => fileInput.click());
@@ -146,7 +156,6 @@ function handleFiles(files) {
         const img = document.createElement('img');
         const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
 
-        // Set placeholder if TIFF
         img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
         if (isTiff) {
           img.style.boxShadow = 'none';
@@ -196,6 +205,33 @@ if (compressBtn) {
   compressBtn.addEventListener('click', convertImages);
 }
 
+function startProgressStream(jobId) {
+  if (progressSource) { try { progressSource.close(); } catch {} progressSource = null; }
+  progressSource = new EventSource(`https://online-tool-backend.onrender.com/progress/${jobId}`);
+
+  progressSource.onmessage = (evt) => {
+    try {
+      const { total, processed, mode } = JSON.parse(evt.data);
+      const pct = total ? (processed / total) * 100 : 0;
+      console.log(`Conversion: ${Math.round(pct)}% [${mode}] (${processed}/${total})`);
+      renderPct(pct);
+      if (progressStateEl) progressStateEl.textContent = "Converting";
+    } catch {}
+  };
+
+  progressSource.addEventListener('end', () => {
+    console.log('Conversion: 100% [done]');
+    renderPct(100);
+    if (progressStateEl) progressStateEl.textContent = "Converting";
+    try { progressSource.close(); } catch {}
+    progressSource = null;
+  });
+
+  progressSource.onerror = (err) => {
+    console.warn('SSE error', err);
+  };
+}
+
 function convertImages() {
   if (uploadedFiles.length === 0) {
     alert('No images to convert.');
@@ -215,67 +251,80 @@ function convertImages() {
   document.querySelector('.image-preview-con').style.display = "none";
   document.querySelector('.image-converter-header').style.display = "none";
   document.querySelector('.image-converter-copy').style.display = "none";
+  if (progressStateEl) progressStateEl.textContent = "Uploading";
+
+  const jobId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+  startProgressStream(jobId);
 
   const formData = new FormData();
   uploadedFiles.forEach(file => formData.append('images', file));
   formData.append('format', format);
   formData.append('quality', quality);
+  formData.append('jobId', jobId);
 
-  fetch('https://online-tool-backend.onrender.com/convert', {
-    method: 'POST',
-    body: formData
-  })
-    .then(res => {
-      if (!res.ok) throw new Error('Conversion failed');
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://online-tool-backend.onrender.com/convert', true);
 
-      const contentDisposition = res.headers.get('Content-Disposition') || '';
-      let filename = 'converted';
-      const match = contentDisposition.match(/filename="?([^\"]+)"?/);
-      if (match && match[1]) {
-        filename = match[1].trim();
-      } else {
-        const contentType = res.headers.get('Content-Type');
-        const extMap = {
-          'image/jpeg': '.jpg',
-          'image/png': '.png',
-          'image/webp': '.webp',
-          'image/avif': '.avif',
-          'image/bmp': '.bmp',
-          'image/tiff': '.tiff',
-          'application/zip': '.zip'
-        };
-        filename += extMap[contentType] || '';
-      }
+  xhr.upload.onprogress = (e) => {
+    if (e.lengthComputable) {
+      const pct = (e.loaded / e.total) * 100;
+      console.log(`Uploading: ${pct.toFixed(1)}%`);
+      renderPct(pct);
+      if (progressStateEl) progressStateEl.textContent = "Uploading";
+    }
+  };
 
-      return res.blob().then(blob => ({ blob, filename }));
-    })
-    .then(({ blob, filename }) => {
-      lastCompressedBlob = blob;
-      lastCompressedFilename = filename;
+  xhr.responseType = 'blob';
+  xhr.onload = function () {
+    try { if (progressSource) progressSource.close(); } catch {}
+    progressSource = null;
 
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      document.querySelector('.loading-con').style.display = "none";
-      document.querySelector('.completion-con').style.display = "flex";
-    })
-    .catch(err => {
-      console.error('Conversion failed:', err);
+    if (xhr.status < 200 || xhr.status >= 300) {
+      console.error('Conversion failed:', xhr.status);
       document.querySelector('.loading-con').style.display = "none";
       alert('Something went wrong while converting the images.');
-    });
+      return;
+    }
+
+    console.log('Upload complete, download starting...');
+    const blob = xhr.response;
+    const cd = xhr.getResponseHeader('Content-Disposition') || '';
+    let filename = 'converted';
+    const match = cd.match(/filename="?([^"]+)"?/);
+    if (match && match[1]) filename = match[1].trim();
+
+    lastCompressedBlob = blob;
+    lastCompressedFilename = filename;
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    renderPct(100);
+    document.querySelector('.loading-con').style.display = "none";
+    document.querySelector('.completion-con').style.display = "flex";
+  };
+
+  xhr.onerror = function () {
+    console.error('Something went wrong while converting the images.');
+    try { if (progressSource) progressSource.close(); } catch {}
+    progressSource = null;
+    document.querySelector('.loading-con').style.display = "none";
+    alert('Something went wrong while converting the images.');
+  };
+
+  xhr.send(formData);
 }
 
 if (redownloadBtn) {
   redownloadBtn.addEventListener('click', () => {
     if (!lastCompressedBlob || !lastCompressedFilename) {
-      alert('No compressed images to download. Please compress images first.');
+      alert('No converted images to download. Please convert images first.');
       return;
     }
 
