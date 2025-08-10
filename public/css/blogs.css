@@ -42,6 +42,10 @@
     padding-left: 40px;
 }
 
+.blog-body a{
+    color:#feac43
+}
+
 .blog-con{
     border-radius: 25px;
     padding-bottom: 40px;
