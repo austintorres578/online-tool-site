@@ -23,6 +23,21 @@ function selectImageType(event) {
   }
 }
 
+/* ---------- filename soft-wrap helpers ---------- */
+/** Insert soft breaks in long filenames (keeps extension intact). */
+function softBreakFilename(filename, chunk = 12) {
+  const dot = filename.lastIndexOf('.');
+  const base = dot > 0 ? filename.slice(0, dot) : filename;
+  const ext  = dot > 0 ? filename.slice(dot)    : '';
+
+  const ZWSP = '\u200B';
+  // break after common delimiters
+  const withDelims = base.replace(/([_\-.])/g, `$1${ZWSP}`);
+  // fallback: every N chars
+  const withChunks = withDelims.replace(new RegExp(`(.{${chunk}})`, 'g'), `$1${ZWSP}`);
+  return withChunks + ext;
+}
+
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
   if (percentEl) percentEl.textContent = `${clamped}%`;
@@ -50,7 +65,7 @@ if (addMoreIcon) {
 
 function isValidFile(file, acceptTypes) {
   const fileExt = '.' + file.name.split('.').pop().toLowerCase();
-  const mimeType = file.type.toLowerCase();
+  const mimeType = (file.type || '').toLowerCase();
   return (
     (acceptTypes.includes('image/*') && file.type.startsWith('image/')) ||
     acceptTypes.includes(fileExt) ||
@@ -136,6 +151,7 @@ function handleFiles(files) {
       reader.onload = function (e) {
         const container = document.createElement('div');
         container.classList.add('image-preview-item');
+        container.style.minWidth = '0'; // ensure flex items can shrink without overflow
 
         const buttonWrapper = document.createElement('div');
         buttonWrapper.className = 'image-preview-buttons';
@@ -162,7 +178,15 @@ function handleFiles(files) {
         }
 
         const caption = document.createElement('p');
-        caption.textContent = file.name;
+        caption.className = 'image-caption';
+        // robust wrapping
+        caption.style.whiteSpace   = 'normal';
+        caption.style.wordBreak    = 'break-word';
+        caption.style.overflowWrap = 'anywhere';
+        caption.style.maxWidth     = '100%';
+        caption.style.display      = 'block';
+        caption.textContent = softBreakFilename(file.name, 12);
+        caption.title = file.name;
 
         container.setAttribute('data-filename', file.name);
         container.appendChild(buttonWrapper);

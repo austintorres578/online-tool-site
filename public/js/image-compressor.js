@@ -28,6 +28,9 @@ const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/t
 // Optional: front-end size cap (adjust if desired; keep consistent in your UI copy)
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
+// =========================
+// Helper: extension + validation
+// =========================
 function getExt(filename) {
   const m = filename.toLowerCase().match(/\.[^.]+$/);
   return m ? m[0] : '';
@@ -52,6 +55,23 @@ function reasonForRejection(file) {
     return `Larger than ${(MAX_SIZE_BYTES/1024/1024).toFixed(0)}MB`;
   }
   return null;
+}
+
+// =========================
+/** Insert soft break points in long filenames so they wrap nicely.
+ *  - Keeps the extension intact
+ *  - Adds zero‑width spaces after delimiters and every N chars as fallback
+ */
+function softBreakFilename(filename, chunk = 12) {
+  const dot = filename.lastIndexOf('.');
+  const base = dot > 0 ? filename.slice(0, dot) : filename;
+  const ext  = dot > 0 ? filename.slice(dot)    : '';
+
+  const ZWSP = '\u200B';
+  const withDelims = base.replace(/([_\-.])/g, `$1${ZWSP}`);
+  const withChunks = withDelims.replace(new RegExp(`(.{${chunk}})`, 'g'), `$1${ZWSP}`);
+
+  return withChunks + ext; // don’t break the extension
 }
 
 // =========================
@@ -135,8 +155,7 @@ compressionSlider?.addEventListener('input', () => {
 });
 
 // =========================
-// Previews
-// =========================
+/** Build previews with safe-wrapping captions */
 function handleFiles(files) {
   const remainingSlots = 10 - uploadedFiles.length;
   const filesArray = Array.from(files);
@@ -159,6 +178,8 @@ function handleFiles(files) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
+      // If this card is a flex child, prevent overflow shenanigans
+      container.style.minWidth = '0';
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';
@@ -185,7 +206,15 @@ function handleFiles(files) {
       }
 
       const caption = document.createElement('p');
-      caption.textContent = file.name;
+      caption.className = 'image-caption';
+      // Force safe wrapping (JS ensures zero‑width spaces exist; CSS ensures wrapping happens)
+      caption.style.whiteSpace   = 'normal';
+      caption.style.wordBreak    = 'break-word';
+      caption.style.overflowWrap = 'anywhere';
+      caption.style.maxWidth     = '100%';
+      caption.style.display      = 'block';
+      caption.textContent = softBreakFilename(file.name, 12);
+      caption.title = file.name; // full name on hover
 
       container.setAttribute('data-filename', file.name);
       container.appendChild(buttonWrapper);
@@ -196,7 +225,8 @@ function handleFiles(files) {
     };
     reader.readAsDataURL(file);
 
-    document.querySelector('.image-compressor').style.display = 'none';
+    document.querySelector('.image-compressor')?.setAttribute('style', 'display:flex');
+    document.querySelector('.image-compressor')?.style.setProperty('display', 'none');
     document.querySelector('.image-preview-con').style.display = 'flex';
   });
 }
@@ -217,7 +247,11 @@ function removeUncompressedImage(event) {
 
   const remaining = document.querySelectorAll('.image-preview-item').length - 1;
   if (remaining <= 0) {
-    document.querySelector('.image-compressor').style.display = 'flex';
+    const comp = document.querySelector('.image-compressor');
+    if (comp) {
+      comp.style.display = 'flex';
+      comp.style.flexDirection = 'column';
+    }
     document.querySelector('.image-preview-con').style.display = 'none';
   }
 }
@@ -236,8 +270,8 @@ function compressImages() {
 
   document.querySelector('.loading-con').style.display = "flex";
   document.querySelector('.image-preview-con').style.display = "none";
-  document.querySelector('.image-compressor-header').style.display = "none";
-  document.querySelector('.image-compressor-copy').style.display = "none";
+  document.querySelector('.image-compressor-header')?.style.setProperty('display', 'none');
+  document.querySelector('.image-compressor-copy')?.style.setProperty('display', 'none');
   if (progressStateEl) progressStateEl.textContent = "Uploading";
   renderPct(0);
 
@@ -328,8 +362,6 @@ redownloadBtn?.addEventListener('click', () => {
   window.URL.revokeObjectURL(url);
 });
 
-// =========================
-// SSE progress stream
 // =========================
 function startProgressStream(jobId) {
   if (progressSource) { try { progressSource.close(); } catch {} progressSource = null; }

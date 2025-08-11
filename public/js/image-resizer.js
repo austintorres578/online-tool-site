@@ -47,7 +47,26 @@ let lastCompressedFilename = null;
 let progressSource = null;
 
 // =========================
-// Progress helpers (UI)
+// Filename soft-wrap helpers
+// =========================
+/**
+ * Insert zero-width spaces into long filenames so they can wrap.
+ * Keeps the extension intact and adds soft breaks after delimiters
+ * and every `chunk` characters as a fallback.
+ */
+function softBreakFilename(filename, chunk = 12) {
+  const dot = filename.lastIndexOf('.');
+  const base = dot > 0 ? filename.slice(0, dot) : filename;
+  const ext  = dot > 0 ? filename.slice(dot)    : '';
+
+  const ZWSP = '\u200B';
+  // add soft breaks after common delimiters
+  const withDelims = base.replace(/([_\-.])/g, `$1${ZWSP}`);
+  // fallback: soft break every N characters
+  const withChunks = withDelims.replace(new RegExp(`(.{${chunk}})`, 'g'), `$1${ZWSP}`);
+  return withChunks + ext;
+}
+
 // =========================
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
@@ -80,7 +99,6 @@ function startProgressStream(jobId) {
       const pct = total ? (processed / total) * 100 : 0;
       setState(labelMap[mode] || 'Resizing');
       renderPct(pct);
-      // console.log(`Resizing: ${Math.round(pct)}% [${mode}] (${processed}/${total})`);
     } catch {
       /* ignore heartbeats/comments */
     }
@@ -272,8 +290,6 @@ function changeResizeTab(event) {
 Array.from(allResizeOptionTabs).forEach(tab => tab.addEventListener('click', changeResizeTab));
 
 // =========================
-// Upload / preview
-// =========================
 if (addMoreIcon) addMoreIcon.addEventListener('click', () => fileInput?.click());
 
 ['dragenter', 'dragover'].forEach(ev =>
@@ -314,6 +330,9 @@ compressionSlider?.addEventListener('input', () => {
   if (compressionValue) compressionValue.textContent = `${compressionSlider.value}%`;
 });
 
+// =========================
+// Previews (with wrapped captions)
+// =========================
 function handleFiles(files) {
   const remainingSlots = 10 - uploadedFiles.length;
   const filesArray = Array.from(files);
@@ -330,6 +349,7 @@ function handleFiles(files) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
+      container.style.minWidth = '0'; // let flex child shrink
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';
@@ -353,7 +373,16 @@ function handleFiles(files) {
       if (isTiff) img.style.boxShadow = 'none';
 
       img.onload = () => {
-        const caption = document.createElement('p'); caption.textContent = file.name;
+        const caption = document.createElement('p');
+        caption.className = 'image-caption';
+        // robust wrapping via styles
+        caption.style.whiteSpace   = 'normal';
+        caption.style.wordBreak    = 'break-word';
+        caption.style.overflowWrap = 'anywhere';
+        caption.style.maxWidth     = '100%';
+        caption.style.display      = 'block';
+        caption.textContent = softBreakFilename(file.name, 12);
+        caption.title = file.name;
 
         const dimensions = document.createElement('div'); dimensions.classList.add('image-dimensions');
 
@@ -550,8 +579,6 @@ function compressImages() {
     });
 }
 
-// =========================
-// Redownload last file
 // =========================
 redownloadBtn?.addEventListener('click', () => {
   if (!lastCompressedBlob || !lastCompressedFilename) {
