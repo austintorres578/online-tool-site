@@ -618,7 +618,35 @@ main{
     margin-right: auto;
 }
 
+.current-language{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
+.language-switcher > li:hover ul{
+    display: block;
+}
+
+.language-switcher li{
+    margin-bottom: 10px;
+}
+
+.current-language:after{
+    content: "";
+    height: 10px;
+    width: 10px;
+    background: url('/images/header/chevron-down.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-left: 5px;
+    pointer-events: none;
+}
+
+.current-language:hover:after{
+    transform: rotate(180deg);
+}
 
 .completion-download-con div a{
     position: absolute;
@@ -705,7 +733,7 @@ footer{
 
 footer nav{
     display: flex;
-    align-items: flex-start;
+    align-items: baseline;
     flex-wrap: wrap;
 }
 
@@ -970,6 +998,133 @@ footer p{
     flex-wrap: wrap;
     background-color: #feac43;
     color: #473126;
+    min-height: 290px;
+}
+
+.english-lang:before{
+    content:"";
+    background:url('/images/footer/eng-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.german-lang:before{
+    content:"";
+    background:url('/images/footer/german-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.french-lang:before{
+    content:"";
+    background:url('/images/footer/french-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.spanish-lang:before{
+    content:"";
+    background:url('/images/footer/spanish-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.russian-lang:before{
+    content:"";
+    background:url('/images/footer/russian-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.portuguese-lang:before{
+    content:"";
+    background:url('/images/footer/portuguese-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.italian-lang:before{
+    content:"";
+    background:url('/images/footer/italian-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.dutch-lang:before{
+    content:"";
+    background:url('/images/footer/dutch-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
+}
+
+.polish-lang:before{
+    content:"";
+    background:url('/images/footer/dutch-flag.png');
+    height: 20px;
+    width: 20px;
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-right: 5px;
+    position: absolute;
+    left: -24px;
 }
 
 .loading-bar{
@@ -1013,4 +1168,25 @@ footer p{
 .bottom-footer{
     background-color: #755844;
     color: white;
+}
+
+.language-switcher{
+    list-style: none;
+    padding-left: 0px;
+    margin-bottom: 0px;
+    margin-left: 15px;
+}
+
+.language-switcher a{
+    position: relative;
+}
+
+.language-switcher ul{
+    list-style: none;
+    padding-left: 0px;
+    display: none;
+}
+
+.language-switcher ul li{
+    text-align: left;
 }
