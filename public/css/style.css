@@ -894,6 +894,7 @@ footer p{
 
 .completion-con h3{
     font-size: 36px;
+    margin-bottom: 0px;
 }
 
 .completion-con .completion-download-button{
@@ -907,6 +908,7 @@ footer p{
     cursor: pointer;
     transition: .25s;
     font-family: "Outfit";
+    margin-bottom: 0px;
 }
 
 .completion-con .completion-download-button:hover{
