@@ -290,61 +290,88 @@ function changeResizeTab(event) {
 Array.from(allResizeOptionTabs).forEach(tab => tab.addEventListener('click', changeResizeTab));
 
 // =========================
-if (addMoreIcon) addMoreIcon.addEventListener('click', () => fileInput?.click());
+// Broken image guard (decode test)
+// =========================
+function decodeImage(file, timeoutMs = 5000) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    let settled = false;
 
-['dragenter', 'dragover'].forEach(ev =>
-  dropArea?.addEventListener(ev, (e) => { e.preventDefault(); dropArea.classList.add('dragover'); })
-);
-['dragleave', 'drop'].forEach(ev =>
-  dropArea?.addEventListener(ev, () => dropArea.classList.remove('dragover'))
-);
+    const clean = () => {
+      URL.revokeObjectURL(url);
+      clearTimeout(timer);
+      img.onload = null;
+      img.onerror = null;
+    };
 
-dropArea?.addEventListener('drop', (e) => {
-  e.preventDefault();
-  const files = Array.from(e.dataTransfer.files);
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        clean();
+        resolve(false);
+      }
+    }, timeoutMs);
+
+    img.onload = () => {
+      if (!settled) {
+        settled = true;
+        clean();
+        resolve(true);
+      }
+    };
+    img.onerror = () => {
+      if (!settled) {
+        settled = true;
+        clean();
+        resolve(false);
+      }
+    };
+
+    img.src = url;
+  });
+}
+
+// =========================
+// Accept & process files (validates, decodes, previews)
+// =========================
+async function acceptFiles(files) {
   const totalImages = uploadedFiles.length + files.length;
-  if (totalImages > 10) { alert('You can only upload up to 10 images.'); return; }
+  if (totalImages > 10) {
+    alert('You can only upload up to 10 images.');
+    return;
+  }
 
+  // Validate basic constraints (type/size)
   const invalid = files.filter(f => !f.type.startsWith('image/') || f.size > 10 * 1024 * 1024);
   if (invalid.length) {
     const reasons = invalid.map(f => !f.type.startsWith('image/') ? `❌ ${f.name}: Not an image` : `❌ ${f.name}: Larger than 10MB`).join('\n');
-    alert(`Some files were rejected:\n${reasons}`); return;
+    alert(`Some files were rejected:\n${reasons}`);
   }
-  handleFiles(files);
-});
+  files = files.filter(f => !invalid.includes(f));
 
-fileInput?.addEventListener('change', () => {
-  const files = Array.from(fileInput.files);
-  const totalImages = uploadedFiles.length + files.length;
-  if (totalImages > 10) { alert('You can only upload up to 10 images.'); fileInput.value = ''; return; }
-
-  const invalid = files.filter(f => !f.type.startsWith('image/') || f.size > 10 * 1024 * 1024);
-  if (invalid.length) {
-    const reasons = invalid.map(f => !f.type.startsWith('image/') ? `❌ ${f.name}: Not an image` : `❌ ${f.name}: Larger than 10MB`).join('\n');
-    alert(`Some files were rejected:\n${reasons}`); fileInput.value = ''; return;
-  }
-  handleFiles(files);
-});
-
-compressionSlider?.addEventListener('input', () => {
-  if (compressionValue) compressionValue.textContent = `${compressionSlider.value}%`;
-});
-
-// =========================
-// Previews (with wrapped captions)
-// =========================
-function handleFiles(files) {
-  const remainingSlots = 10 - uploadedFiles.length;
-  const filesArray = Array.from(files);
-  if (filesArray.length > remainingSlots) {
-    alert(`You can only upload ${remainingSlots} more image${remainingSlots === 1 ? '' : 's'}.`); return;
+  // Decode guard & build previews for good files
+  for (const file of files) {
+    const ok = await decodeImage(file);
+    if (!ok) {
+      console.warn(`Skipped broken image: ${file.name}`);
+      alert(`"${file.name}" is broken or corrupted and cannot be used.`);
+      continue;
+    }
+    await buildPreviewWithDimensions(file);
   }
 
-  filesArray.forEach(file => {
-    if (!file.type.startsWith('image/')) { alert(`${file.name} is not a valid image file.`); return; }
-    if (file.size > 10 * 1024 * 1024) { alert(`${file.name} exceeds the 10MB size limit.`); return; }
+  if (uploadedFiles.length > 0) {
+    document.querySelector('.image-resizer').style.display = 'none';
+    document.querySelector('.image-preview-con').style.display = 'flex';
+  }
+}
 
+// Build preview (with dimensions section you already show)
+function buildPreviewWithDimensions(file) {
+  return new Promise((resolve) => {
     uploadedFiles.push(file);
+
     const reader = new FileReader();
     reader.onload = function (e) {
       const container = document.createElement('div');
@@ -375,7 +402,6 @@ function handleFiles(files) {
       img.onload = () => {
         const caption = document.createElement('p');
         caption.className = 'image-caption';
-        // robust wrapping via styles
         caption.style.whiteSpace   = 'normal';
         caption.style.wordBreak    = 'break-word';
         caption.style.overflowWrap = 'anywhere';
@@ -411,15 +437,44 @@ function handleFiles(files) {
 
         previewContainer.appendChild(container);
         allNewDimensionsCon = document.querySelectorAll('.new-size');
+        resolve();
       };
     };
     reader.readAsDataURL(file);
-
-    document.querySelector('.image-resizer').style.display = 'none';
-    document.querySelector('.image-preview-con').style.display = 'flex';
   });
 }
 
+// =========================
+// Upload triggers use acceptFiles
+// =========================
+if (addMoreIcon) addMoreIcon.addEventListener('click', () => fileInput?.click());
+
+['dragenter', 'dragover'].forEach(ev =>
+  dropArea?.addEventListener(ev, (e) => { e.preventDefault(); dropArea.classList.add('dragover'); })
+);
+['dragleave', 'drop'].forEach(ev =>
+  dropArea?.addEventListener(ev, () => dropArea.classList.remove('dragover'))
+);
+
+dropArea?.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  const files = Array.from(e.dataTransfer.files);
+  await acceptFiles(files);
+});
+
+fileInput?.addEventListener('change', async () => {
+  const files = Array.from(fileInput.files);
+  await acceptFiles(files);
+});
+
+// keep the compression value UI in sync
+compressionSlider?.addEventListener('input', () => {
+  if (compressionValue) compressionValue.textContent = `${compressionSlider.value}%`;
+});
+
+// =========================
+// Remove preview item
+// =========================
 function removeUncompressedImage(event) {
   const container = event.target.closest('.image-preview-item');
   const filename = container.getAttribute('data-filename');
