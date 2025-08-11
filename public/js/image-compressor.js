@@ -29,7 +29,7 @@ const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/t
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 // =========================
-// Helper: extension + validation
+// Helpers
 // =========================
 function getExt(filename) {
   const m = filename.toLowerCase().match(/\.[^.]+$/);
@@ -57,7 +57,6 @@ function reasonForRejection(file) {
   return null;
 }
 
-// =========================
 /** Insert soft break points in long filenames so they wrap nicely.
  *  - Keeps the extension intact
  *  - Adds zero‑width spaces after delimiters and every N chars as fallback
@@ -155,7 +154,8 @@ compressionSlider?.addEventListener('input', () => {
 });
 
 // =========================
-/** Build previews with safe-wrapping captions */
+// Previews (with soft-wrapped captions)
+// =========================
 function handleFiles(files) {
   const remainingSlots = 10 - uploadedFiles.length;
   const filesArray = Array.from(files);
@@ -178,7 +178,6 @@ function handleFiles(files) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
-      // If this card is a flex child, prevent overflow shenanigans
       container.style.minWidth = '0';
 
       const buttonWrapper = document.createElement('div');
@@ -199,22 +198,18 @@ function handleFiles(files) {
 
       const img = document.createElement('img');
       const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
-
       img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
-      if (isTiff) {
-        img.style.boxShadow = 'none';
-      }
+      if (isTiff) img.style.boxShadow = 'none';
 
       const caption = document.createElement('p');
       caption.className = 'image-caption';
-      // Force safe wrapping (JS ensures zero‑width spaces exist; CSS ensures wrapping happens)
       caption.style.whiteSpace   = 'normal';
       caption.style.wordBreak    = 'break-word';
       caption.style.overflowWrap = 'anywhere';
       caption.style.maxWidth     = '100%';
       caption.style.display      = 'block';
       caption.textContent = softBreakFilename(file.name, 12);
-      caption.title = file.name; // full name on hover
+      caption.title = file.name;
 
       container.setAttribute('data-filename', file.name);
       container.appendChild(buttonWrapper);
@@ -225,8 +220,10 @@ function handleFiles(files) {
     };
     reader.readAsDataURL(file);
 
-    document.querySelector('.image-compressor')?.setAttribute('style', 'display:flex');
-    document.querySelector('.image-compressor')?.style.setProperty('display', 'none');
+    const compressor = document.querySelector('.image-compressor');
+    if (compressor) {
+      compressor.style.display = 'none';
+    }
     document.querySelector('.image-preview-con').style.display = 'flex';
   });
 }
@@ -260,13 +257,18 @@ function removeUncompressedImage(event) {
 compressBtn?.addEventListener('click', compressImages);
 
 // =========================
-// Compression w/ progress
+// Compression w/ progress + size comparison logs
 // =========================
 function compressImages() {
   if (uploadedFiles.length === 0) {
     alert('No images to compress.');
     return;
   }
+
+  // ✅ Calculate and log initial upload size (sum of all files in MB)
+  const initialSizeBytes = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
+  const initialSizeMB = (initialSizeBytes / (1024 * 1024)).toFixed(2);
+  console.log(`Initial upload size: ${initialSizeMB} MB`);
 
   document.querySelector('.loading-con').style.display = "flex";
   document.querySelector('.image-preview-con').style.display = "none";
@@ -309,7 +311,17 @@ function compressImages() {
     }
 
     console.log('Upload complete, download starting...');
+
     const blob = xhr.response;
+
+    // ✅ Log compressed size + reduction
+    const compressedSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+    console.log(`Compressed size: ${compressedSizeMB} MB`);
+    if (initialSizeBytes > 0) {
+      const reductionPct = (100 - (blob.size / initialSizeBytes) * 100).toFixed(2);
+      console.log(`Size reduction: ${reductionPct}%`);
+    }
+
     const cd = xhr.getResponseHeader('Content-Disposition') || '';
     let filename = 'compressed';
     const match = cd.match(/filename="?([^"]+)"?/);
@@ -362,6 +374,8 @@ redownloadBtn?.addEventListener('click', () => {
   window.URL.revokeObjectURL(url);
 });
 
+// =========================
+// SSE progress stream
 // =========================
 function startProgressStream(jobId) {
   if (progressSource) { try { progressSource.close(); } catch {} progressSource = null; }

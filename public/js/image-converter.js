@@ -271,6 +271,11 @@ function convertImages() {
   const format = activeTypeButton.textContent.toLowerCase() === 'jpg' ? 'jpeg' : activeTypeButton.textContent.toLowerCase();
   const quality = compressionSlider.value;
 
+  // ✅ Log initial total size (MB) before conversion
+  const initialSizeBytes = uploadedFiles.reduce((sum, f) => sum + f.size, 0);
+  const initialMB = (initialSizeBytes / (1024 * 1024)).toFixed(2);
+  console.log(`Initial upload size: ${initialMB} MB`);
+
   document.querySelector('.loading-con').style.display = "flex";
   document.querySelector('.image-preview-con').style.display = "none";
   document.querySelector('.image-converter-header').style.display = "none";
@@ -312,6 +317,16 @@ function convertImages() {
 
     console.log('Upload complete, download starting...');
     const blob = xhr.response;
+
+    // ✅ Log final downloaded size (MB) and % change vs initial
+    const outMB = (blob.size / (1024 * 1024)).toFixed(2);
+    console.log(`Converted download size: ${outMB} MB`);
+    if (initialSizeBytes > 0) {
+      const deltaPct = ((blob.size - initialSizeBytes) / initialSizeBytes * 100).toFixed(2);
+      const sign = deltaPct > 0 ? '+' : '';
+      console.log(`Size change vs. original: ${sign}${deltaPct}%`);
+    }
+
     const cd = xhr.getResponseHeader('Content-Disposition') || '';
     let filename = 'converted';
     const match = cd.match(/filename="?([^"]+)"?/);
