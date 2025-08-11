@@ -42,10 +42,9 @@ function softBreakFilename(filename, chunk = 12) {
 
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-  if (percentEl) percentEl.textContent = clamped; // ✅ No "%" symbol
+  if (percentEl) percentEl.textContent = clamped; // no "%" symbol
   if (progressEl) progressEl.style.width = `${clamped}%`; // keep % for CSS width
 }
-
 
 allTypeButtons.forEach(button => button.addEventListener('click', selectImageType));
 
@@ -80,129 +79,161 @@ function validateFiles(files, acceptTypes) {
   return files.filter(file => !isValidFile(file, acceptTypes));
 }
 
+/* ---------- decode guard: detect broken/corrupt images on the client ---------- */
+function decodeImage(file, timeoutMs = 5000) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    let settled = false;
+
+    const clean = () => {
+      URL.revokeObjectURL(url);
+      clearTimeout(timer);
+      img.onload = null;
+      img.onerror = null;
+    };
+
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        clean();
+        resolve(false);
+      }
+    }, timeoutMs);
+
+    img.onload = () => {
+      if (!settled) {
+        settled = true;
+        clean();
+        resolve(true);
+      }
+    };
+    img.onerror = () => {
+      if (!settled) {
+        settled = true;
+        clean();
+        resolve(false);
+      }
+    };
+
+    img.src = url;
+  });
+}
+
+/* ---------- build preview for a valid, decodable file ---------- */
+async function buildPreview(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const container = document.createElement('div');
+      container.classList.add('image-preview-item');
+      container.style.minWidth = '0'; // ensure flex items can shrink without overflow
+
+      const buttonWrapper = document.createElement('div');
+      buttonWrapper.className = 'image-preview-buttons';
+
+      const sizeKB = (file.size / 1024).toFixed(1);
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      const sizeDisplay = document.createElement('span');
+      sizeDisplay.textContent = file.size >= 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-button';
+      removeBtn.textContent = 'X';
+      removeBtn.addEventListener('click', removeUncompressedImage);
+
+      buttonWrapper.appendChild(sizeDisplay);
+      buttonWrapper.appendChild(removeBtn);
+
+      const img = document.createElement('img');
+      const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
+
+      img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
+      if (isTiff) img.style.boxShadow = 'none';
+
+      const caption = document.createElement('p');
+      caption.className = 'image-caption';
+      // robust wrapping
+      caption.style.whiteSpace   = 'normal';
+      caption.style.wordBreak    = 'break-word';
+      caption.style.overflowWrap = 'anywhere';
+      caption.style.maxWidth     = '100%';
+      caption.style.display      = 'block';
+      caption.textContent = softBreakFilename(file.name, 12);
+      caption.title = file.name;
+
+      container.setAttribute('data-filename', file.name);
+      container.appendChild(buttonWrapper);
+      container.appendChild(img);
+      container.appendChild(caption);
+
+      previewContainer.appendChild(container);
+      resolve();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------- accept & process a batch (validates + decodes + alerts on broken) ---------- */
+async function acceptFiles(files) {
+  const totalImages = uploadedFiles.length + files.length;
+  if (totalImages > 10) {
+    alert('You can only upload up to 10 images.');
+    return;
+  }
+
+  // respect <input accept="...">
+  const acceptTypes = fileInput.accept.trim().split(',').map(t => t.trim().toLowerCase());
+  const invalid = validateFiles(files, acceptTypes);
+  if (invalid.length > 0) {
+    const reasons = invalid.map(file => `❌ ${file.name}: Not an image`).join('\n');
+    alert(`Some files were rejected:\n${reasons}`);
+    // continue with the rest (only valid ones)
+    files = files.filter(f => !invalid.includes(f));
+  }
+
+  for (const file of files) {
+    // decode guard
+    const ok = await decodeImage(file);
+    if (!ok) {
+      console.warn(`Skipped broken image: ${file.name}`);
+      alert(`"${file.name}" is broken or corrupted and cannot be used.`);
+      continue;
+    }
+
+    // store & preview only good ones
+    uploadedFiles.push(file);
+    await buildPreview(file);
+  }
+
+  if (uploadedFiles.length > 0) {
+    const converter = document.querySelector('.image-converter');
+    if (converter) converter.style.display = 'none';
+    document.querySelector('.image-preview-con').style.display = 'flex';
+  }
+}
+
+/* ---------- drag & input handlers use acceptFiles ---------- */
 if (dropArea) {
-  dropArea.addEventListener('drop', (e) => {
+  dropArea.addEventListener('drop', async (e) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
-    const acceptTypes = fileInput.accept.trim().split(',').map(type => type.trim().toLowerCase());
-
-    const invalidFiles = validateFiles(files, acceptTypes);
-    if (invalidFiles.length > 0) {
-      const reasons = invalidFiles.map(file => {
-        if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
-      }).join('\n');
-      alert(`Some files were rejected:\n${reasons}`);
-      return;
-    }
-
-    const totalImages = uploadedFiles.length + files.length;
-    if (totalImages > 10) {
-      alert('You can only upload up to 10 images.');
-      return;
-    }
-
-    handleFiles(files);
+    await acceptFiles(files);
   });
 }
 
 if (fileInput) {
-  fileInput.addEventListener('change', () => {
+  fileInput.addEventListener('change', async () => {
     const files = Array.from(fileInput.files);
-    const acceptTypes = fileInput.accept.trim().split(',').map(type => type.trim().toLowerCase());
-
-    const invalidFiles = validateFiles(files, acceptTypes);
-    if (invalidFiles.length > 0) {
-      const reasons = invalidFiles.map(file => {
-        if (!file.type.startsWith('image/')) return `❌ ${file.name}: Not an image`;
-      }).join('\n');
-      alert(`Some files were rejected:\n${reasons}`);
-      fileInput.value = '';
-      return;
-    }
-
-    const totalImages = uploadedFiles.length + files.length;
-    if (totalImages > 10) {
-      alert('You can only upload up to 10 images.');
-      fileInput.value = '';
-      return;
-    }
-
-    handleFiles(files);
+    await acceptFiles(files);
+    // keep selection open; clear only if you want to allow re-selecting same files
+    // fileInput.value = '';
   });
 }
 
 if (compressionSlider) {
   compressionSlider.addEventListener('input', () => {
     compressionValue.textContent = `${compressionSlider.value}%`;
-  });
-}
-
-function handleFiles(files) {
-  const remainingSlots = 10 - uploadedFiles.length;
-  const filesArray = Array.from(files);
-
-  if (filesArray.length > remainingSlots) {
-    alert(`You can only upload ${remainingSlots} more image${remainingSlots === 1 ? '' : 's'}.`);
-    return;
-  }
-
-  filesArray.forEach(file => {
-    if (file.type.startsWith('image/')) {
-      uploadedFiles.push(file);
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const container = document.createElement('div');
-        container.classList.add('image-preview-item');
-        container.style.minWidth = '0'; // ensure flex items can shrink without overflow
-
-        const buttonWrapper = document.createElement('div');
-        buttonWrapper.className = 'image-preview-buttons';
-
-        const sizeKB = (file.size / 1024).toFixed(1);
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-        const sizeDisplay = document.createElement('span');
-        sizeDisplay.textContent = file.size >= 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
-
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-button';
-        removeBtn.textContent = 'X';
-        removeBtn.addEventListener('click', removeUncompressedImage);
-
-        buttonWrapper.appendChild(sizeDisplay);
-        buttonWrapper.appendChild(removeBtn);
-
-        const img = document.createElement('img');
-        const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
-
-        img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
-        if (isTiff) {
-          img.style.boxShadow = 'none';
-        }
-
-        const caption = document.createElement('p');
-        caption.className = 'image-caption';
-        // robust wrapping
-        caption.style.whiteSpace   = 'normal';
-        caption.style.wordBreak    = 'break-word';
-        caption.style.overflowWrap = 'anywhere';
-        caption.style.maxWidth     = '100%';
-        caption.style.display      = 'block';
-        caption.textContent = softBreakFilename(file.name, 12);
-        caption.title = file.name;
-
-        container.setAttribute('data-filename', file.name);
-        container.appendChild(buttonWrapper);
-        container.appendChild(img);
-        container.appendChild(caption);
-
-        previewContainer.appendChild(container);
-      };
-      reader.readAsDataURL(file);
-
-      document.querySelector('.image-converter').style.display = 'none';
-      document.querySelector('.image-preview-con').style.display = 'flex';
-    }
   });
 }
 
@@ -222,16 +253,16 @@ function removeUncompressedImage(event) {
 
   const remaining = document.querySelectorAll('.image-preview-item').length - 1;
   if (remaining <= 0) {
-    document.querySelector('.image-converter').style.display = 'flex';
-    document.querySelector('.image-converter').style.flexDirection = 'column';
+    const converter = document.querySelector('.image-converter');
+    if (converter) {
+      converter.style.display = 'flex';
+      converter.style.flexDirection = 'column';
+    }
     document.querySelector('.image-preview-con').style.display = 'none';
   }
 }
 
-if (compressBtn) {
-  compressBtn.addEventListener('click', convertImages);
-}
-
+/* ---------- SSE progress ---------- */
 function startProgressStream(jobId) {
   if (progressSource) { try { progressSource.close(); } catch {} progressSource = null; }
   progressSource = new EventSource(`https://online-tool-backend.onrender.com/progress/${jobId}`);
@@ -259,6 +290,11 @@ function startProgressStream(jobId) {
   };
 }
 
+/* ---------- convert flow (unchanged, with size logging + percent badge rules) ---------- */
+if (compressBtn) {
+  compressBtn.addEventListener('click', convertImages);
+}
+
 function convertImages() {
   if (uploadedFiles.length === 0) {
     alert('No images to convert.');
@@ -274,7 +310,7 @@ function convertImages() {
   const format = activeTypeButton.textContent.toLowerCase() === 'jpg' ? 'jpeg' : activeTypeButton.textContent.toLowerCase();
   const quality = compressionSlider.value;
 
-  // ✅ Log initial total size (MB) before conversion
+  // initial size log
   const initialSizeBytes = uploadedFiles.reduce((sum, f) => sum + f.size, 0);
   const initialMB = (initialSizeBytes / (1024 * 1024)).toFixed(2);
   console.log(`Initial upload size: ${initialMB} MB`);
@@ -321,23 +357,23 @@ function convertImages() {
     console.log('Upload complete, download starting...');
     const blob = xhr.response;
 
-    // ✅ Log final downloaded size (MB) and % change vs initial
+    // final size + change
     const outMB = (blob.size / (1024 * 1024)).toFixed(2);
     console.log(`Converted download size: ${outMB} MB`);
 
     if (initialSizeBytes > 0) {
-      const deltaPct = ((blob.size - initialSizeBytes) / initialSizeBytes * 100).toFixed(2);
+      const delta = ((blob.size - initialSizeBytes) / initialSizeBytes) * 100;
+      const deltaPct = Number(delta.toFixed(2));
       const sign = deltaPct > 0 ? '+' : '';
       console.log(`Size change vs. original: ${sign}${deltaPct}%`);
 
       if (deltaPct < 0) {
-        imagePercent.style.display = 'inline'; // or 'block', depending on your layout
-        imagePercent.textContent = `${Math.abs(deltaPct)}%`;
+        imagePercent.style.display = 'inline';
+        imagePercent.textContent = `${Math.abs(deltaPct)}%`; // no leading minus
       } else {
         imagePercent.style.display = 'none';
       }
     }
-
 
     const cd = xhr.getResponseHeader('Content-Disposition') || '';
     let filename = 'converted';
