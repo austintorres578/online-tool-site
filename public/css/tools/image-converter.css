@@ -236,7 +236,7 @@
 }
 
 .size-reduction-percent{
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     font-size: 30px;
     font-weight: bold;

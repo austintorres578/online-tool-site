@@ -332,7 +332,7 @@ function convertImages() {
 
       if (deltaPct < 0) {
         imagePercent.style.display = 'inline'; // or 'block', depending on your layout
-        imagePercent.textContent = Math.abs(deltaPct);
+        imagePercent.textContent = `${Math.abs(deltaPct)}%`;
       } else {
         imagePercent.style.display = 'none';
       }
