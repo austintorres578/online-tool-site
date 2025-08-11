@@ -10,6 +10,8 @@ const percentEl = document.querySelector('.loading-percentage');
 const progressEl = document.querySelector('.loading-progress');
 const progressStateEl = document.querySelector('.progress-state');
 
+let imagePercent = document.querySelector('.size-reduction-percent');
+
 let imageTypeButtonCon = document.querySelector('.conversion-options');
 let allTypeButtons = imageTypeButtonCon.querySelectorAll('button');
 let uploadedFiles = [];
@@ -40,9 +42,10 @@ function softBreakFilename(filename, chunk = 12) {
 
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-  if (percentEl) percentEl.textContent = `${clamped}%`;
-  if (progressEl) progressEl.style.width = `${clamped}%`;
+  if (percentEl) percentEl.textContent = clamped; // ✅ No "%" symbol
+  if (progressEl) progressEl.style.width = `${clamped}%`; // keep % for CSS width
 }
+
 
 allTypeButtons.forEach(button => button.addEventListener('click', selectImageType));
 
@@ -321,11 +324,20 @@ function convertImages() {
     // ✅ Log final downloaded size (MB) and % change vs initial
     const outMB = (blob.size / (1024 * 1024)).toFixed(2);
     console.log(`Converted download size: ${outMB} MB`);
+
     if (initialSizeBytes > 0) {
       const deltaPct = ((blob.size - initialSizeBytes) / initialSizeBytes * 100).toFixed(2);
       const sign = deltaPct > 0 ? '+' : '';
       console.log(`Size change vs. original: ${sign}${deltaPct}%`);
+
+      if (deltaPct < 0) {
+        imagePercent.style.display = 'inline'; // or 'block', depending on your layout
+        imagePercent.textContent = Math.abs(deltaPct);
+      } else {
+        imagePercent.style.display = 'none';
+      }
     }
+
 
     const cd = xhr.getResponseHeader('Content-Disposition') || '';
     let filename = 'converted';

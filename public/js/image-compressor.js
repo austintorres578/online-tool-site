@@ -13,6 +13,8 @@ const percentEl = document.querySelector('.loading-percentage');
 const progressEl = document.querySelector('.loading-progress');
 const progressStateEl = document.querySelector('.progress-state');
 
+let imagePercent = document.querySelector('.size-reduction-percent');
+
 // =========================
 let uploadedFiles = [];
 let lastCompressedBlob = null;
@@ -317,10 +319,19 @@ function compressImages() {
     // ✅ Log compressed size + reduction
     const compressedSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
     console.log(`Compressed size: ${compressedSizeMB} MB`);
+
     if (initialSizeBytes > 0) {
       const reductionPct = (100 - (blob.size / initialSizeBytes) * 100).toFixed(2);
       console.log(`Size reduction: ${reductionPct}%`);
+
+      if (reductionPct > 0) {
+        imagePercent.style.display = 'inline'; // or 'block' depending on your layout
+        imagePercent.textContent = Math.abs(reductionPct);
+      } else {
+        imagePercent.style.display = 'none';
+      }
     }
+
 
     const cd = xhr.getResponseHeader('Content-Disposition') || '';
     let filename = 'compressed';

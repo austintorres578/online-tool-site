@@ -310,6 +310,18 @@
     cursor: pointer;
 }
 
+.size-reduction-percent:before{
+    content:"Reduced by";
+    font-size: 20px;
+}
+
+.size-reduction-percent{
+    display: flex;
+    flex-direction: column;
+    font-size: 30px;
+    font-weight: bold;
+}
+
 .image-options-con .more-images-con h2{
     margin-top: 0px;
     margin-bottom: 0px;
