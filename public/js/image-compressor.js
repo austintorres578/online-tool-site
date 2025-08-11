@@ -12,18 +12,18 @@ const redownloadBtn = document.querySelector('.completion-download-button');
 const percentEl = document.querySelector('.loading-percentage');
 const progressEl = document.querySelector('.loading-progress');
 const progressStateEl = document.querySelector('.progress-state');
-
-let imagePercent = document.querySelector('.size-reduction-percent');
+let imagePercent = document.querySelector('.size-reduction-percent'); // optional badge
 
 // =========================
-let uploadedFiles = [];
+// State
+// =========================
+let uploadedFiles = [];              // only VALID, decodable images are stored here
 let lastCompressedBlob = null;
 let lastCompressedFilename = null;
 let progressSource = null;
 
 // =========================
-// Allowed types (must match backend)
-// =========================
+/** Allowed types (must match backend) */
 const ALLOWED_EXTS  = new Set(['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.bmp', '.avif']);
 const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/tiff', 'image/bmp', 'image/avif']);
 
@@ -34,7 +34,7 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 // Helpers
 // =========================
 function getExt(filename) {
-  const m = filename.toLowerCase().match(/\.[^.]+$/);
+  const m = (filename || '').toLowerCase().match(/\.[^.]+$/);
   return m ? m[0] : '';
 }
 
@@ -75,6 +75,17 @@ function softBreakFilename(filename, chunk = 12) {
   return withChunks + ext; // don’t break the extension
 }
 
+/** Decode a file as an image in the browser to ensure it is not corrupted. */
+function decodeImage(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload  = () => { URL.revokeObjectURL(url); resolve(true);  };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
+    img.src = url;
+  });
+}
+
 // =========================
 // Progress helpers
 // =========================
@@ -84,12 +95,14 @@ function renderPct(pct) {
   if (progressEl) progressEl.style.width = `${clamped}%`;
 }
 
+function setState(txt) {
+  if (progressStateEl) progressStateEl.textContent = txt || '';
+}
+
 // =========================
 // UI bindings
 // =========================
-if (addMoreIcon) {
-  addMoreIcon.addEventListener('click', () => fileInput.click());
-}
+addMoreIcon?.addEventListener('click', () => fileInput?.click());
 
 ['dragenter', 'dragover'].forEach(eventName => {
   dropArea?.addEventListener(eventName, (e) => {
@@ -104,83 +117,71 @@ if (addMoreIcon) {
   });
 });
 
-dropArea?.addEventListener('drop', (e) => {
+dropArea?.addEventListener('drop', async (e) => {
   e.preventDefault();
   const files = Array.from(e.dataTransfer.files);
-  const totalImages = uploadedFiles.length + files.length;
-
-  if (totalImages > 10) {
-    alert('You can only upload up to 10 images.');
-    return;
-  }
-
-  const rejected = files
-    .map(f => ({ file: f, reason: reasonForRejection(f) }))
-    .filter(x => x.reason);
-
-  if (rejected.length > 0) {
-    const reasons = rejected.map(x => `❌ ${x.file.name}: ${x.reason}`).join('\n');
-    alert(`Some files were rejected:\n${reasons}`);
-    return;
-  }
-
-  handleFiles(files);
+  await acceptFiles(files);
 });
 
-fileInput?.addEventListener('change', () => {
+fileInput?.addEventListener('change', async () => {
   const files = Array.from(fileInput.files);
-  const totalImages = uploadedFiles.length + files.length;
-
-  if (totalImages > 10) {
-    alert('You can only upload up to 10 images.');
-    fileInput.value = '';
-    return;
-  }
-
-  const rejected = files
-    .map(f => ({ file: f, reason: reasonForRejection(f) }))
-    .filter(x => x.reason);
-
-  if (rejected.length > 0) {
-    const reasons = rejected.map(x => `❌ ${x.file.name}: ${x.reason}`).join('\n');
-    alert(`Some files were rejected:\n${reasons}`);
-    fileInput.value = '';
-    return;
-  }
-
-  handleFiles(files);
+  await acceptFiles(files);
+  fileInput.value = '';
 });
 
 compressionSlider?.addEventListener('input', () => {
-  compressionValue.textContent = `${compressionSlider.value}%`;
+  if (compressionValue) compressionValue.textContent = `${compressionSlider.value}%`;
 });
+
+// Central intake for files from either drop or input
+async function acceptFiles(files) {
+  const totalImages = uploadedFiles.length + files.length;
+  if (totalImages > 10) {
+    alert('You can only upload up to 10 images.');
+    return;
+  }
+
+  // Process sequentially to keep UI stable and avoid flooding decode
+  for (const file of files) {
+    const rejectReason = reasonForRejection(file);
+    if (rejectReason) {
+      console.warn(`Rejected ${file.name}: ${rejectReason}`);
+      alert(`"${file.name}" was rejected: ${rejectReason}`);
+      continue;
+    }
+
+    // Decode guard – skip broken files
+    const ok = await decodeImage(file);
+    if (!ok) {
+      console.warn(`Skipped broken image: ${file.name}`);
+      alert(`"${file.name}" is broken or corrupted and cannot be used.`);
+      continue;
+    }
+
+    // Only valid & decodable files are stored and previewed
+    uploadedFiles.push(file);
+    await buildPreview(file);
+  }
+
+  if (uploadedFiles.length > 0) {
+    const compressor = document.querySelector('.image-compressor');
+    if (compressor) compressor.style.display = 'none';
+    const previewCon = document.querySelector('.image-preview-con');
+    if (previewCon) previewCon.style.display = 'flex';
+  }
+}
+
 
 // =========================
 // Previews (with soft-wrapped captions)
 // =========================
-function handleFiles(files) {
-  const remainingSlots = 10 - uploadedFiles.length;
-  const filesArray = Array.from(files);
-
-  if (filesArray.length > remainingSlots) {
-    alert(`You can only upload ${remainingSlots} more image${remainingSlots === 1 ? '' : 's'}.`);
-    return;
-  }
-
-  filesArray.forEach(file => {
-    const rejectReason = reasonForRejection(file);
-    if (rejectReason) {
-      alert(`❌ ${file.name}: ${rejectReason}`);
-      return;
-    }
-
-    uploadedFiles.push(file);
-
+function buildPreview(file) {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
-      container.style.minWidth = '0';
+      container.style.minWidth = '0'; // help flex layouts prevent overflow
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';
@@ -219,14 +220,9 @@ function handleFiles(files) {
       container.appendChild(caption);
 
       previewContainer.appendChild(container);
+      resolve();
     };
     reader.readAsDataURL(file);
-
-    const compressor = document.querySelector('.image-compressor');
-    if (compressor) {
-      compressor.style.display = 'none';
-    }
-    document.querySelector('.image-preview-con').style.display = 'flex';
   });
 }
 
@@ -256,18 +252,17 @@ function removeUncompressedImage(event) {
 }
 
 // =========================
+// Start compression
+// =========================
 compressBtn?.addEventListener('click', compressImages);
 
-// =========================
-// Compression w/ progress + size comparison logs
-// =========================
 function compressImages() {
   if (uploadedFiles.length === 0) {
     alert('No images to compress.');
     return;
   }
 
-  // ✅ Calculate and log initial upload size (sum of all files in MB)
+  // Initial upload size (sum of VALID images only)
   const initialSizeBytes = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
   const initialSizeMB = (initialSizeBytes / (1024 * 1024)).toFixed(2);
   console.log(`Initial upload size: ${initialSizeMB} MB`);
@@ -276,7 +271,7 @@ function compressImages() {
   document.querySelector('.image-preview-con').style.display = "none";
   document.querySelector('.image-compressor-header')?.style.setProperty('display', 'none');
   document.querySelector('.image-compressor-copy')?.style.setProperty('display', 'none');
-  if (progressStateEl) progressStateEl.textContent = "Uploading";
+  setState("Uploading");
   renderPct(0);
 
   // Generate jobId & open SSE before upload
@@ -296,7 +291,7 @@ function compressImages() {
       const pct = (e.loaded / e.total) * 100;
       console.log(`Uploading: ${pct.toFixed(1)}%`);
       renderPct(pct);
-      if (progressStateEl) progressStateEl.textContent = "Uploading";
+      setState("Uploading");
     }
   };
 
@@ -316,22 +311,24 @@ function compressImages() {
 
     const blob = xhr.response;
 
-    // ✅ Log compressed size + reduction
+    // Compressed size + reduction logs
     const compressedSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
     console.log(`Compressed size: ${compressedSizeMB} MB`);
 
     if (initialSizeBytes > 0) {
-      const reductionPct = (100 - (blob.size / initialSizeBytes) * 100).toFixed(2);
+      const reductionPctNum = 100 - (blob.size / initialSizeBytes) * 100;
+      const reductionPct = reductionPctNum.toFixed(2);
       console.log(`Size reduction: ${reductionPct}%`);
 
-      if (reductionPct > 0) {
-        imagePercent.style.display = 'inline'; // or 'block' depending on your layout
-        imagePercent.textContent = `${Math.abs(reductionPct)}%`;
-      } else {
-        imagePercent.style.display = 'none';
+      if (imagePercent) {
+        if (reductionPctNum > 0) {
+          imagePercent.style.display = 'inline';
+          imagePercent.textContent = `${Math.abs(reductionPct)}%`;
+        } else {
+          imagePercent.style.display = 'none';
+        }
       }
     }
-
 
     const cd = xhr.getResponseHeader('Content-Disposition') || '';
     let filename = 'compressed';
@@ -351,6 +348,7 @@ function compressImages() {
     URL.revokeObjectURL(url);
 
     renderPct(100);
+    setState('Done');
     document.querySelector('.loading-con').style.display = "none";
     document.querySelector('.completion-con').style.display = "flex";
   };
@@ -398,7 +396,7 @@ function startProgressStream(jobId) {
       const pct = total ? (processed / total) * 100 : 0;
       console.log(`Compression: ${Math.round(pct)}% [${mode}] (${processed}/${total})`);
       renderPct(pct);
-      if (progressStateEl) progressStateEl.textContent = (mode === 'zip' ? 'Packaging' : 'Compressing');
+      setState(mode === 'zip' ? 'Packaging' : 'Compressing');
     } catch {
       // ignore heartbeat/comments
     }
@@ -407,12 +405,12 @@ function startProgressStream(jobId) {
   progressSource.addEventListener('end', () => {
     console.log('Compression: 100% [done]');
     renderPct(100);
-    if (progressStateEl) progressStateEl.textContent = "Compressing";
+    setState('Compressing');
     try { progressSource.close(); } catch {}
     progressSource = null;
   });
 
-  progressSource.onerror = (err) => {
-    console.warn('SSE error', err);
+  progressSource.onerror = () => {
+    // optional warn
   };
 }
