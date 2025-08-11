@@ -326,7 +326,7 @@ function compressImages() {
 
       if (reductionPct > 0) {
         imagePercent.style.display = 'inline'; // or 'block' depending on your layout
-        imagePercent.textContent = Math.abs(reductionPct);
+        imagePercent.textContent = `${Math.abs(reductionPct)}%`;
       } else {
         imagePercent.style.display = 'none';
       }
