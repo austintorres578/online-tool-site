@@ -370,7 +370,7 @@ function rotateImages() {
   const xhr = new XMLHttpRequest();
   // Keep using /compress for now to avoid breaking flow.
   // Later: change this to /rotate and handle accordingly.
-  xhr.open('POST', 'https://online-tool-backend.onrender.com/compress', true);
+  xhr.open('POST', 'https://online-tool-backend.onrender.com/rotate', true);
 
   xhr.upload.onprogress = (e) => {
     if (e.lengthComputable) {
