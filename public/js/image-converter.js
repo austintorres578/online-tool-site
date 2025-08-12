@@ -42,7 +42,7 @@ function softBreakFilename(filename, chunk = 12) {
 
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-  if (percentEl) percentEl.textContent = clamped; // no "%" symbol
+  if (percentEl) percentEl.textContent = `${clamped}%`;
   if (progressEl) progressEl.style.width = `${clamped}%`; // keep % for CSS width
 }
 
