@@ -9,6 +9,8 @@ const rotateBtn = document.getElementById('compress-btn'); // keeping existing i
 const rotationSlider = document.getElementById('rotation-slider');
 const rotationValue  = document.getElementById('rotation-value');
 
+const quickButtons = document.querySelectorAll('.rotation-buttons button'); // Left 90°, Right 90°, 180°, Reset
+
 const addMoreIcon = document.getElementById('add-more-icon');
 
 const redownloadBtn = document.querySelector('.completion-download-button');
@@ -23,8 +25,8 @@ let imagePercent = document.querySelector('.size-reduction-percent'); // optiona
 // State
 // =========================
 let uploadedFiles = [];              // only VALID, decodable images are stored here
-let lastCompressedBlob = null;
-let lastCompressedFilename = null;
+let lastResultBlob = null;
+let lastResultFilename = null;
 let progressSource = null;
 
 // =========================
@@ -93,21 +95,19 @@ function decodeImage(file) {
 }
 
 // =========================
-// Degree slider setup
+// Degree slider + rotation sync
 // =========================
 function getCurrentDegrees() {
-  // default to 0 if slider missing
   const v = rotationSlider ? parseInt(rotationSlider.value, 10) : 0;
   return Number.isFinite(v) ? v : 0;
 }
 
-// Normalize slider to degrees range (in case HTML wasn't updated)
+// Ensure slider is degree-based
 if (rotationSlider) {
-  if (rotationSlider.min !== "-180") rotationSlider.min = "-180";
-  if (rotationSlider.max !== "180")  rotationSlider.max = "180";
-  if (rotationSlider.step !== "1")   rotationSlider.step = "1";
-  if (!rotationSlider.value)         rotationSlider.value = "0";
-  if (rotationValue) rotationValue.textContent = `${getCurrentDegrees()}°`;
+  rotationSlider.min = "-180";
+  rotationSlider.max = "180";
+  rotationSlider.step = "1";
+  if (!rotationSlider.value) rotationSlider.value = "0";
 }
 
 function applyRotationToPreviews(deg) {
@@ -120,12 +120,48 @@ function applyRotationToPreviews(deg) {
   });
 }
 
-// reflect live degree changes in UI + preview
+function setRotation(deg) {
+  const clamped = Math.max(-180, Math.min(180, Math.round(deg)));
+  if (rotationSlider) rotationSlider.value = String(clamped);
+  if (rotationValue)  rotationValue.textContent = `${clamped}°`;
+  applyRotationToPreviews(clamped);
+}
+
+function clearQuickActive() {
+  quickButtons.forEach(b => b.classList.remove('active'));
+}
+
+// Slider: update degrees and clear active state on quick buttons
 rotationSlider?.addEventListener('input', () => {
-  const deg = getCurrentDegrees();
-  if (rotationValue) rotationValue.textContent = `${deg}°`;
-  applyRotationToPreviews(deg);
+  setRotation(getCurrentDegrees());
+  clearQuickActive();
 });
+
+// Quick buttons: Left 90°, Right 90°, Down 180°, Reset
+quickButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const label = (btn.textContent || '').toLowerCase();
+
+    // Reset: set 0°, clear actives, do not set active on reset button
+    if (label.includes('reset')) {
+      setRotation(0);
+      clearQuickActive();
+      return;
+    }
+
+    let deg = 0;
+    if (label.includes('left'))  deg = -90;
+    else if (label.includes('right')) deg = 90;
+    else if (label.includes('180') || label.includes('down')) deg = 180;
+
+    setRotation(deg);
+    clearQuickActive();
+    btn.classList.add('active');
+  });
+});
+
+// Initialize once on load
+setRotation(getCurrentDegrees());
 
 // =========================
 // Progress helpers
@@ -141,7 +177,7 @@ function setState(txt) {
 }
 
 // =========================
-// UI bindings
+// Core UI bindings
 // =========================
 addMoreIcon?.addEventListener('click', () => fileInput?.click());
 
@@ -211,8 +247,7 @@ async function acceptFiles(files) {
 }
 
 // =========================
-// Previews (with soft-wrapped captions)
-// =========================
+/** Previews (with soft-wrapped captions) */
 function buildPreview(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -385,8 +420,8 @@ function rotateImages() {
     const match = cd.match(/filename="?([^"]+)"?/);
     if (match && match[1]) filename = match[1].trim();
 
-    lastCompressedBlob = blob;
-    lastCompressedFilename = filename;
+    lastResultBlob = blob;
+    lastResultFilename = filename;
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -418,15 +453,15 @@ function rotateImages() {
 // Redownload last result
 // =========================
 redownloadBtn?.addEventListener('click', () => {
-  if (!lastCompressedBlob || !lastCompressedFilename) {
+  if (!lastResultBlob || !lastResultFilename) {
     alert('No processed images to download. Please run the tool first.');
     return;
   }
 
-  const url = window.URL.createObjectURL(lastCompressedBlob);
+  const url = window.URL.createObjectURL(lastResultBlob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = lastCompressedFilename;
+  a.download = lastResultFilename;
   document.body.appendChild(a);
   a.click();
   a.remove();

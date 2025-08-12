@@ -263,8 +263,8 @@
 }
 
 .image-previews div img{
-    height: 75%;
-    width: 100%;
+    height: 150px;
+    width: 150px;
     object-fit: cover;
     box-shadow: 0px 0px 10px gray;
 
@@ -283,7 +283,7 @@
 }
 
 .image-options-con{
-    width:450px;
+    width:500px;
     height:600px;
     background-color: white;
     box-shadow: 0px 0px 10px gray;
@@ -363,12 +363,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 body .rotation-buttons div button{
     margin: 3px;
     padding: 10px;
     font-size: 18px;
+    width: 110.75px;
+}
+
+body .rotation-buttons div .active{
+    background-color:white;
+    color: #feac43;
 }
 
 .image-options-con label input{
