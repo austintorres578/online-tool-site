@@ -1,22 +1,22 @@
 // =========================
 // DOM refs
 // =========================
-const dropArea          = document.getElementById('drop-area');
-const fileInput         = document.getElementById('fileElem');
-const previewContainer  = document.querySelector('.image-preview-con .image-previews');
-const compressBtn       = document.getElementById('compress-btn');
-const compressionSlider = document.getElementById('compression-slider');
-const compressionValue  = document.getElementById('compression-value');
-const addMoreIcon       = document.getElementById('add-more-icon');
-const redownloadBtn     = document.querySelector('.completion-download-button');
-const percentEl         = document.querySelector('.loading-percentage');
-const progressEl        = document.querySelector('.loading-progress');
-const progressStateEl   = document.querySelector('.progress-state');
+const dropArea           = document.getElementById('drop-area');
+const fileInput          = document.getElementById('fileElem');
+const previewContainer   = document.querySelector('.image-preview-con .image-previews');
+const compressBtn        = document.getElementById('compress-btn');
+const compressionSlider  = document.getElementById('compression-slider');
+const compressionValue   = document.getElementById('compression-value');
+const addMoreIcon        = document.getElementById('add-more-icon');
+const redownloadBtn      = document.querySelector('.completion-download-button');
+const percentEl          = document.querySelector('.loading-percentage');
+const progressEl         = document.querySelector('.loading-progress');
+const progressStateEl    = document.querySelector('.progress-state');
 
-// New: explicit refs so we can reliably show/hide the right panels
-const compressorEl = document.querySelector('.image-compressor');       // intro panel
-const previewCon   = document.querySelector('.image-preview-con');      // previews panel
-const loadingCon   = document.querySelector('.preview-loading-con');    // small loader shown while building previews
+// NEW: containers we toggle
+const compressorEl = document.querySelector('.image-compressor');     // intro/hero section
+const previewCon   = document.querySelector('.image-preview-con');    // preview area
+const loadingCon   = document.querySelector('.preview-loading-con');  // tiny "processing" placeholder
 
 let imagePercent = document.querySelector('.size-reduction-percent'); // optional badge
 
@@ -97,7 +97,7 @@ function decodeImage(file) {
 // =========================
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-  if (percentEl)  percentEl.textContent = `${clamped}%`;  // ensure we show the % symbol
+  if (percentEl) percentEl.textContent = `${clamped}%`;
   if (progressEl) progressEl.style.width = `${clamped}%`;
 }
 
@@ -132,6 +132,7 @@ dropArea?.addEventListener('drop', async (e) => {
 fileInput?.addEventListener('change', async () => {
   const files = Array.from(fileInput.files);
   await acceptFiles(files);
+  // Allow re-picking the same file name
   fileInput.value = '';
 });
 
@@ -140,25 +141,38 @@ compressionSlider?.addEventListener('input', () => {
 });
 
 // =========================
-// Central intake for files from either drop or input
+// Central intake for files
 // =========================
-// Central intake for files from either drop or input
 async function acceptFiles(files) {
-  // Show the small "processing" placeholder, but DO NOT hide the intro yet
+  // Show loader immediately
   if (loadingCon) loadingCon.style.display = 'flex';
+
+  // Optimistically hide the intro/hero while trying
+  const startingCount = uploadedFiles.length;
+  let hidIntro = false;
+  if (compressorEl && compressorEl.style.display !== 'none') {
+    compressorEl.style.display = 'none';
+    hidIntro = true;
+  }
   if (previewCon) previewCon.style.display = 'none';
 
-  // Enforce the 10‑image cap (based on already accepted + this batch)
-  const totalAttempted = uploadedFiles.length + files.length;
-  if (totalAttempted > 10) {
-    alert('You can only upload up to 10 images.');
-  }
-  // Don’t process beyond the remaining slots
+  // Enforce max cap
   const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
   const batch = Array.from(files).slice(0, remainingSlots);
+  if (batch.length === 0) {
+    alert('You can only upload up to 10 images.');
+    if (loadingCon) loadingCon.style.display = 'none';
+    // Restore intro if nothing new is accepted
+    if (hidIntro && uploadedFiles.length === startingCount && compressorEl) {
+      compressorEl.style.display = 'flex';
+      compressorEl.style.flexDirection = 'column';
+    }
+    return;
+  }
 
-  let acceptedCount = 0;
+  let acceptedAny = false;
 
+  // Process sequentially (decode guard + preview)
   for (const file of batch) {
     const rejectReason = reasonForRejection(file);
     if (rejectReason) {
@@ -167,7 +181,7 @@ async function acceptFiles(files) {
       continue;
     }
 
-    // Decode guard – skip broken files
+    // Decode guard
     const ok = await decodeImage(file);
     if (!ok) {
       console.warn(`Skipped broken image: ${file.name}`);
@@ -175,29 +189,28 @@ async function acceptFiles(files) {
       continue;
     }
 
-    // Only valid & decodable files are stored and previewed
+    // First accepted? show previews container now
+    if (!acceptedAny && previewCon) {
+      previewCon.style.display = 'flex';
+    }
+    acceptedAny = true;
+
     uploadedFiles.push(file);
-    acceptedCount++;
     await buildPreview(file);
   }
 
-  // Hide the small loader
+  // Hide loader
   if (loadingCon) loadingCon.style.display = 'none';
 
-  if (acceptedCount > 0) {
-    // We have at least one valid preview: hide intro, show previews
-    if (compressorEl) compressorEl.style.display = 'none';
-    if (previewCon) previewCon.style.display = 'flex';
-  } else {
-    // Everything failed or nothing new: keep the intro visible
-    if (previewCon) previewCon.style.display = 'none';
+  // If nothing ended up accepted, restore intro/hero
+  if (!acceptedAny) {
     if (compressorEl) {
       compressorEl.style.display = 'flex';
       compressorEl.style.flexDirection = 'column';
     }
+    if (previewCon) previewCon.style.display = 'none';
   }
 }
-
 
 // =========================
 // Previews (with soft-wrapped captions)
@@ -255,7 +268,7 @@ function buildPreview(file) {
 
 function removeUncompressedImage(event) {
   const container = event.target.closest('.image-preview-item');
-  const filename = container.getAttribute('data-filename');
+  const filename = container?.getAttribute('data-filename');
 
   if (container) {
     container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -267,15 +280,14 @@ function removeUncompressedImage(event) {
   const index = uploadedFiles.findIndex(f => f.name === filename);
   if (index !== -1) uploadedFiles.splice(index, 1);
 
-  const remaining = document.querySelectorAll('.image-preview-item').length - 1;
+  // If no previews left, hide previews and restore intro
+  const remaining = document.querySelectorAll('.image-preview-item').length - 1; // minus the one we animated
   if (remaining <= 0) {
-    // No previews left: hide previews, hide tiny loader, show intro again
-    if (previewCon)  previewCon.style.display  = 'none';
-    if (loadingCon)  loadingCon.style.display  = 'none';
     if (compressorEl) {
       compressorEl.style.display = 'flex';
       compressorEl.style.flexDirection = 'column';
     }
+    if (previewCon) previewCon.style.display = 'none';
   }
 }
 
@@ -295,8 +307,8 @@ function compressImages() {
   const initialSizeMB = (initialSizeBytes / (1024 * 1024)).toFixed(2);
   console.log(`Initial upload size: ${initialSizeMB} MB`);
 
-  document.querySelector('.loading-con').style.display = "flex";
-  if (previewCon) previewCon.style.display = "none";
+  document.querySelector('.loading-con')?.style.setProperty('display', 'flex');
+  if (previewCon) previewCon.style.display = 'none';
   document.querySelector('.image-compressor-header')?.style.setProperty('display', 'none');
   document.querySelector('.image-compressor-copy')?.style.setProperty('display', 'none');
   setState("Uploading");
@@ -308,7 +320,7 @@ function compressImages() {
 
   const formData = new FormData();
   uploadedFiles.forEach(file => formData.append('images', file));
-  if (compressionSlider) formData.append('quality', compressionSlider.value);
+  formData.append('quality', compressionSlider?.value ?? '70');
   formData.append('jobId', jobId);
 
   const xhr = new XMLHttpRequest();
@@ -330,7 +342,7 @@ function compressImages() {
 
     if (xhr.status < 200 || xhr.status >= 300) {
       console.error('Compression failed:', xhr.status);
-      document.querySelector('.loading-con').style.display = "none";
+      document.querySelector('.loading-con')?.style.setProperty('display', 'none');
       alert('Something went wrong while compressing the images.');
       return;
     }
@@ -377,15 +389,15 @@ function compressImages() {
 
     renderPct(100);
     setState('Done');
-    document.querySelector('.loading-con').style.display = "none";
-    document.querySelector('.completion-con').style.display = "flex";
+    document.querySelector('.loading-con')?.style.setProperty('display', 'none');
+    document.querySelector('.completion-con')?.style.setProperty('display', 'flex');
   };
 
   xhr.onerror = function () {
     console.error('Something went wrong while compressing the images.');
     try { if (progressSource) progressSource.close(); } catch {}
     progressSource = null;
-    document.querySelector('.loading-con').style.display = "none";
+    document.querySelector('.loading-con')?.style.setProperty('display', 'none');
     alert('Something went wrong while compressing the images.');
   };
 
