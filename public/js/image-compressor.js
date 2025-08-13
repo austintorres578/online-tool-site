@@ -213,7 +213,7 @@ function buildPreview(file) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
-      container.style.minWidth = '0'; // help flex layouts prevent overflow
+      // container.style.minWidth = '0'; // help flex layouts prevent overflow
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';
