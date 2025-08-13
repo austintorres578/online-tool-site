@@ -149,7 +149,8 @@ compressionSlider?.addEventListener('input', () => {
 async function acceptFiles(files) {
   // 1) Show loader, hide previews while processing; do NOT hide hero yet
   if (loadingCon) loadingCon.style.display = 'flex';
-  if (previewCon) previewCon.style.display = 'none';
+  if (previewCon) previewCon.style.display = 'none'
+  if (compressorEl) compressorEl.style.display ='none';
 
   // 2) Enforce max cap
   const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
