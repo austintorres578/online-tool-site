@@ -278,6 +278,22 @@
     padding: 15px 0px;
 }
 
+.preview-loading-con{
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    justify-content: center;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.preview-loading-con img{
+    height: 100px;
+    width: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .image-options-con .more-images-con div{
     display: flex;
     align-items: center;

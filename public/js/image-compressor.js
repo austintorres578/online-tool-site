@@ -1,17 +1,23 @@
 // =========================
 // DOM refs
 // =========================
-const dropArea = document.getElementById('drop-area');
-const fileInput = document.getElementById('fileElem');
-const previewContainer = document.querySelector('.image-preview-con .image-previews');
-const compressBtn = document.getElementById('compress-btn');
+const dropArea          = document.getElementById('drop-area');
+const fileInput         = document.getElementById('fileElem');
+const previewContainer  = document.querySelector('.image-preview-con .image-previews');
+const compressBtn       = document.getElementById('compress-btn');
 const compressionSlider = document.getElementById('compression-slider');
-const compressionValue = document.getElementById('compression-value');
-const addMoreIcon = document.getElementById('add-more-icon');
-const redownloadBtn = document.querySelector('.completion-download-button');
-const percentEl = document.querySelector('.loading-percentage');
-const progressEl = document.querySelector('.loading-progress');
-const progressStateEl = document.querySelector('.progress-state');
+const compressionValue  = document.getElementById('compression-value');
+const addMoreIcon       = document.getElementById('add-more-icon');
+const redownloadBtn     = document.querySelector('.completion-download-button');
+const percentEl         = document.querySelector('.loading-percentage');
+const progressEl        = document.querySelector('.loading-progress');
+const progressStateEl   = document.querySelector('.progress-state');
+
+// New: explicit refs so we can reliably show/hide the right panels
+const compressorEl = document.querySelector('.image-compressor');       // intro panel
+const previewCon   = document.querySelector('.image-preview-con');      // previews panel
+const loadingCon   = document.querySelector('.preview-loading-con');    // small loader shown while building previews
+
 let imagePercent = document.querySelector('.size-reduction-percent'); // optional badge
 
 // =========================
@@ -91,7 +97,7 @@ function decodeImage(file) {
 // =========================
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-  if (percentEl) percentEl.textContent = `${clamped}%`;
+  if (percentEl)  percentEl.textContent = `${clamped}%`;  // ensure we show the % symbol
   if (progressEl) progressEl.style.width = `${clamped}%`;
 }
 
@@ -133,11 +139,24 @@ compressionSlider?.addEventListener('input', () => {
   if (compressionValue) compressionValue.textContent = `${compressionSlider.value}%`;
 });
 
+// =========================
 // Central intake for files from either drop or input
+// =========================
 async function acceptFiles(files) {
+  // Immediately hide intro, show small loading while we build previews
+  if (compressorEl) compressorEl.style.display = 'none';
+  if (loadingCon)   loadingCon.style.display   = 'flex';
+  if (previewCon)   previewCon.style.display   = 'none';
+
   const totalImages = uploadedFiles.length + files.length;
   if (totalImages > 10) {
     alert('You can only upload up to 10 images.');
+    if (loadingCon) loadingCon.style.display = 'none';
+    // If nothing uploaded yet, bring intro back
+    if (uploadedFiles.length === 0 && compressorEl) {
+      compressorEl.style.display = 'flex';
+      compressorEl.style.flexDirection = 'column';
+    }
     return;
   }
 
@@ -163,14 +182,10 @@ async function acceptFiles(files) {
     await buildPreview(file);
   }
 
-  if (uploadedFiles.length > 0) {
-    const compressor = document.querySelector('.image-compressor');
-    if (compressor) compressor.style.display = 'none';
-    const previewCon = document.querySelector('.image-preview-con');
-    if (previewCon) previewCon.style.display = 'flex';
-  }
+  // Hide the small loader, show previews if anything valid got in
+  if (loadingCon) loadingCon.style.display = 'none';
+  if (uploadedFiles.length > 0 && previewCon) previewCon.style.display = 'flex';
 }
-
 
 // =========================
 // Previews (with soft-wrapped captions)
@@ -242,12 +257,13 @@ function removeUncompressedImage(event) {
 
   const remaining = document.querySelectorAll('.image-preview-item').length - 1;
   if (remaining <= 0) {
-    const comp = document.querySelector('.image-compressor');
-    if (comp) {
-      comp.style.display = 'flex';
-      comp.style.flexDirection = 'column';
+    // No previews left: hide previews, hide tiny loader, show intro again
+    if (previewCon)  previewCon.style.display  = 'none';
+    if (loadingCon)  loadingCon.style.display  = 'none';
+    if (compressorEl) {
+      compressorEl.style.display = 'flex';
+      compressorEl.style.flexDirection = 'column';
     }
-    document.querySelector('.image-preview-con').style.display = 'none';
   }
 }
 
@@ -268,7 +284,7 @@ function compressImages() {
   console.log(`Initial upload size: ${initialSizeMB} MB`);
 
   document.querySelector('.loading-con').style.display = "flex";
-  document.querySelector('.image-preview-con').style.display = "none";
+  if (previewCon) previewCon.style.display = "none";
   document.querySelector('.image-compressor-header')?.style.setProperty('display', 'none');
   document.querySelector('.image-compressor-copy')?.style.setProperty('display', 'none');
   setState("Uploading");
@@ -280,7 +296,7 @@ function compressImages() {
 
   const formData = new FormData();
   uploadedFiles.forEach(file => formData.append('images', file));
-  formData.append('quality', compressionSlider.value);
+  if (compressionSlider) formData.append('quality', compressionSlider.value);
   formData.append('jobId', jobId);
 
   const xhr = new XMLHttpRequest();
