@@ -1,24 +1,25 @@
 // =========================
 // DOM refs
 // =========================
-const dropArea           = document.getElementById('drop-area');
-const fileInput          = document.getElementById('fileElem');
-const previewContainer   = document.querySelector('.image-preview-con .image-previews');
-const compressBtn        = document.getElementById('compress-btn');
-const compressionSlider  = document.getElementById('compression-slider');
-const compressionValue   = document.getElementById('compression-value');
-const addMoreIcon        = document.getElementById('add-more-icon');
-const redownloadBtn      = document.querySelector('.completion-download-button');
-const percentEl          = document.querySelector('.loading-percentage');
-const progressEl         = document.querySelector('.loading-progress');
-const progressStateEl    = document.querySelector('.progress-state');
+const dropArea          = document.getElementById('drop-area');
+const fileInput         = document.getElementById('fileElem');
+const previewContainer  = document.querySelector('.image-preview-con .image-previews');
+const compressBtn       = document.getElementById('compress-btn');
+const compressionSlider = document.getElementById('compression-slider');
+const compressionValue  = document.getElementById('compression-value');
+const addMoreIcon       = document.getElementById('add-more-icon');
+const redownloadBtn     = document.querySelector('.completion-download-button');
+const percentEl         = document.querySelector('.loading-percentage');
+const progressEl        = document.querySelector('.loading-progress');
+const progressStateEl   = document.querySelector('.progress-state');
 
-// NEW: containers we toggle
-const compressorEl = document.querySelector('.image-compressor');     // intro/hero section
-const previewCon   = document.querySelector('.image-preview-con');    // preview area
-const loadingCon   = document.querySelector('.preview-loading-con');  // tiny "processing" placeholder
+// Optional badge for size-change %
+let imagePercent = document.querySelector('.size-reduction-percent');
 
-let imagePercent = document.querySelector('.size-reduction-percent'); // optional badge
+// Sections we toggle during intake
+const loadingCon   = document.querySelector('.preview-loading-con'); // your spinner section
+const previewCon   = document.querySelector('.image-preview-con');
+const compressorEl = document.querySelector('.image-compressor');    // hero/intro section
 
 // =========================
 // State
@@ -29,11 +30,12 @@ let lastCompressedFilename = null;
 let progressSource = null;
 
 // =========================
-/** Allowed types (must match backend) */
+// Allowed types (must match backend)
+// =========================
 const ALLOWED_EXTS  = new Set(['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.bmp', '.avif']);
 const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/tiff', 'image/bmp', 'image/avif']);
 
-// Optional: front-end size cap (adjust if desired; keep consistent in your UI copy)
+// Optional: front-end size cap (adjust if desired; keep consistent with UI copy)
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 // =========================
@@ -70,7 +72,7 @@ function reasonForRejection(file) {
  *  - Adds zero‑width spaces after delimiters and every N chars as fallback
  */
 function softBreakFilename(filename, chunk = 12) {
-  const dot = filename.lastIndexOf('.');
+  const dot  = filename.lastIndexOf('.');
   const base = dot > 0 ? filename.slice(0, dot) : filename;
   const ext  = dot > 0 ? filename.slice(dot)    : '';
 
@@ -132,7 +134,6 @@ dropArea?.addEventListener('drop', async (e) => {
 fileInput?.addEventListener('change', async () => {
   const files = Array.from(fileInput.files);
   await acceptFiles(files);
-  // Allow re-picking the same file name
   fileInput.value = '';
 });
 
@@ -142,28 +143,22 @@ compressionSlider?.addEventListener('input', () => {
 
 // =========================
 // Central intake for files
+// Shows ONLY the loader while building all previews,
+// then swaps to the previews if at least one was accepted.
 // =========================
 async function acceptFiles(files) {
-  // Show loader immediately
+  // 1) Show loader, hide previews while processing; do NOT hide hero yet
   if (loadingCon) loadingCon.style.display = 'flex';
-
-  // Optimistically hide the intro/hero while trying
-  const startingCount = uploadedFiles.length;
-  let hidIntro = false;
-  if (compressorEl && compressorEl.style.display !== 'none') {
-    compressorEl.style.display = 'none';
-    hidIntro = true;
-  }
   if (previewCon) previewCon.style.display = 'none';
 
-  // Enforce max cap
+  // 2) Enforce max cap
   const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
   const batch = Array.from(files).slice(0, remainingSlots);
   if (batch.length === 0) {
     alert('You can only upload up to 10 images.');
     if (loadingCon) loadingCon.style.display = 'none';
-    // Restore intro if nothing new is accepted
-    if (hidIntro && uploadedFiles.length === startingCount && compressorEl) {
+    // Keep/restore hero visible since nothing could be added
+    if (compressorEl) {
       compressorEl.style.display = 'flex';
       compressorEl.style.flexDirection = 'column';
     }
@@ -172,7 +167,7 @@ async function acceptFiles(files) {
 
   let acceptedAny = false;
 
-  // Process sequentially (decode guard + preview)
+  // 3) Process sequentially (decode guard + build preview), but keep loader visible
   for (const file of batch) {
     const rejectReason = reasonForRejection(file);
     if (rejectReason) {
@@ -181,7 +176,6 @@ async function acceptFiles(files) {
       continue;
     }
 
-    // Decode guard
     const ok = await decodeImage(file);
     if (!ok) {
       console.warn(`Skipped broken image: ${file.name}`);
@@ -189,21 +183,18 @@ async function acceptFiles(files) {
       continue;
     }
 
-    // First accepted? show previews container now
-    if (!acceptedAny && previewCon) {
-      previewCon.style.display = 'flex';
-    }
-    acceptedAny = true;
-
     uploadedFiles.push(file);
     await buildPreview(file);
+    acceptedAny = true;
   }
 
-  // Hide loader
+  // 4) All done: hide loader, then either show previews (and hide hero) or restore hero
   if (loadingCon) loadingCon.style.display = 'none';
 
-  // If nothing ended up accepted, restore intro/hero
-  if (!acceptedAny) {
+  if (acceptedAny) {
+    if (compressorEl) compressorEl.style.display = 'none';
+    if (previewCon)  previewCon.style.display = 'flex';
+  } else {
     if (compressorEl) {
       compressorEl.style.display = 'flex';
       compressorEl.style.flexDirection = 'column';
@@ -268,7 +259,7 @@ function buildPreview(file) {
 
 function removeUncompressedImage(event) {
   const container = event.target.closest('.image-preview-item');
-  const filename = container?.getAttribute('data-filename');
+  const filename = container.getAttribute('data-filename');
 
   if (container) {
     container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -280,9 +271,9 @@ function removeUncompressedImage(event) {
   const index = uploadedFiles.findIndex(f => f.name === filename);
   if (index !== -1) uploadedFiles.splice(index, 1);
 
-  // If no previews left, hide previews and restore intro
-  const remaining = document.querySelectorAll('.image-preview-item').length - 1; // minus the one we animated
+  const remaining = document.querySelectorAll('.image-preview-item').length - 1;
   if (remaining <= 0) {
+    // No previews left: show hero again
     if (compressorEl) {
       compressorEl.style.display = 'flex';
       compressorEl.style.flexDirection = 'column';
@@ -292,7 +283,7 @@ function removeUncompressedImage(event) {
 }
 
 // =========================
-// Start compression
+/** Start compression */
 // =========================
 compressBtn?.addEventListener('click', compressImages);
 
@@ -307,8 +298,8 @@ function compressImages() {
   const initialSizeMB = (initialSizeBytes / (1024 * 1024)).toFixed(2);
   console.log(`Initial upload size: ${initialSizeMB} MB`);
 
-  document.querySelector('.loading-con')?.style.setProperty('display', 'flex');
-  if (previewCon) previewCon.style.display = 'none';
+  document.querySelector('.loading-con').style.display = "flex";
+  if (previewCon) previewCon.style.display = "none";
   document.querySelector('.image-compressor-header')?.style.setProperty('display', 'none');
   document.querySelector('.image-compressor-copy')?.style.setProperty('display', 'none');
   setState("Uploading");
@@ -320,7 +311,7 @@ function compressImages() {
 
   const formData = new FormData();
   uploadedFiles.forEach(file => formData.append('images', file));
-  formData.append('quality', compressionSlider?.value ?? '70');
+  formData.append('quality', compressionSlider.value);
   formData.append('jobId', jobId);
 
   const xhr = new XMLHttpRequest();
@@ -342,7 +333,7 @@ function compressImages() {
 
     if (xhr.status < 200 || xhr.status >= 300) {
       console.error('Compression failed:', xhr.status);
-      document.querySelector('.loading-con')?.style.setProperty('display', 'none');
+      document.querySelector('.loading-con').style.display = "none";
       alert('Something went wrong while compressing the images.');
       return;
     }
@@ -355,18 +346,16 @@ function compressImages() {
     const compressedSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
     console.log(`Compressed size: ${compressedSizeMB} MB`);
 
-    if (initialSizeBytes > 0) {
+    if (initialSizeBytes > 0 && imagePercent) {
       const reductionPctNum = 100 - (blob.size / initialSizeBytes) * 100;
       const reductionPct = reductionPctNum.toFixed(2);
       console.log(`Size reduction: ${reductionPct}%`);
 
-      if (imagePercent) {
-        if (reductionPctNum > 0) {
-          imagePercent.style.display = 'inline';
-          imagePercent.textContent = `${Math.abs(reductionPct)}%`;
-        } else {
-          imagePercent.style.display = 'none';
-        }
+      if (reductionPctNum > 0) {
+        imagePercent.style.display = 'inline';
+        imagePercent.textContent = `${Math.abs(reductionPct)}%`;
+      } else {
+        imagePercent.style.display = 'none';
       }
     }
 
@@ -389,15 +378,15 @@ function compressImages() {
 
     renderPct(100);
     setState('Done');
-    document.querySelector('.loading-con')?.style.setProperty('display', 'none');
-    document.querySelector('.completion-con')?.style.setProperty('display', 'flex');
+    document.querySelector('.loading-con').style.display = "none";
+    document.querySelector('.completion-con').style.display = "flex";
   };
 
   xhr.onerror = function () {
     console.error('Something went wrong while compressing the images.');
     try { if (progressSource) progressSource.close(); } catch {}
     progressSource = null;
-    document.querySelector('.loading-con')?.style.setProperty('display', 'none');
+    document.querySelector('.loading-con').style.display = "none";
     alert('Something went wrong while compressing the images.');
   };
 
