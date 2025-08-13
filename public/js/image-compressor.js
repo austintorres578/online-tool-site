@@ -142,26 +142,24 @@ compressionSlider?.addEventListener('input', () => {
 // =========================
 // Central intake for files from either drop or input
 // =========================
+// Central intake for files from either drop or input
 async function acceptFiles(files) {
-  // Immediately hide intro, show small loading while we build previews
-  if (compressorEl) compressorEl.style.display = 'none';
-  if (loadingCon)   loadingCon.style.display   = 'flex';
-  if (previewCon)   previewCon.style.display   = 'none';
+  // Show the small "processing" placeholder, but DO NOT hide the intro yet
+  if (loadingCon) loadingCon.style.display = 'flex';
+  if (previewCon) previewCon.style.display = 'none';
 
-  const totalImages = uploadedFiles.length + files.length;
-  if (totalImages > 10) {
+  // Enforce the 10‑image cap (based on already accepted + this batch)
+  const totalAttempted = uploadedFiles.length + files.length;
+  if (totalAttempted > 10) {
     alert('You can only upload up to 10 images.');
-    if (loadingCon) loadingCon.style.display = 'none';
-    // If nothing uploaded yet, bring intro back
-    if (uploadedFiles.length === 0 && compressorEl) {
-      compressorEl.style.display = 'flex';
-      compressorEl.style.flexDirection = 'column';
-    }
-    return;
   }
+  // Don’t process beyond the remaining slots
+  const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
+  const batch = Array.from(files).slice(0, remainingSlots);
 
-  // Process sequentially to keep UI stable and avoid flooding decode
-  for (const file of files) {
+  let acceptedCount = 0;
+
+  for (const file of batch) {
     const rejectReason = reasonForRejection(file);
     if (rejectReason) {
       console.warn(`Rejected ${file.name}: ${rejectReason}`);
@@ -179,13 +177,27 @@ async function acceptFiles(files) {
 
     // Only valid & decodable files are stored and previewed
     uploadedFiles.push(file);
+    acceptedCount++;
     await buildPreview(file);
   }
 
-  // Hide the small loader, show previews if anything valid got in
+  // Hide the small loader
   if (loadingCon) loadingCon.style.display = 'none';
-  if (uploadedFiles.length > 0 && previewCon) previewCon.style.display = 'flex';
+
+  if (acceptedCount > 0) {
+    // We have at least one valid preview: hide intro, show previews
+    if (compressorEl) compressorEl.style.display = 'none';
+    if (previewCon) previewCon.style.display = 'flex';
+  } else {
+    // Everything failed or nothing new: keep the intro visible
+    if (previewCon) previewCon.style.display = 'none';
+    if (compressorEl) {
+      compressorEl.style.display = 'flex';
+      compressorEl.style.flexDirection = 'column';
+    }
+  }
 }
+
 
 // =========================
 // Previews (with soft-wrapped captions)
