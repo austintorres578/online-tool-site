@@ -13,7 +13,7 @@ const progressStateEl = document.querySelector('.progress-state');
 let imagePercent = document.querySelector('.size-reduction-percent');
 
 let imageTypeButtonCon = document.querySelector('.conversion-options');
-let allTypeButtons = imageTypeButtonCon.querySelectorAll('button');
+let allTypeButtons = imageTypeButtonCon ? imageTypeButtonCon.querySelectorAll('button') : [];
 let uploadedFiles = [];
 let lastCompressedBlob = null;
 let lastCompressedFilename = null;
@@ -49,7 +49,7 @@ function renderPct(pct) {
 allTypeButtons.forEach(button => button.addEventListener('click', selectImageType));
 
 if (addMoreIcon) {
-  addMoreIcon.addEventListener('click', () => fileInput.click());
+  addMoreIcon.addEventListener('click', () => fileInput && fileInput.click());
 }
 
 ['dragenter', 'dragover'].forEach(eventName => {
@@ -65,14 +65,54 @@ if (addMoreIcon) {
   });
 });
 
+/* ---------- helpers for validation ---------- */
+const COMMON_IMAGE_EXTS = new Set([
+  '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.avif', '.tif', '.tiff'
+]);
+
+function getExt(file) {
+  const name = (file.name || '');
+  const dot = name.lastIndexOf('.');
+  return dot >= 0 ? name.slice(dot).toLowerCase() : '';
+}
+
+/** Treat TIFF as valid even if browser leaves MIME blank or uses image/x-tiff */
+function isTiff(file) {
+  const ext = getExt(file);
+  const type = (file.type || '').toLowerCase();
+  return ext === '.tif' || ext === '.tiff' || type === 'image/tiff' || type === 'image/x-tiff';
+}
+
+/** Option 2 core: skip decode for formats the browser can’t render in <img> (e.g., TIFF) */
+function isBrowserRenderable(file) {
+  // Extend this if you add other non-renderables later
+  return !isTiff(file);
+}
+
 function isValidFile(file, acceptTypes) {
-  const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+  const fileExt = getExt(file);
   const mimeType = (file.type || '').toLowerCase();
-  return (
-    (acceptTypes.includes('image/*') && file.type.startsWith('image/')) ||
-    acceptTypes.includes(fileExt) ||
-    acceptTypes.includes(mimeType)
-  );
+
+  // if accept is empty, allow common images
+  if (!acceptTypes || acceptTypes.length === 0 || (acceptTypes.length === 1 && acceptTypes[0] === '')) {
+    return mimeType.startsWith('image/') || COMMON_IMAGE_EXTS.has(fileExt);
+  }
+
+  // If accept includes image/*, allow images by MIME OR by common image extension
+  if (acceptTypes.includes('image/*')) {
+    if (mimeType.startsWith('image/')) return true;
+    // Handle blank/unknown MIME but known image extension (incl. .tif/.tiff)
+    if (COMMON_IMAGE_EXTS.has(fileExt)) return true;
+  }
+
+  // Direct matches for extension or MIME (incl. legacy image/x-tiff)
+  if (acceptTypes.includes(fileExt)) return true;
+  if (acceptTypes.includes(mimeType)) return true;
+  if (isTiff(file) && (acceptTypes.includes('.tif') || acceptTypes.includes('.tiff') || acceptTypes.includes('image/tiff') || acceptTypes.includes('image/x-tiff'))) {
+    return true;
+  }
+
+  return false;
 }
 
 function validateFiles(files, acceptTypes) {
@@ -146,10 +186,10 @@ async function buildPreview(file) {
       buttonWrapper.appendChild(removeBtn);
 
       const img = document.createElement('img');
-      const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
+      const tiff = isTiff(file);
 
-      img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
-      if (isTiff) img.style.boxShadow = 'none';
+      img.src = tiff ? '/images/tiff-placeholder.png' : e.target.result;
+      if (tiff) img.style.boxShadow = 'none';
 
       const caption = document.createElement('p');
       caption.className = 'image-caption';
@@ -182,19 +222,25 @@ async function acceptFiles(files) {
     return;
   }
 
-  // respect <input accept="...">
-  const acceptTypes = fileInput.accept.trim().split(',').map(t => t.trim().toLowerCase());
+  // respect <input accept="..."> but be robust for TIFF
+  const acceptAttr = (fileInput && fileInput.accept ? fileInput.accept : '').trim();
+  const acceptTypes = acceptAttr ? acceptAttr.split(',').map(t => t.trim().toLowerCase()) : [];
+
   const invalid = validateFiles(files, acceptTypes);
   if (invalid.length > 0) {
-    const reasons = invalid.map(file => `❌ ${file.name}: Not an image`).join('\n');
+    const reasons = invalid.map(file => `❌ ${file.name}: Not an accepted image type`).join('\n');
     alert(`Some files were rejected:\n${reasons}`);
     // continue with the rest (only valid ones)
     files = files.filter(f => !invalid.includes(f));
   }
 
   for (const file of files) {
-    // decode guard
-    const ok = await decodeImage(file);
+    // Option 2: only decode if browser can render this type; skip for TIFF
+    let ok = true;
+    if (isBrowserRenderable(file)) {
+      ok = await decodeImage(file);
+    }
+
     if (!ok) {
       console.warn(`Skipped broken image: ${file.name}`);
       alert(`"${file.name}" is broken or corrupted and cannot be used.`);
@@ -209,7 +255,8 @@ async function acceptFiles(files) {
   if (uploadedFiles.length > 0) {
     const converter = document.querySelector('.image-converter');
     if (converter) converter.style.display = 'none';
-    document.querySelector('.image-preview-con').style.display = 'flex';
+    const previewCon = document.querySelector('.image-preview-con');
+    if (previewCon) previewCon.style.display = 'flex';
   }
 }
 
@@ -233,7 +280,9 @@ if (fileInput) {
 
 if (compressionSlider) {
   compressionSlider.addEventListener('input', () => {
-    compressionValue.textContent = `${compressionSlider.value}%`;
+    if (compressionValue) {
+      compressionValue.textContent = `${compressionSlider.value}%`;
+    }
   });
 }
 
@@ -258,7 +307,8 @@ function removeUncompressedImage(event) {
       converter.style.display = 'flex';
       converter.style.flexDirection = 'column';
     }
-    document.querySelector('.image-preview-con').style.display = 'none';
+    const previewCon = document.querySelector('.image-preview-con');
+    if (previewCon) previewCon.style.display = 'none';
   }
 }
 
@@ -307,7 +357,8 @@ function convertImages() {
     return;
   }
 
-  const format = activeTypeButton.textContent.toLowerCase() === 'jpg' ? 'jpeg' : activeTypeButton.textContent.toLowerCase();
+  const formatText = activeTypeButton.textContent.toLowerCase();
+  const format = formatText === 'jpg' ? 'jpeg' : formatText;
   const quality = compressionSlider.value;
 
   // initial size log
@@ -317,8 +368,10 @@ function convertImages() {
 
   document.querySelector('.loading-con').style.display = "flex";
   document.querySelector('.image-preview-con').style.display = "none";
-  document.querySelector('.image-converter-header').style.display = "none";
-  document.querySelector('.image-converter-copy').style.display = "none";
+  const header = document.querySelector('.image-converter-header');
+  const copy = document.querySelector('.image-converter-copy');
+  if (header) header.style.display = "none";
+  if (copy) copy.style.display = "none";
   if (progressStateEl) progressStateEl.textContent = "Uploading";
 
   const jobId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
@@ -367,10 +420,10 @@ function convertImages() {
       const sign = deltaPct > 0 ? '+' : '';
       console.log(`Size change vs. original: ${sign}${deltaPct}%`);
 
-      if (deltaPct < 0) {
+      if (deltaPct < 0 && imagePercent) {
         imagePercent.style.display = 'inline';
         imagePercent.textContent = `${Math.abs(deltaPct)}%`; // no leading minus
-      } else {
+      } else if (imagePercent) {
         imagePercent.style.display = 'none';
       }
     }

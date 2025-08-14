@@ -30,10 +30,14 @@ let lastResultFilename = null;
 let progressSource = null;
 
 // =========================
-// Allowed types (must match backend)
+/** Allowed types (must match backend) */
 // =========================
 const ALLOWED_EXTS  = new Set(['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.bmp', '.avif']);
-const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/tiff', 'image/bmp', 'image/avif']);
+const ALLOWED_MIMES = new Set([
+  'image/jpeg', 'image/png', 'image/webp',
+  'image/tiff', 'image/x-tiff', // include legacy TIFF MIME
+  'image/bmp', 'image/avif'
+]);
 
 // Optional: front-end size cap (adjust if desired; keep consistent in your UI copy)
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -46,12 +50,25 @@ function getExt(filename) {
   return m ? m[0] : '';
 }
 
+function isTiffLike(file) {
+  const ext  = getExt(file.name);
+  const mime = (file.type || '').toLowerCase();
+  return ext === '.tif' || ext === '.tiff' || mime === 'image/tiff' || mime === 'image/x-tiff';
+}
+
+function isBrowserRenderable(file) {
+  // Skip decode for formats browsers generally can't render in <img> (TIFF)
+  return !isTiffLike(file);
+}
+
 function isAllowedFile(file) {
   const ext  = getExt(file.name);
   const mime = (file.type || '').toLowerCase();
   const extOk  = ALLOWED_EXTS.has(ext);
-  // Some browsers leave MIME blank; allow it if ext is valid
-  const mimeOk = !mime || ALLOWED_MIMES.has(mime);
+
+  // Allow if MIME is blank or in list; also allow TIFF by extension even if MIME is odd/blank
+  const mimeOk = !mime || ALLOWED_MIMES.has(mime) || (ext === '.tif' || ext === '.tiff');
+
   return extOk && mimeOk;
 }
 
@@ -61,16 +78,13 @@ function reasonForRejection(file) {
     const mime = (file.type || 'unknown').toLowerCase();
     return `Unsupported type (${ext} / ${mime}). Allowed: ${[...ALLOWED_EXTS].join(', ')}`;
   }
-  if (file.size > MAX_SIZE_BYTES) {
+  if (MAX_SIZE_BYTES && file.size > MAX_SIZE_BYTES) {
     return `Larger than ${(MAX_SIZE_BYTES/1024/1024).toFixed(0)}MB`;
   }
   return null;
 }
 
-/** Insert soft break points in long filenames so they wrap nicely.
- *  - Keeps the extension intact
- *  - Adds zero‑width spaces after delimiters and every N chars as fallback
- */
+/** Insert soft break points in long filenames so they wrap nicely. */
 function softBreakFilename(filename, chunk = 12) {
   const dot = filename.lastIndexOf('.');
   const base = dot > 0 ? filename.slice(0, dot) : filename;
@@ -222,8 +236,11 @@ async function acceptFiles(files) {
       continue;
     }
 
-    // Decode guard – skip broken files
-    const ok = await decodeImage(file);
+    // Decode guard – skip decode for TIFF (browser can't render it in <img>)
+    let ok = true;
+    if (isBrowserRenderable(file)) {
+      ok = await decodeImage(file);
+    }
     if (!ok) {
       console.warn(`Skipped broken image: ${file.name}`);
       alert(`"${file.name}" is broken or corrupted and cannot be used.`);
@@ -273,7 +290,7 @@ function buildPreview(file) {
       buttonWrapper.appendChild(removeBtn);
 
       const img = document.createElement('img');
-      const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
+      const isTiff = isTiffLike(file);
       img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
       if (isTiff) img.style.boxShadow = 'none';
 
@@ -332,7 +349,7 @@ function removeUncompressedImage(event) {
 }
 
 // =========================
-// Start "rotation" (still using /compress until /rotate exists)
+// Start rotation
 // =========================
 rotateBtn?.addEventListener('click', rotateImages);
 
@@ -363,13 +380,10 @@ function rotateImages() {
 
   const formData = new FormData();
   uploadedFiles.forEach(file => formData.append('images', file));
-  // send degrees so your future /rotate endpoint can consume it
   formData.append('degrees', String(degrees));
   formData.append('jobId', jobId);
 
   const xhr = new XMLHttpRequest();
-  // Keep using /compress for now to avoid breaking flow.
-  // Later: change this to /rotate and handle accordingly.
   xhr.open('POST', 'https://online-tool-backend.onrender.com/rotate', true);
 
   xhr.upload.onprogress = (e) => {
@@ -397,21 +411,19 @@ function rotateImages() {
 
     const blob = xhr.response;
 
-    // Result size logs (kept for your UI comparison)
+    // Result size logs (optional UI comparison)
     const resultSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
     console.log(`Result size: ${resultSizeMB} MB`);
 
-    if (initialSizeBytes > 0) {
+    if (initialSizeBytes > 0 && imagePercent) {
       const reductionPctNum = 100 - (blob.size / initialSizeBytes) * 100;
       const reductionPct = reductionPctNum.toFixed(2);
       console.log(`Size change: ${reductionPct}%`);
-      if (imagePercent) {
-        if (reductionPctNum > 0) {
-          imagePercent.style.display = 'inline';
-          imagePercent.textContent = `${Math.abs(reductionPct)}%`;
-        } else {
-          imagePercent.style.display = 'none';
-        }
+      if (reductionPctNum > 0) {
+        imagePercent.style.display = 'inline';
+        imagePercent.textContent = `${Math.abs(reductionPct)}%`;
+      } else {
+        imagePercent.style.display = 'none';
       }
     }
 

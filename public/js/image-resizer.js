@@ -49,24 +49,19 @@ let progressSource = null;
 // =========================
 // Filename soft-wrap helpers
 // =========================
-/**
- * Insert zero-width spaces into long filenames so they can wrap.
- * Keeps the extension intact and adds soft breaks after delimiters
- * and every `chunk` characters as a fallback.
- */
 function softBreakFilename(filename, chunk = 12) {
   const dot = filename.lastIndexOf('.');
   const base = dot > 0 ? filename.slice(0, dot) : filename;
   const ext  = dot > 0 ? filename.slice(dot)    : '';
 
   const ZWSP = '\u200B';
-  // add soft breaks after common delimiters
   const withDelims = base.replace(/([_\-.])/g, `$1${ZWSP}`);
-  // fallback: soft break every N characters
   const withChunks = withDelims.replace(new RegExp(`(.{${chunk}})`, 'g'), `$1${ZWSP}`);
   return withChunks + ext;
 }
 
+// =========================
+// Progress helpers
 // =========================
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
@@ -77,7 +72,9 @@ function setState(txt) {
   if (progressStateEl) progressStateEl.textContent = txt;
 }
 
-// Hook SSE progress stream
+// =========================
+// SSE progress
+// =========================
 function startProgressStream(jobId) {
   if (progressSource) { try { progressSource.close(); } catch {} progressSource = null; }
   progressSource = new EventSource(`https://online-tool-backend.onrender.com/progress/${jobId}`);
@@ -99,9 +96,7 @@ function startProgressStream(jobId) {
       const pct = total ? (processed / total) * 100 : 0;
       setState(labelMap[mode] || 'Resizing');
       renderPct(pct);
-    } catch {
-      /* ignore heartbeats/comments */
-    }
+    } catch {/* ignore heartbeats */}
   };
 
   progressSource.addEventListener('end', () => {
@@ -112,7 +107,7 @@ function startProgressStream(jobId) {
   });
 
   progressSource.onerror = () => {
-    // optional: console.warn('SSE error');
+    // optional warn
   };
 }
 
@@ -137,7 +132,7 @@ function applyAspectRatioToPreviews(ratioElement) {
     let width  = parseInt(widthEl.innerText);
     let height = parseInt(heightEl.innerText);
 
-    if (!isNaN(width) && !isNaN(height)) {
+    if (!isNaN(width) && !isNaN(height) && width > 0 && height > 0) {
       const currentRatio = width / height;
       if (currentRatio > targetRatio) width = Math.round(height * targetRatio);
       else height = Math.round(width / targetRatio);
@@ -145,6 +140,9 @@ function applyAspectRatioToPreviews(ratioElement) {
       newWidth.innerText  = width;
       newHeight.innerText = height;
       allNewSizeEls[i].style.opacity = "1";
+    } else {
+      // no original dims (e.g., TIFF) -> keep hidden
+      allNewSizeEls[i].style.opacity = "0";
     }
   }
 }
@@ -160,6 +158,14 @@ function updateResizePercentDisplay(event) {
     const originalSizeEl = allOriginalSizeEls[index];
     const originalWidth  = parseInt(originalSizeEl.children[0].textContent.trim());
     const originalHeight = parseInt(originalSizeEl.children[2].textContent.trim());
+
+    if (isNaN(originalWidth) || isNaN(originalHeight) || originalWidth === 0 || originalHeight === 0) {
+      // Can't compute (e.g., TIFF); keep hidden
+      newSizeEl.style.opacity = '0';
+      newSizeEl.children[0].textContent = '0';
+      newSizeEl.children[2].textContent = '0';
+      return;
+    }
 
     const newWidth  = Math.round(originalWidth  * (percent / 100));
     const newHeight = Math.round(originalHeight * (percent / 100));
@@ -217,7 +223,6 @@ function changeSocialsTab(event) {
   const lists = document.querySelectorAll('.social-options-con');
   lists.forEach(el => el.style.display = (el.classList[0] === currentSocial ? "flex" : "none"));
 
-  // reset any shown numbers
   document.querySelectorAll('.new-size').forEach(el => {
     el.style.opacity = '0';
     el.children[0].innerText = "0";
@@ -290,7 +295,7 @@ function changeResizeTab(event) {
 Array.from(allResizeOptionTabs).forEach(tab => tab.addEventListener('click', changeResizeTab));
 
 // =========================
-// Broken image guard (decode test)
+// Decode guard (browser renderability aware)
 // =========================
 function decodeImage(file, timeoutMs = 5000) {
   return new Promise((resolve) => {
@@ -332,8 +337,27 @@ function decodeImage(file, timeoutMs = 5000) {
   });
 }
 
+// ---------- NEW: type helpers to support TIFF properly ----------
+const COMMON_IMAGE_EXTS = new Set([
+  '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.avif', '.tif', '.tiff'
+]);
+function getExt(file) {
+  const name = (file.name || '');
+  const dot = name.lastIndexOf('.');
+  return dot >= 0 ? name.slice(dot).toLowerCase() : '';
+}
+function isTiff(file) {
+  const ext = getExt(file);
+  const type = (file.type || '').toLowerCase();
+  return ext === '.tif' || ext === '.tiff' || type === 'image/tiff' || type === 'image/x-tiff';
+}
+function isBrowserRenderable(file) {
+  // Skip decode for formats browsers generally can't render in <img> (TIFF)
+  return !isTiff(file);
+}
+
 // =========================
-// Accept & process files (validates, decodes, previews)
+// Accept & process files (validates, conditionally decodes, previews)
 // =========================
 async function acceptFiles(files) {
   const totalImages = uploadedFiles.length + files.length;
@@ -342,17 +366,33 @@ async function acceptFiles(files) {
     return;
   }
 
-  // Validate basic constraints (type/size)
-  const invalid = files.filter(f => !f.type.startsWith('image/') || f.size > 10 * 1024 * 1024);
+  // Validation: accept by MIME starting with image/ OR by known image extension (handles TIFF + blank MIME).
+  const invalid = files.filter(f => {
+    const type = (f.type || '').toLowerCase();
+    const ext  = getExt(f);
+    const isImageByMime = type.startsWith('image/');
+    const isImageByExt  = COMMON_IMAGE_EXTS.has(ext);
+    const overSize = f.size > 10 * 1024 * 1024; // keep your 10MB cap
+    return !(isImageByMime || isImageByExt) || overSize;
+  });
+
   if (invalid.length) {
-    const reasons = invalid.map(f => !f.type.startsWith('image/') ? `❌ ${f.name}: Not an image` : `❌ ${f.name}: Larger than 10MB`).join('\n');
+    const reasons = invalid.map(f => {
+      const tooBig = f.size > 10 * 1024 * 1024;
+      if (tooBig) return `❌ ${f.name}: Larger than 10MB`;
+      return `❌ ${f.name}: Not an accepted image type`;
+    }).join('\n');
     alert(`Some files were rejected:\n${reasons}`);
   }
+
   files = files.filter(f => !invalid.includes(f));
 
-  // Decode guard & build previews for good files
+  // Conditionally decode (skip for TIFF), then build previews
   for (const file of files) {
-    const ok = await decodeImage(file);
+    let ok = true;
+    if (isBrowserRenderable(file)) {
+      ok = await decodeImage(file);
+    }
     if (!ok) {
       console.warn(`Skipped broken image: ${file.name}`);
       alert(`"${file.name}" is broken or corrupted and cannot be used.`);
@@ -367,7 +407,7 @@ async function acceptFiles(files) {
   }
 }
 
-// Build preview (with dimensions section you already show)
+// Build preview (with dimensions if browser can load the image)
 function buildPreviewWithDimensions(file) {
   return new Promise((resolve) => {
     uploadedFiles.push(file);
@@ -376,7 +416,7 @@ function buildPreviewWithDimensions(file) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
-      container.style.minWidth = '0'; // let flex child shrink
+      container.style.minWidth = '0';
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';
@@ -395,11 +435,11 @@ function buildPreviewWithDimensions(file) {
       buttonWrapper.appendChild(removeBtn);
 
       const img = document.createElement('img');
-      const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
-      img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
-      if (isTiff) img.style.boxShadow = 'none';
+      const tiff = isTiff(file);
+      img.src = tiff ? '/images/tiff-placeholder.png' : e.target.result;
+      if (tiff) img.style.boxShadow = 'none';
 
-      img.onload = () => {
+      const makeCommonBlocks = (origW, origH) => {
         const caption = document.createElement('p');
         caption.className = 'image-caption';
         caption.style.whiteSpace   = 'normal';
@@ -413,22 +453,23 @@ function buildPreviewWithDimensions(file) {
         const dimensions = document.createElement('div'); dimensions.classList.add('image-dimensions');
 
         const originalSize = document.createElement('div'); originalSize.classList.add('original-size');
-        const origWidthP = document.createElement('p');  origWidthP.textContent = img.naturalWidth;
-        const xP         = document.createElement('p');  xP.textContent = '×';
-        const origHeightP= document.createElement('p');  origHeightP.textContent = img.naturalHeight;
+        const origWidthP = document.createElement('p');  origWidthP.textContent  = String(origW || 0);
+        const xP         = document.createElement('p');  xP.textContent          = '×';
+        const origHeightP= document.createElement('p');  origHeightP.textContent = String(origH || 0);
         originalSize.appendChild(origWidthP); originalSize.appendChild(xP); originalSize.appendChild(origHeightP);
 
         const newSize = document.createElement('div'); newSize.classList.add('new-size');
-        const newWidthP = document.createElement('p');  newWidthP.textContent = '';
-        const newX      = document.createElement('p');  newX.textContent = '×';
-        const newHeightP= document.createElement('p');  newHeightP.textContent = '';
+        const newWidthP = document.createElement('p');  newWidthP.textContent  = '0';
+        const newX      = document.createElement('p');  newX.textContent       = '×';
+        const newHeightP= document.createElement('p');  newHeightP.textContent = '0';
         newSize.appendChild(newWidthP); newSize.appendChild(newX); newSize.appendChild(newHeightP);
+        newSize.style.opacity = '0';
 
         dimensions.appendChild(originalSize); dimensions.appendChild(newSize);
 
         container.setAttribute('data-filename', file.name);
-        container.setAttribute('data-height', origHeightP.textContent);
-        container.setAttribute('data-width',  origWidthP.textContent);
+        container.setAttribute('data-height', String(origH || 0));
+        container.setAttribute('data-width',  String(origW || 0));
 
         container.appendChild(buttonWrapper);
         container.appendChild(img);
@@ -437,8 +478,18 @@ function buildPreviewWithDimensions(file) {
 
         previewContainer.appendChild(container);
         allNewDimensionsCon = document.querySelectorAll('.new-size');
-        resolve();
       };
+
+      if (tiff) {
+        // Can't load dims via <img>; show placeholder and 0×0 (keeps downstream math safe)
+        makeCommonBlocks(0, 0);
+        resolve();
+      } else {
+        img.onload = () => {
+          makeCommonBlocks(img.naturalWidth, img.naturalHeight);
+          resolve();
+        };
+      }
     };
     reader.readAsDataURL(file);
   });
@@ -511,15 +562,12 @@ function compressImages() {
   document.querySelector('.image-resizer-header').style.display = "none";
   document.querySelector('.image-resizer-copy').style.display = "none";
 
-  // progress: start at 0 / Uploading
   setState('Uploading');
   renderPct(0);
 
-  // Make job id and start SSE BEFORE uploading
   const jobId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
   startProgressStream(jobId);
 
-  // Build options per mode
   if (resizeMode === "By Size") {
     const activeFit = document.querySelector('.fit-type-buttons-con button.active');
     const fit = (activeFit?.dataset?.name || 'cover').toLowerCase();
@@ -535,7 +583,7 @@ function compressImages() {
     };
 
     formData.append("options", JSON.stringify(resizeOptions));
-    uploadedFiles.forEach((file, i) => { formData.append("images", file); });
+    uploadedFiles.forEach((file) => { formData.append("images", file); });
 
   } else if (resizeMode === "By Percent") {
     const allNewSizeEls = document.querySelectorAll('.new-size');
@@ -583,10 +631,8 @@ function compressImages() {
     });
   }
 
-  // include job id so SSE matches this request
   formData.append('jobId', jobId);
 
-  // Send (fetch; SSE shows server progress)
   fetch('https://online-tool-backend.onrender.com/resize', { method: 'POST', body: formData })
     .then(res => {
       if (!res.ok) throw new Error('Resize failed');

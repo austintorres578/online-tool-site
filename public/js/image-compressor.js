@@ -39,19 +39,26 @@ const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/t
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 // =========================
-// Helpers
+/** Helpers */
 // =========================
 function getExt(filename) {
   const m = (filename || '').toLowerCase().match(/\.[^.]+$/);
   return m ? m[0] : '';
 }
 
+// Only used for validation. Relax MIME if extension is .tif/.tiff to avoid false rejections.
 function isAllowedFile(file) {
   const ext  = getExt(file.name);
   const mime = (file.type || '').toLowerCase();
+
   const extOk  = ALLOWED_EXTS.has(ext);
-  // Some browsers leave MIME blank; allow it if ext is valid
-  const mimeOk = !mime || ALLOWED_MIMES.has(mime);
+
+  // Some browsers set TIFF to image/x-tiff (non-standard) or leave MIME blank.
+  // If it's a TIFF by extension, allow even if MIME isn't in our list.
+  const isTiffByExt = ext === '.tif' || ext === '.tiff';
+
+  const mimeOk = !mime || ALLOWED_MIMES.has(mime) || isTiffByExt;
+
   return extOk && mimeOk;
 }
 
@@ -61,7 +68,7 @@ function reasonForRejection(file) {
     const mime = (file.type || 'unknown').toLowerCase();
     return `Unsupported type (${ext} / ${mime}). Allowed: ${[...ALLOWED_EXTS].join(', ')}`;
   }
-  if (file.size > MAX_SIZE_BYTES) {
+  if (MAX_SIZE_BYTES && file.size > MAX_SIZE_BYTES) {
     return `Larger than ${(MAX_SIZE_BYTES/1024/1024).toFixed(0)}MB`;
   }
   return null;
@@ -92,6 +99,20 @@ function decodeImage(file) {
     img.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
     img.src = url;
   });
+}
+
+/** Option 2: Decide whether the browser can render this file type.
+ * TIFFs generally can’t render in <img> in most browsers, so skip decode for those.
+ */
+function isBrowserRenderable(file) {
+  const name = (file.name || '').toLowerCase();
+  const isTiff =
+    name.endsWith('.tif') ||
+    name.endsWith('.tiff') ||
+    file.type === 'image/tiff' ||
+    file.type === 'image/x-tiff';
+  // Add other non-renderable types here if needed.
+  return !isTiff;
 }
 
 // =========================
@@ -149,7 +170,7 @@ compressionSlider?.addEventListener('input', () => {
 async function acceptFiles(files) {
   // 1) Show loader, hide previews while processing; do NOT hide hero yet
   if (loadingCon) loadingCon.style.display = 'flex';
-  if (previewCon) previewCon.style.display = 'none'
+  if (previewCon) previewCon.style.display = 'none';
   if (compressorEl) compressorEl.style.display ='none';
 
   // 2) Enforce max cap
@@ -177,7 +198,12 @@ async function acceptFiles(files) {
       continue;
     }
 
-    const ok = await decodeImage(file);
+    // Option 2: only decode in the browser if it's a type the browser can render.
+    let ok = true;
+    if (isBrowserRenderable(file)) {
+      ok = await decodeImage(file);
+    }
+
     if (!ok) {
       console.warn(`Skipped broken image: ${file.name}`);
       alert(`"${file.name}" is broken or corrupted and cannot be used.`);
@@ -213,7 +239,6 @@ function buildPreview(file) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
-      // container.style.minWidth = '0'; // help flex layouts prevent overflow
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';
@@ -232,7 +257,11 @@ function buildPreview(file) {
       buttonWrapper.appendChild(removeBtn);
 
       const img = document.createElement('img');
-      const isTiff = file.type === 'image/tiff' || file.name.toLowerCase().endsWith('.tif') || file.name.toLowerCase().endsWith('.tiff');
+      const isTiff = file.type === 'image/tiff' ||
+                     file.type === 'image/x-tiff' ||
+                     file.name.toLowerCase().endsWith('.tif') ||
+                     file.name.toLowerCase().endsWith('.tiff');
+
       img.src = isTiff ? '/images/tiff-placeholder.png' : e.target.result;
       if (isTiff) img.style.boxShadow = 'none';
 
