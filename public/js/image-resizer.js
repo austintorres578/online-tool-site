@@ -15,6 +15,11 @@ const percentEl = document.querySelector('.loading-percentage');
 const progressEl = document.querySelector('.loading-progress');
 const progressStateEl = document.querySelector('.progress-state');
 
+// Quick preview loader + hero/preview refs
+const loadingCon = document.querySelector('.preview-loading-con'); // spinner while building previews
+const previewCon = document.querySelector('.image-preview-con');   // previews section
+const resizerEl  = document.querySelector('.image-resizer');       // hero/intro
+
 // Resize controls
 let sizeOptions = document.querySelector('.by-size-options');
 let percentOptions = document.querySelector('.by-percent-options');
@@ -61,6 +66,74 @@ function softBreakFilename(filename, chunk = 12) {
 }
 
 // =========================
+/** Type helpers & validation */
+// =========================
+const COMMON_IMAGE_EXTS = new Set([
+  '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.avif', '.tif', '.tiff'
+]);
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB cap
+
+function getExtFromName(name) {
+  const n = (name || '');
+  const dot = n.lastIndexOf('.');
+  return dot >= 0 ? n.slice(dot).toLowerCase() : '';
+}
+function getExt(file) {
+  return getExtFromName(file?.name || '');
+}
+
+/** Treat TIFF as valid even if browser leaves MIME blank or uses image/x-tiff */
+function isTiff(file) {
+  const ext = getExt(file);
+  const type = (file?.type || '').toLowerCase();
+  return ext === '.tif' || ext === '.tiff' || type === 'image/tiff' || type === 'image/x-tiff';
+}
+
+/** Skip decode for formats the browser can’t render in <img> (e.g., TIFF) */
+function isBrowserRenderable(file) {
+  return !isTiff(file);
+}
+
+/** Respect <input accept="..."> but be robust for TIFF & blank MIME */
+function isValidFileByAccept(file) {
+  const acceptAttr = (fileInput && fileInput.accept ? fileInput.accept : '').trim();
+  const acceptTypes = acceptAttr ? acceptAttr.split(',').map(t => t.trim().toLowerCase()) : [];
+  const fileExt = getExt(file);
+  const mimeType = (file.type || '').toLowerCase();
+
+  if (!acceptTypes.length || (acceptTypes.length === 1 && acceptTypes[0] === '')) {
+    return mimeType.startsWith('image/') || COMMON_IMAGE_EXTS.has(fileExt);
+  }
+
+  if (acceptTypes.includes('image/*')) {
+    if (mimeType.startsWith('image/')) return true;
+    if (COMMON_IMAGE_EXTS.has(fileExt)) return true;
+  }
+
+  if (acceptTypes.includes(fileExt)) return true;
+  if (acceptTypes.includes(mimeType)) return true;
+
+  if (isTiff(file) && (
+    acceptTypes.includes('.tif') || acceptTypes.includes('.tiff') ||
+    acceptTypes.includes('image/tiff') || acceptTypes.includes('image/x-tiff')
+  )) return true;
+
+  return false;
+}
+
+function reasonForRejection(file) {
+  if (file.size > MAX_SIZE_BYTES) {
+    return `Larger than ${(MAX_SIZE_BYTES/1024/1024).toFixed(0)}MB`;
+  }
+  if (!isValidFileByAccept(file)) {
+    const ext  = getExt(file) || '(no ext)';
+    const mime = (file.type || 'unknown').toLowerCase();
+    return `Unsupported type (${ext} / ${mime})`;
+  }
+  return null;
+}
+
+// =========================
 // Progress helpers
 // =========================
 function renderPct(pct) {
@@ -69,7 +142,7 @@ function renderPct(pct) {
   if (progressEl) progressEl.style.width = `${clamped}%`;
 }
 function setState(txt) {
-  if (progressStateEl) progressStateEl.textContent = txt;
+  if (progressStateEl) progressStateEl.textContent = txt || '';
 }
 
 // =========================
@@ -96,7 +169,7 @@ function startProgressStream(jobId) {
       const pct = total ? (processed / total) * 100 : 0;
       setState(labelMap[mode] || 'Resizing');
       renderPct(pct);
-    } catch {/* ignore heartbeats */}
+    } catch {/* ignore heartbeats */ }
   };
 
   progressSource.addEventListener('end', () => {
@@ -141,7 +214,6 @@ function applyAspectRatioToPreviews(ratioElement) {
       newHeight.innerText = height;
       allNewSizeEls[i].style.opacity = "1";
     } else {
-      // no original dims (e.g., TIFF) -> keep hidden
       allNewSizeEls[i].style.opacity = "0";
     }
   }
@@ -160,7 +232,6 @@ function updateResizePercentDisplay(event) {
     const originalHeight = parseInt(originalSizeEl.children[2].textContent.trim());
 
     if (isNaN(originalWidth) || isNaN(originalHeight) || originalWidth === 0 || originalHeight === 0) {
-      // Can't compute (e.g., TIFF); keep hidden
       newSizeEl.style.opacity = '0';
       newSizeEl.children[0].textContent = '0';
       newSizeEl.children[2].textContent = '0';
@@ -311,84 +382,50 @@ function decodeImage(file, timeoutMs = 5000) {
     };
 
     const timer = setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        clean();
-        resolve(false);
-      }
+      if (!settled) { settled = true; clean(); resolve(false); }
     }, timeoutMs);
 
-    img.onload = () => {
-      if (!settled) {
-        settled = true;
-        clean();
-        resolve(true);
-      }
-    };
-    img.onerror = () => {
-      if (!settled) {
-        settled = true;
-        clean();
-        resolve(false);
-      }
-    };
+    img.onload = () => { if (!settled) { settled = true; clean(); resolve(true); } };
+    img.onerror = () => { if (!settled) { settled = true; clean(); resolve(false); } };
 
     img.src = url;
   });
 }
 
-// ---------- NEW: type helpers to support TIFF properly ----------
-const COMMON_IMAGE_EXTS = new Set([
-  '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.avif', '.tif', '.tiff'
-]);
-function getExt(file) {
-  const name = (file.name || '');
-  const dot = name.lastIndexOf('.');
-  return dot >= 0 ? name.slice(dot).toLowerCase() : '';
-}
-function isTiff(file) {
-  const ext = getExt(file);
-  const type = (file.type || '').toLowerCase();
-  return ext === '.tif' || ext === '.tiff' || type === 'image/tiff' || type === 'image/x-tiff';
-}
-function isBrowserRenderable(file) {
-  // Skip decode for formats browsers generally can't render in <img> (TIFF)
-  return !isTiff(file);
-}
-
 // =========================
-// Accept & process files (validates, conditionally decodes, previews)
+// Accept & process files (loader pattern you requested)
 // =========================
 async function acceptFiles(files) {
-  const totalImages = uploadedFiles.length + files.length;
-  if (totalImages > 10) {
+  // 1) Show loader, hide previews while processing; do NOT hide hero yet (per your pattern, we hide it)
+  if (loadingCon) loadingCon.style.display = 'flex';
+  if (previewCon) previewCon.style.display = 'none';
+  if (resizerEl)  resizerEl.style.display = 'none';
+
+  // 2) Enforce max cap
+  const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
+  const batch = Array.from(files).slice(0, remainingSlots);
+  if (batch.length === 0) {
     alert('You can only upload up to 10 images.');
+    if (loadingCon) loadingCon.style.display = 'none';
+    if (resizerEl) {
+      resizerEl.style.display = 'flex';
+      resizerEl.style.flexDirection = 'column';
+    }
     return;
   }
 
-  // Validation: accept by MIME starting with image/ OR by known image extension (handles TIFF + blank MIME).
-  const invalid = files.filter(f => {
-    const type = (f.type || '').toLowerCase();
-    const ext  = getExt(f);
-    const isImageByMime = type.startsWith('image/');
-    const isImageByExt  = COMMON_IMAGE_EXTS.has(ext);
-    const overSize = f.size > 10 * 1024 * 1024; // keep your 10MB cap
-    return !(isImageByMime || isImageByExt) || overSize;
-  });
+  let acceptedAny = false;
 
-  if (invalid.length) {
-    const reasons = invalid.map(f => {
-      const tooBig = f.size > 10 * 1024 * 1024;
-      if (tooBig) return `❌ ${f.name}: Larger than 10MB`;
-      return `❌ ${f.name}: Not an accepted image type`;
-    }).join('\n');
-    alert(`Some files were rejected:\n${reasons}`);
-  }
+  // 3) Process sequentially (decode guard + build preview), keep loader visible
+  for (const file of batch) {
+    const rejectReason = reasonForRejection(file);
+    if (rejectReason) {
+      console.warn(`Rejected ${file.name}: ${rejectReason}`);
+      alert(`"${file.name}" was rejected: ${rejectReason}`);
+      continue;
+    }
 
-  files = files.filter(f => !invalid.includes(f));
-
-  // Conditionally decode (skip for TIFF), then build previews
-  for (const file of files) {
+    // Only decode if browser can render it (skip TIFF)
     let ok = true;
     if (isBrowserRenderable(file)) {
       ok = await decodeImage(file);
@@ -398,12 +435,23 @@ async function acceptFiles(files) {
       alert(`"${file.name}" is broken or corrupted and cannot be used.`);
       continue;
     }
-    await buildPreviewWithDimensions(file);
+
+    await buildPreviewWithDimensions(file); // pushes into uploadedFiles inside
+    acceptedAny = true;
   }
 
-  if (uploadedFiles.length > 0) {
-    document.querySelector('.image-resizer').style.display = 'none';
-    document.querySelector('.image-preview-con').style.display = 'flex';
+  // 4) All done: hide loader, then either show previews (and hide hero) or restore hero
+  if (loadingCon) loadingCon.style.display = 'none';
+
+  if (acceptedAny) {
+    if (resizerEl) resizerEl.style.display = 'none';
+    if (previewCon) previewCon.style.display = 'flex';
+  } else {
+    if (resizerEl) {
+      resizerEl.style.display = 'flex';
+      resizerEl.style.flexDirection = 'column';
+    }
+    if (previewCon) previewCon.style.display = 'none';
   }
 }
 
@@ -416,7 +464,6 @@ function buildPreviewWithDimensions(file) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
-      // container.style.minWidth = '0';
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';
@@ -542,8 +589,11 @@ function removeUncompressedImage(event) {
 
   const remaining = document.querySelectorAll('.image-preview-item').length - 1;
   if (remaining <= 0) {
-    document.querySelector('.image-resizer').style.display = 'flex';
-    document.querySelector('.image-preview-con').style.display = 'none';
+    if (resizerEl) {
+      resizerEl.style.display = 'flex';
+      resizerEl.style.flexDirection = 'column';
+    }
+    if (previewCon) previewCon.style.display = 'none';
   }
 }
 
@@ -558,9 +608,9 @@ function compressImages() {
   if (uploadedFiles.length === 0) { alert('No images to compress.'); return; }
 
   document.querySelector('.loading-con').style.display = "flex";
-  document.querySelector('.image-preview-con').style.display = "none";
-  document.querySelector('.image-resizer-header').style.display = "none";
-  document.querySelector('.image-resizer-copy').style.display = "none";
+  if (previewCon) previewCon.style.display = "none";
+  document.querySelector('.image-resizer-header')?.style.setProperty('display', 'none');
+  document.querySelector('.image-resizer-copy')?.style.setProperty('display', 'none');
 
   setState('Uploading');
   renderPct(0);
@@ -588,11 +638,11 @@ function compressImages() {
   } else if (resizeMode === "By Percent") {
     const allNewSizeEls = document.querySelectorAll('.new-size');
     if (!allNewSizeEls.length || allNewSizeEls[0].children[0].innerText === "0") {
-      alert("Please change percentage"); 
+      alert("Please change percentage");
       document.querySelector('.loading-con').style.display = "none";
-      document.querySelector('.image-preview-con').style.display = "flex";
-      document.querySelector('.image-resizer-header').style.display = "block";
-      document.querySelector('.image-resizer-copy').style.display = "block";
+      if (previewCon) previewCon.style.display = "flex";
+      document.querySelector('.image-resizer-header')?.style.setProperty('display', 'block');
+      document.querySelector('.image-resizer-copy')?.style.setProperty('display', 'block');
       setState(''); renderPct(0);
       return;
     }
@@ -608,9 +658,9 @@ function compressImages() {
     if (!allNewSizeEls.length || allNewSizeEls[0].children[0].innerText === "0") {
       alert("Please select an aspect ratio to resize.");
       document.querySelector('.loading-con').style.display = "none";
-      document.querySelector('.image-preview-con').style.display = "flex";
-      document.querySelector('.image-resizer-header').style.display = "block";
-      document.querySelector('.image-resizer-copy').style.display = "block";
+      if (previewCon) previewCon.style.display = "flex";
+      document.querySelector('.image-resizer-header')?.style.setProperty('display', 'block');
+      document.querySelector('.image-resizer-copy')?.style.setProperty('display', 'block');
       setState(''); renderPct(0);
       return;
     }
@@ -673,9 +723,9 @@ function compressImages() {
       setState('Error'); renderPct(0);
 
       document.querySelector('.loading-con').style.display = "none";
-      document.querySelector('.image-preview-con').style.display = "flex";
-      document.querySelector('.image-resizer-header').style.display = "block";
-      document.querySelector('.image-resizer-copy').style.display = "block";
+      if (previewCon) previewCon.style.display = "flex";
+      document.querySelector('.image-resizer-header')?.style.setProperty('display', 'block');
+      document.querySelector('.image-resizer-copy')?.style.setProperty('display', 'block');
       alert('Something went wrong while resizing the images.');
     });
 }

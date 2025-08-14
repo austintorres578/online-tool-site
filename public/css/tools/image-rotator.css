@@ -255,6 +255,22 @@
     overflow-y: scroll;
 }
 
+.preview-loading-con{
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    justify-content: center;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.preview-loading-con img{
+    height: 100px;
+    width: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .image-previews > div {
     position: relative;
     height: 200px;

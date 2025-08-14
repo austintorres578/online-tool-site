@@ -10,21 +10,26 @@ const rotationSlider = document.getElementById('rotation-slider');
 const rotationValue  = document.getElementById('rotation-value');
 
 const quickButtons = document.querySelectorAll('.rotation-buttons button'); // Left 90°, Right 90°, 180°, Reset
-
 const addMoreIcon = document.getElementById('add-more-icon');
-
 const redownloadBtn = document.querySelector('.completion-download-button');
 
+// Progress UI (server-side job)
 const percentEl = document.querySelector('.loading-percentage');
 const progressEl = document.querySelector('.loading-progress');
 const progressStateEl = document.querySelector('.progress-state');
 
-let imagePercent = document.querySelector('.size-reduction-percent'); // optional badge
+// Optional badge (not really used for rotate, but kept)
+let imagePercent = document.querySelector('.size-reduction-percent');
+
+// Quick preview loader + sections for intake step
+const intakeLoader = document.querySelector('.preview-loading-con'); // spinner while building previews
+const previewCon   = document.querySelector('.image-preview-con');   // previews section
+const rotatorHero  = document.querySelector('.image-rotator');       // hero/intro section
 
 // =========================
 // State
 // =========================
-let uploadedFiles = [];              // only VALID, decodable images are stored here
+let uploadedFiles = [];  // only VALID, decodable images are stored here
 let lastResultBlob = null;
 let lastResultFilename = null;
 let progressSource = null;
@@ -39,7 +44,7 @@ const ALLOWED_MIMES = new Set([
   'image/bmp', 'image/avif'
 ]);
 
-// Optional: front-end size cap (adjust if desired; keep consistent in your UI copy)
+// Optional: front-end size cap
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 // =========================
@@ -65,10 +70,8 @@ function isAllowedFile(file) {
   const ext  = getExt(file.name);
   const mime = (file.type || '').toLowerCase();
   const extOk  = ALLOWED_EXTS.has(ext);
-
   // Allow if MIME is blank or in list; also allow TIFF by extension even if MIME is odd/blank
   const mimeOk = !mime || ALLOWED_MIMES.has(mime) || (ext === '.tif' || ext === '.tiff');
-
   return extOk && mimeOk;
 }
 
@@ -89,21 +92,33 @@ function softBreakFilename(filename, chunk = 12) {
   const dot = filename.lastIndexOf('.');
   const base = dot > 0 ? filename.slice(0, dot) : filename;
   const ext  = dot > 0 ? filename.slice(dot)    : '';
-
   const ZWSP = '\u200B';
   const withDelims = base.replace(/([_\-.])/g, `$1${ZWSP}`);
   const withChunks = withDelims.replace(new RegExp(`(.{${chunk}})`, 'g'), `$1${ZWSP}`);
-
   return withChunks + ext; // don’t break the extension
 }
 
 /** Decode a file as an image in the browser to ensure it is not corrupted. */
-function decodeImage(file) {
+function decodeImage(file, timeoutMs = 5000) {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload  = () => { URL.revokeObjectURL(url); resolve(true);  };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
+    let settled = false;
+
+    const clean = () => {
+      URL.revokeObjectURL(url);
+      clearTimeout(timer);
+      img.onload = null;
+      img.onerror = null;
+    };
+
+    const timer = setTimeout(() => {
+      if (!settled) { settled = true; clean(); resolve(false); }
+    }, timeoutMs);
+
+    img.onload  = () => { if (!settled) { settled = true; clean(); resolve(true);  } };
+    img.onerror = () => { if (!settled) { settled = true; clean(); resolve(false); } };
+
     img.src = url;
   });
 }
@@ -156,7 +171,6 @@ quickButtons.forEach((btn) => {
   btn.addEventListener('click', () => {
     const label = (btn.textContent || '').toLowerCase();
 
-    // Reset: set 0°, clear actives, do not set active on reset button
     if (label.includes('reset')) {
       setRotation(0);
       clearQuickActive();
@@ -178,7 +192,7 @@ quickButtons.forEach((btn) => {
 setRotation(getCurrentDegrees());
 
 // =========================
-// Progress helpers
+// Progress helpers (server job)
 // =========================
 function renderPct(pct) {
   const clamped = Math.max(0, Math.min(100, Math.round(pct)));
@@ -220,15 +234,32 @@ fileInput?.addEventListener('change', async () => {
   fileInput.value = '';
 });
 
-// Central intake for files from either drop or input
+// =========================
+// Central intake for files (with loader pattern)
+// =========================
 async function acceptFiles(files) {
-  const totalImages = uploadedFiles.length + files.length;
-  if (totalImages > 10) {
+  // 1) Show loader, hide previews while processing; hide hero
+  if (intakeLoader) intakeLoader.style.display = 'flex';
+  if (previewCon)   previewCon.style.display   = 'none';
+  if (rotatorHero)  rotatorHero.style.display  = 'none';
+
+  // 2) Enforce max cap
+  const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
+  const batch = Array.from(files).slice(0, remainingSlots);
+  if (batch.length === 0) {
     alert('You can only upload up to 10 images.');
+    if (intakeLoader) intakeLoader.style.display = 'none';
+    if (rotatorHero) {
+      rotatorHero.style.display = 'flex';
+      rotatorHero.style.flexDirection = 'column';
+    }
     return;
   }
 
-  for (const file of files) {
+  let acceptedAny = false;
+
+  // 3) Process sequentially (decode guard + build preview), keep loader visible
+  for (const file of batch) {
     const rejectReason = reasonForRejection(file);
     if (rejectReason) {
       console.warn(`Rejected ${file.name}: ${rejectReason}`);
@@ -249,17 +280,23 @@ async function acceptFiles(files) {
 
     uploadedFiles.push(file);
     await buildPreview(file);
+    acceptedAny = true;
   }
 
-  if (uploadedFiles.length > 0) {
-    // Hide intro, show previews
-    const rotatorIntro = document.querySelector('.image-rotator');
-    if (rotatorIntro) rotatorIntro.style.display = 'none';
-    const previewCon = document.querySelector('.image-preview-con');
-    if (previewCon) previewCon.style.display = 'flex';
+  // 4) All done: hide loader, then either show previews or restore hero
+  if (intakeLoader) intakeLoader.style.display = 'none';
 
+  if (acceptedAny) {
+    if (rotatorHero) rotatorHero.style.display = 'none';
+    if (previewCon)  previewCon.style.display  = 'flex';
     // apply current rotation to newly added previews
     applyRotationToPreviews(getCurrentDegrees());
+  } else {
+    if (rotatorHero) {
+      rotatorHero.style.display = 'flex';
+      rotatorHero.style.flexDirection = 'column';
+    }
+    if (previewCon) previewCon.style.display = 'none';
   }
 }
 
@@ -337,18 +374,16 @@ function removeUncompressedImage(event) {
 
   const remaining = document.querySelectorAll('.image-preview-item').length - 1;
   if (remaining <= 0) {
-    // Show intro again when no files left
-    const rotatorIntro = document.querySelector('.image-rotator');
-    if (rotatorIntro) {
-      rotatorIntro.style.display = 'flex';
-      rotatorIntro.style.flexDirection = 'column';
+    if (rotatorHero) {
+      rotatorHero.style.display = 'flex';
+      rotatorHero.style.flexDirection = 'column';
     }
-    document.querySelector('.image-preview-con').style.display = 'none';
+    if (previewCon) previewCon.style.display = 'none';
   }
 }
 
 // =========================
-// Start rotation
+// Start rotation (server call)
 // =========================
 rotateBtn?.addEventListener('click', rotateImages);
 
@@ -367,7 +402,7 @@ function rotateImages() {
   console.log(`Requested rotation: ${degrees}°`);
 
   document.querySelector('.loading-con').style.display = "flex";
-  document.querySelector('.image-preview-con').style.display = "none";
+  if (previewCon) previewCon.style.display = "none";
   document.querySelector('.image-rotator-header')?.style.setProperty('display', 'none');
   document.querySelector('.image-rotator-copy')?.style.setProperty('display', 'none');
   setState("Uploading");
@@ -480,7 +515,7 @@ redownloadBtn?.addEventListener('click', () => {
 });
 
 // =========================
-// SSE progress stream
+// SSE progress stream (server)
 // =========================
 function startProgressStream(jobId) {
   if (progressSource) { try { progressSource.close(); } catch {} progressSource = null; }
