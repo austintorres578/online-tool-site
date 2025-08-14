@@ -57,9 +57,10 @@
     }
 
     body .images-options div{
-        height: 125px;
+        height: auto;
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 10px;
     }
 
     body .image-options-con{
@@ -287,7 +288,7 @@
 }
 
 .image-options-con{
-    width:500px;
+    width:530px;
     height:600px;
     background-color: white;
     box-shadow: 0px 0px 10px gray;
@@ -373,7 +374,7 @@
 body .rotation-buttons div button{
     margin: 3px;
     padding: 10px;
-    font-size: 18px;
+    font-size: 16px;
     width: 110.75px;
 }
 
