@@ -416,7 +416,7 @@ function buildPreviewWithDimensions(file) {
     reader.onload = function (e) {
       const container = document.createElement('div');
       container.classList.add('image-preview-item');
-      container.style.minWidth = '0';
+      // container.style.minWidth = '0';
 
       const buttonWrapper = document.createElement('div');
       buttonWrapper.className = 'image-preview-buttons';

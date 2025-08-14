@@ -58,7 +58,7 @@
         width: 90%;
         margin-left: auto;
         margin-right: auto;
-        overflow-y: auto;
+        overflow-y: hidden;
         flex-wrap: nowrap;
         justify-content: space-evenly;
         padding-left: 10px;

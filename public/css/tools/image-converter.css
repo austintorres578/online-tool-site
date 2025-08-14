@@ -80,12 +80,14 @@
 
     body .image-previews{
         width: 90%;
+        height: auto;
         margin-left: auto;
         margin-right: auto;
-        overflow-y: scroll;
         flex-wrap: nowrap;
         justify-content: space-evenly;
         padding-left: 10px;
+        overflow-x: scroll;
+        overflow-y: hidden
     }
 
     body .image-previews > div{
@@ -153,6 +155,8 @@
     width: 100%;
     flex-wrap: wrap;
     justify-content: center;
+    height: 600px;
+    overflow-y: scroll;
 }
 
 .image-previews > div {
