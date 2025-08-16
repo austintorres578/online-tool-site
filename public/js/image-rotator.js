@@ -44,8 +44,8 @@ const ALLOWED_MIMES = new Set([
   'image/bmp', 'image/avif'
 ]);
 
-// Optional: front-end size cap
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+// Front-end size cap (raised to 50 MB)
+const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
 
 // =========================
 // Helpers
@@ -243,18 +243,8 @@ async function acceptFiles(files) {
   if (previewCon)   previewCon.style.display   = 'none';
   if (rotatorHero)  rotatorHero.style.display  = 'none';
 
-  // 2) Enforce max cap
-  const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
-  const batch = Array.from(files).slice(0, remainingSlots);
-  if (batch.length === 0) {
-    alert('You can only upload up to 10 images.');
-    if (intakeLoader) intakeLoader.style.display = 'none';
-    if (rotatorHero) {
-      rotatorHero.style.display = 'flex';
-      rotatorHero.style.flexDirection = 'column';
-    }
-    return;
-  }
+  // 2) No max-count cap: process everything provided
+  const batch = Array.from(files);
 
   let acceptedAny = false;
 

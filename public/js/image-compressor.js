@@ -30,13 +30,13 @@ let lastCompressedFilename = null;
 let progressSource = null;
 
 // =========================
-// Allowed types (must match backend)
+/** Allowed types (must match backend) */
 // =========================
 const ALLOWED_EXTS  = new Set(['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.bmp', '.avif']);
 const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/tiff', 'image/bmp', 'image/avif']);
 
-// Optional: front-end size cap (adjust if desired; keep consistent with UI copy)
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+// Front-end size cap (raised to 50 MB)
+const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
 
 // =========================
 /** Helpers */
@@ -52,11 +52,7 @@ function isAllowedFile(file) {
   const mime = (file.type || '').toLowerCase();
 
   const extOk  = ALLOWED_EXTS.has(ext);
-
-  // Some browsers set TIFF to image/x-tiff (non-standard) or leave MIME blank.
-  // If it's a TIFF by extension, allow even if MIME isn't in our list.
   const isTiffByExt = ext === '.tif' || ext === '.tiff';
-
   const mimeOk = !mime || ALLOWED_MIMES.has(mime) || isTiffByExt;
 
   return extOk && mimeOk;
@@ -74,10 +70,7 @@ function reasonForRejection(file) {
   return null;
 }
 
-/** Insert soft break points in long filenames so they wrap nicely.
- *  - Keeps the extension intact
- *  - Adds zero‑width spaces after delimiters and every N chars as fallback
- */
+/** Insert soft break points in long filenames so they wrap nicely. */
 function softBreakFilename(filename, chunk = 12) {
   const dot  = filename.lastIndexOf('.');
   const base = dot > 0 ? filename.slice(0, dot) : filename;
@@ -101,9 +94,7 @@ function decodeImage(file) {
   });
 }
 
-/** Option 2: Decide whether the browser can render this file type.
- * TIFFs generally can’t render in <img> in most browsers, so skip decode for those.
- */
+/** Decide whether the browser can render this file type (skip TIFF decode). */
 function isBrowserRenderable(file) {
   const name = (file.name || '').toLowerCase();
   const isTiff =
@@ -111,7 +102,6 @@ function isBrowserRenderable(file) {
     name.endsWith('.tiff') ||
     file.type === 'image/tiff' ||
     file.type === 'image/x-tiff';
-  // Add other non-renderable types here if needed.
   return !isTiff;
 }
 
@@ -173,19 +163,8 @@ async function acceptFiles(files) {
   if (previewCon) previewCon.style.display = 'none';
   if (compressorEl) compressorEl.style.display ='none';
 
-  // 2) Enforce max cap
-  const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
-  const batch = Array.from(files).slice(0, remainingSlots);
-  if (batch.length === 0) {
-    alert('You can only upload up to 10 images.');
-    if (loadingCon) loadingCon.style.display = 'none';
-    // Keep/restore hero visible since nothing could be added
-    if (compressorEl) {
-      compressorEl.style.display = 'flex';
-      compressorEl.style.flexDirection = 'column';
-    }
-    return;
-  }
+  // 2) No max image count — process everything provided
+  const batch = Array.from(files);
 
   let acceptedAny = false;
 
@@ -198,7 +177,7 @@ async function acceptFiles(files) {
       continue;
     }
 
-    // Option 2: only decode in the browser if it's a type the browser can render.
+    // only decode in the browser if it's a type the browser can render.
     let ok = true;
     if (isBrowserRenderable(file)) {
       ok = await decodeImage(file);

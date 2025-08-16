@@ -68,7 +68,8 @@ const COMMON_IMAGE_EXTS = new Set([
   '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.avif', '.tif', '.tiff'
 ]);
 
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+// Raised to 50 MB
+const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
 
 function getExt(file) {
   const name = (file.name || '');
@@ -94,7 +95,7 @@ function isValidFile(file, acceptTypes) {
 
   if (!acceptTypes || acceptTypes.length === 0 || (acceptTypes.length === 1 && acceptTypes[0] === '')) {
     return mimeType.startsWith('image/') || COMMON_IMAGE_EXTS.has(fileExt);
-  }
+    }
 
   if (acceptTypes.includes('image/*')) {
     if (mimeType.startsWith('image/')) return true;
@@ -203,26 +204,15 @@ async function buildPreview(file) {
   });
 }
 
-/* ---------- ACCEPT FILES (EXACTLY LIKE YOUR PATTERN) ---------- */
+/* ---------- ACCEPT FILES (no max-count cap) ---------- */
 async function acceptFiles(files) {
   // 1) Show loader, hide previews while processing; do NOT hide hero yet
   if (loadingCon) loadingCon.style.display = 'flex';
   if (previewCon) previewCon.style.display = 'none';
   if (compressorEl) compressorEl.style.display ='none';
 
-  // 2) Enforce max cap
-  const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
-  const batch = Array.from(files).slice(0, remainingSlots);
-  if (batch.length === 0) {
-    alert('You can only upload up to 10 images.');
-    if (loadingCon) loadingCon.style.display = 'none';
-    // Keep/restore hero visible since nothing could be added
-    if (compressorEl) {
-      compressorEl.style.display = 'flex';
-      compressorEl.style.flexDirection = 'column';
-    }
-    return;
-  }
+  // 2) No “only 10 images” cap — process everything provided
+  const batch = Array.from(files);
 
   let acceptedAny = false;
 

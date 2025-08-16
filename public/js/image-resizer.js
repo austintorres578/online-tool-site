@@ -71,7 +71,7 @@ function softBreakFilename(filename, chunk = 12) {
 const COMMON_IMAGE_EXTS = new Set([
   '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.avif', '.tif', '.tiff'
 ]);
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB cap
+const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB cap (raised)
 
 function getExtFromName(name) {
   const n = (name || '');
@@ -401,18 +401,8 @@ async function acceptFiles(files) {
   if (previewCon) previewCon.style.display = 'none';
   if (resizerEl)  resizerEl.style.display = 'none';
 
-  // 2) Enforce max cap
-  const remainingSlots = Math.max(0, 10 - uploadedFiles.length);
-  const batch = Array.from(files).slice(0, remainingSlots);
-  if (batch.length === 0) {
-    alert('You can only upload up to 10 images.');
-    if (loadingCon) loadingCon.style.display = 'none';
-    if (resizerEl) {
-      resizerEl.style.display = 'flex';
-      resizerEl.style.flexDirection = 'column';
-    }
-    return;
-  }
+  // 2) No max-count cap: process everything provided
+  const batch = Array.from(files);
 
   let acceptedAny = false;
 
