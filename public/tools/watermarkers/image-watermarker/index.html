@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Watermarker</title>
+
+  <!-- Your CSS files -->
+  <link rel="stylesheet" href="/css/tools/image-watermarker.css" />
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header id="header-placeholder"></header>
+
+  <script>
+    // Optional header include
+    fetch("/partials/header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+        const script = document.createElement("script");
+        script.src = "/js/partials/header.js";
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Header load failed:", err));
+  </script>
+
+  <main class="image-watermarker-con">
+    <section class="image-watermarker">
+      <h1 class="image-watermarker-header">Protect Your Images with Easy Watermarks</h1>
+      <p class="image-watermarker-copy">Add your logo or text to images in seconds. Supports JPEG, PNG, WebP, and TIFF formats.</p>
+
+      <div class="drop-area-con">
+        <div id="drop-area">
+          <img src="/images/droparea/upload-icon.png" alt="Upload Icon"/>
+          <input type="file" id="fileElem" multiple accept="image/*" style="display:none;">
+          <label for="fileElem">Select Images</label>
+          <p>Or Drag & Drop Images Here</p>
+          <div id="other-drop-options">
+            <button type="button" aria-label="Google Drive"><img src="/images/droparea/google-drive-logo.png" alt=""></button>
+            <button type="button" aria-label="Dropbox"><img src="/images/droparea/drop-box-logo.png" alt=""></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="image-preview-con" style="display:none;">
+      <div class="image-previews"></div>
+
+      <div class="active-watermark-image">
+        <h2>Watermark Layers</h2>
+        <select class="watermark-selection" size="1"></select>
+        <div class="wm-order-controls">
+          <button type="button" id="wmMoveUp">▲ Move Up</button>
+          <button type="button" id="wmMoveDown">▼ Move Down</button>
+          <button type="button" id="wmRemoveOne">Remove</button>
+          <button type="button" id="wmRemoveAll">Remove All</button>
+        </div>
+
+        <div class="canvas">
+          <img class="base-image" src="/images/example.jpg" alt="Base image">
+          <!-- watermark layers get appended here -->
+        </div>
+      </div>
+
+      <div class="image-options-con">
+        <div class="images-options">
+          <div class="more-images-con">
+            <h2>Image Watermarker</h2>
+            <div>
+              <button type="button"><img src="/images/droparea/drop-box-logo.png" alt=""></button>
+              <img id="add-more-icon" src="/images/droparea/upload-icon.png" alt="Upload more">
+              <button type="button"><img src="/images/droparea/google-drive-logo.png" alt=""></button>
+            </div>
+          </div>
+
+          <div class="watermark-apply-all">
+            <input type="checkbox" id="apply-all" checked>
+            <p>Apply This Watermark To All Images</p>
+          </div>
+
+          <h3>Watermark Elements</h3>
+          <div class="image-watermarker-options">
+            <button class="add-image-button" type="button">
+              <img src="/images/white image icon.png" alt="">
+              <p>Add Image</p>
+            </button>
+            <button class="add-text-button" type="button">
+              <img src="/images/white text icon.png" alt="">
+              <p>Add Text</p>
+            </button>
+          </div>
+
+          <!-- STYLES PANEL -->
+          <div class="layer-styles">
+            <!-- Image styles -->
+            <div class="image-styles">
+              <p><strong>Image Styles</strong></p>
+
+              <label>Opacity
+                <input type="range" id="is-opacity" min="0" max="100" value="100">
+                <small><span id="is-opacity-val">100</span>%</small>
+              </label>
+
+              <label>Blend mode
+                <select id="is-blend">
+                  <option value="normal" selected>normal</option>
+                  <option value="multiply">multiply</option>
+                  <option value="overlay">overlay</option>
+                  <option value="screen">screen</option>
+                  <option value="color-burn">color-burn</option>
+                  <option value="soft-light">soft-light</option>
+                  <option value="difference">difference</option>
+                  <option value="luminosity">luminosity</option>
+                </select>
+              </label>
+
+              <fieldset class="filters">
+                <legend>Filters</legend>
+                <label>Brightness
+                  <input type="range" id="is-brightness" min="50" max="200" value="100">
+                  <small><span id="is-brightness-val">100</span>%</small>
+                </label>
+                <label>Contrast
+                  <input type="range" id="is-contrast" min="50" max="200" value="100">
+                  <small><span id="is-contrast-val">100</span>%</small>
+                </label>
+                <label>Saturation
+                  <input type="range" id="is-saturate" min="0" max="300" value="100">
+                  <small><span id="is-saturate-val">100</span>%</small>
+                </label>
+                <label>Grayscale
+                  <input type="range" id="is-grayscale" min="0" max="100" value="0">
+                  <small><span id="is-grayscale-val">0</span>%</small>
+                </label>
+                <label>Blur
+                  <input type="range" id="is-blur" min="0" max="10" value="0">
+                  <small><span id="is-blur-val">0</span>px</small>
+                </label>
+              </fieldset>
+
+              <label>Rounded corners
+                <input type="range" id="is-radius" min="0" max="50" value="0">
+                <small><span id="is-radius-val">0</span>%</small>
+              </label>
+
+              <fieldset class="outline">
+                <legend>Outline</legend>
+                <label class="row">
+                  <input type="checkbox" id="is-border-on"> Enable
+                </label>
+                <div id="is-border-controls">
+                  <label>Width
+                    <input type="range" id="is-border-width" min="0" max="10" value="0">
+                    <small><span id="is-border-width-val">0</span>px</small>
+                  </label>
+                  <label>Color
+                    <input type="color" id="is-border-color" value="#ffffff">
+                  </label>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- Text styles -->
+            <div class="text-styles">
+              <p><strong>Text Styles</strong></p>
+
+              <div class="font-basics">
+                <label>Font family
+                  <select id="ts-font-family">
+                    <option value="system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif">System UI</option>
+                    <option value="Arial, Helvetica, sans-serif">Arial</option>
+                    <option value="Helvetica, Arial, sans-serif">Helvetica</option>
+                    <option value="Times New Roman, Times, serif">Times New Roman</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Courier New, Courier, monospace">Courier New</option>
+                    <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                    <option value="Trebuchet MS, Helvetica, sans-serif">Trebuchet MS</option>
+                    <option value="Palatino Linotype, Book Antiqua, Palatino, serif">Palatino</option>
+                    <option value="Garamond, serif">Garamond</option>
+                    <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
+                    <option value="Lucida Sans Unicode, Lucida Grande, sans-serif">Lucida Sans</option>
+                    <option value="Impact, Charcoal, sans-serif">Impact</option>
+                    <option value="Gill Sans, Gill Sans MT, Calibri, sans-serif">Gill Sans</option>
+                    <option value="Consolas, Monaco, 'Andale Mono', monospace">Consolas</option>
+                    <option value="Monaco, Consolas, 'Lucida Console', monospace">Monaco</option>
+                  </select>
+                </label>
+
+                <label>Weight
+                  <select id="ts-font-weight">
+                    <option value="100">Thin</option>
+                    <option value="200">Extra Light</option>
+                    <option value="300">Light</option>
+                    <option value="400" selected>Normal</option>
+                    <option value="500">Medium</option>
+                    <option value="600">Semi-Bold</option>
+                    <option value="700">Bold</option>
+                    <option value="800">Extra Bold</option>
+                    <option value="900">Black</option>
+                  </select>
+                </label>
+
+                <label class="row">
+                  <input type="checkbox" id="ts-italic"> Italic
+                </label>
+              </div>
+
+              <div class="typography-settings">
+                <label>Letter spacing
+                  <input type="number" id="ts-letter" step="0.1" value="0">
+                  <small>em</small>
+                </label>
+
+                <label>Word spacing
+                  <input type="number" id="ts-word" step="0.1" value="0">
+                  <small>em</small>
+                </label>
+
+                <label>Line height
+                  <input type="number" id="ts-lineheight" step="0.1" min="0.8" value="1.1">
+                  <small>unitless</small>
+                </label>
+              </div>
+
+              <label class="row">
+                <input type="checkbox" id="ts-lockbox" checked>
+                Lock to box (auto-fit)
+              </label>
+
+              <div class="text-color-size-opacity">
+                <label id="ts-size-wrap">Size
+                  <input type="number" id="ts-fontsize" min="6" max="512" value="32"> px
+                </label>
+
+                <label>Opacity
+                  <input type="range" id="ts-opacity" min="0" max="100" value="100">
+                  <small><span id="ts-opacity-val">100</span>%</small>
+                </label>
+
+                <label>Blend mode
+                  <select id="ts-blend">
+                    <option value="normal" selected>normal</option>
+                    <option value="multiply">multiply</option>
+                    <option value="overlay">overlay</option>
+                    <option value="screen">screen</option>
+                    <option value="color-burn">color-burn</option>
+                    <option value="soft-light">soft-light</option>
+                    <option value="difference">difference</option>
+                    <option value="luminosity">luminosity</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>Color
+                <input type="color" id="ts-color" value="#000000">
+              </label>
+
+              <fieldset>
+                <legend>Outline (stroke)</legend>
+                <label class="row">
+                  <input type="checkbox" id="ts-stroke-enabled"> Enable outline
+                </label>
+                <div id="ts-stroke-controls">
+                  <label>Width
+                    <input type="range" id="ts-stroke-width" min="0" max="10" value="2">
+                    <small><span id="ts-stroke-width-val">2</span>px</small>
+                  </label>
+                  <label>Color
+                    <input type="color" id="ts-stroke-color" value="#ffffff">
+                  </label>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <!-- /STYLES PANEL -->
+
+        </div>
+
+        <div class="compress-button-con">
+          <button id="compress-btn" class="options-compress" type="button">Apply Watermark</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading / completion (optional) -->
+    <section class="preview-loading-con" style="display:none;">
+      <img src="/images/loading-wtf.gif" alt="">
+      <h2>Hang tight, we're processing the images</h2>
+    </section>
+
+    <section class="loading-con" style="display:none;">
+      <div>
+        <h2>Images Changes Are Happening Now.</h2>
+        <img src="/images/loading-wtf.gif" alt="">
+        <p>Hang tight, we're getting things ready, This may take up to 5 minutes!</p>
+        <p class="progress-state">Uploading</p>
+        <p class="loading-percentage">0%</p>
+        <div class="loading-bar"><div class="loading-progress"></div></div>
+      </div>
+    </section>
+
+    <section class="completion-con" style="display:none;">
+      <div class="completion-download-con">
+        <h3>Your Images Have Been Mashed!</h3>
+        <p class="size-reduction-percent">0%</p>
+        <div>
+          <a href="/tools/compressors/image-compressor/">
+            <button class="back-button" type="button"><img src="/images/arrow.png" alt=""></button>
+          </a>
+          <button class="completion-download-button" type="button">Download Your Compressed Images</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="footer-placeholder"></footer>
+  <script>
+    // Optional footer include
+    fetch("/partials/footer.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+        const y = document.getElementById("year");
+        if (y) y.textContent = new Date().getFullYear();
+      })
+      .catch(err => console.error("Footer load failed:", err));
+  </script>
+
+  <!-- Interact.js for drag/resize -->
+  <script src="/js/vendor/interact.min.js"></script>
+
+  <!-- Your main JS -->
+  <script src="/js/image-watermarker.js"></script>
+</body>
+</html>
