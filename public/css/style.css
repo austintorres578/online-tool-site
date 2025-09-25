@@ -354,6 +354,16 @@ main{
     pointer-events: none;
 }
 
+.image-options-con .more-images-con img{
+    height: 35px;
+    width: 35px;
+    object-fit: cover;
+    object-position: center;
+    cursor: pointer;
+    background-color: #feac43;
+    padding: 8px;
+    border-radius: 30px;
+}
 
 .blog-previews{
     display: flex;
