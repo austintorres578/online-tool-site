@@ -297,6 +297,17 @@ header .header-nav .dropdown-con ul a:hover{
     color:#feac43
 }
 
+#compression-slider{
+    accent-color:#feac43;
+}
+
+.resize-percent-input{
+    accent-color:#feac43;
+}
+
+#rotation-slider{
+    accent-color:#feac43;
+}
 
 header .header-nav > a:before{
     content:'';

@@ -309,6 +309,17 @@
     margin-top: 0px;
 }
 
+#compression-slider::-webkit-slider-runnable-track {
+  /* height: 6px; */
+  /*  */
+  border-radius: 10px;
+}
+#compression-slider::-moz-range-track {
+  /* height: 6px; */
+  /* background: #ddd; */
+  border-radius: 10px;
+}
+
 .image-options-con .more-images-con button{
     margin: 10px;
     display: none;
@@ -369,6 +380,11 @@
 .image-options-con label input{
     margin-left: 25px;
     margin-right:25px;
+    margin-top: 10px;
+}
+
+.image-options-con label small{
+    margin-bottom: 10px;
 }
 
 .image-options-con p{
